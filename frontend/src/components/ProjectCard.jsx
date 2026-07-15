@@ -4,11 +4,29 @@ import { useAuth } from "../context/AuthContext";
 import classes from "./ProjectCard.module.css";
 import { useTranslation } from "react-i18next";
 
+/* Palette d'accents assignée par catégorie (déterministe, basée sur le premier
+   tag du projet) pour que les cartes ne soient plus toutes identiques. */
+const ACCENTS = [
+  { text: "#EF9F27", bg: "rgba(239, 159, 39, 0.12)", border: "rgba(239, 159, 39, 0.35)" },
+  { text: "#D85A30", bg: "rgba(216, 90, 48, 0.12)", border: "rgba(216, 90, 48, 0.35)" },
+  { text: "#ED93B1", bg: "rgba(237, 147, 177, 0.15)", border: "rgba(237, 147, 177, 0.4)" },
+  { text: "#1D9E75", bg: "rgba(29, 158, 117, 0.15)", border: "rgba(29, 158, 117, 0.4)" },
+  { text: "#378ADD", bg: "rgba(55, 138, 221, 0.15)", border: "rgba(55, 138, 221, 0.4)" },
+];
+
+function getAccent(project) {
+  const key = project.tags?.[0] || project.title || "";
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+  return ACCENTS[hash % ACCENTS.length];
+}
+
 /* Carte cliquable d'un projet. Gère :
    - l'affichage du propriétaire ("Vous" si c'est l'utilisateur connecté)
    - le label d'âge selon la combinaison minAge/maxAge
    - la troncature de la description
-   - le badge "Complet" quand plus aucune place n'est disponible */
+   - le badge "Complet" quand plus aucune place n'est disponible
+   - un accent de couleur par catégorie pour varier visuellement les cartes */
 function ProjectCard({ project }) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -41,8 +59,18 @@ function ProjectCard({ project }) {
     return t("card.allAges");
   })();
 
+  const accent = getAccent(project);
+
   return (
-    <div className={classes.projectCard} onClick={handleViewDetails}>
+    <div
+      className={classes.projectCard}
+      onClick={handleViewDetails}
+      style={{
+        "--card-accent": accent.text,
+        "--card-accent-bg": accent.bg,
+        "--card-accent-border": accent.border,
+      }}
+    >
 
       {/* HEADER */}
       <div>

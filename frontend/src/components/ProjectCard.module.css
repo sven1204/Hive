@@ -2,6 +2,7 @@
 .projectCard {
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
+  border-top: 3px solid var(--card-accent, var(--accent));
   border-radius: 16px;
   padding: 20px;
   display: flex;
@@ -13,7 +14,7 @@
 }
 
 .projectCard:hover {
-  border-color: var(--accent);
+  border-color: var(--card-accent, var(--accent));
   transform: translateY(-4px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
@@ -43,9 +44,9 @@
 }
 
 .tag {
-  background: rgba(239, 159, 39, 0.08);
-  border: 1px solid rgba(239, 159, 39, 0.3);
-  color: var(--accent);
+  background: var(--card-accent-bg, rgba(239, 159, 39, 0.08));
+  border: 1px solid var(--card-accent-border, rgba(239, 159, 39, 0.3));
+  color: var(--card-accent, var(--accent));
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 11px;
