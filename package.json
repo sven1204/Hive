@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "express-rate-limit": "^8.4.0",
+    "i18n": "^0.15.3",
+    "natural": "^8.1.1"
+  }
+}

@@ -1,0 +1,268 @@
+/* WRAPPER */
+.registerWrapper {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* CARD */
+.registerCard {
+  background: var(--bg-card);
+  padding: 44px 40px; /* équilibré */
+  border-radius: 20px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 15px 40px rgba(0,0,0,0.35);
+}
+
+/* TITLE */
+.title {
+  margin-bottom: 36px;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--text-main);
+}
+
+/* FORM */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px; /* espace propre entre inputs */
+}
+
+
+/* BUTTON */
+.registerBtn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  background: var(--accent);
+  color: #0b1220;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.registerBtn:hover {
+  background: var(--accent-light);
+  transform: translateY(-2px);
+}
+
+/* ERROR */
+.error {
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  text-align: left;
+}
+
+/* SUCCESS */
+.success {
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--accent);
+  background: rgba(239, 159, 39, 0.08);
+  border: 1px solid rgba(239, 159, 39, 0.3);
+  border-radius: 10px;
+  text-align: left;
+}
+
+
+/* INLINE HINT (mismatch en temps réel) */
+.hint {
+  margin: -12px 0 0;
+  font-size: 13px;
+  color: var(--danger);
+  text-align: left;
+}
+
+.verifyIntro {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(239, 159, 39, 0.08);
+  border: 1px solid rgba(239, 159, 39, 0.18);
+  color: var(--text-main);
+  text-align: left;
+}
+
+.verifyIntro p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* DISABLED BUTTON */
+.registerBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.secondaryBtn {
+  width: 100%;
+  padding: 13px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.secondaryBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.secondaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* PASSWORD STRENGTH METER */
+.strengthMeter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.strengthBarTrack {
+  display: flex;
+  gap: 4px;
+  height: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.strengthBarSegment {
+  flex: 1;
+  border-radius: 999px;
+  background: var(--border-soft);
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.strengthLabel {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: color 0.3s ease;
+}
+
+.ruleList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ruleOk,
+.ruleFail {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+}
+
+.ruleOk {
+  color: #EF9F27;
+}
+
+.ruleFail {
+  color: var(--text-muted);
+}
+
+/* FOOTER TEXT */
+.registerText {
+  margin-top: 28px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* LINK */
+.link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:visited {
+  color: var(--accent);
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* OTP */
+.otpWrapper {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.otpInput {
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  color: var(--text-main);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.otpInput:hover {
+  border-color: var(--accent);
+}
+
+.otpInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.2);
+}
+
+@media (max-width: 480px) {
+  .registerWrapper {
+    align-items: flex-start;
+    padding: 32px 12px;
+  }
+
+  .registerCard {
+    padding: 28px 16px;
+    border-radius: 14px;
+  }
+
+  .otpWrapper {
+    gap: 7px;
+  }
+
+  .otpInput {
+    width: 40px;
+    height: 44px;
+    font-size: 18px;
+  }
+}

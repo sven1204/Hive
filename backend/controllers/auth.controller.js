@@ -1,0 +1,376 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const sendEmail = require("../utils/sendEmail");
+const User = require('../models/User');
+const { registrationsTotal, loginsTotal } = require('../metric');
+
+/* Regex de validation — email RFC-compatible, mot de passe 8-15 cars avec maj/min/chiffre/spécial */
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,15}$/;
+const VERIFICATION_CODE_TTL_MS = 15 * 60 * 1000;
+
+/* Génère un code à 6 chiffres et le stocke hashé en base avec une TTL de 15 min */
+function generateVerificationCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+async function assignEmailVerificationCode(user) {
+  const verificationCode = generateVerificationCode();
+  user.emailVerificationCodeHash = await bcrypt.hash(verificationCode, 10);
+  user.emailVerificationExpire = new Date(Date.now() + VERIFICATION_CODE_TTL_MS);
+  return verificationCode;
+}
+
+async function sendVerificationEmail(user, verificationCode) {
+  await sendEmail({
+    to: user.email,
+    subject: "Vérifiez votre adresse email",
+    html: `
+      <p>Bonjour ${user.firstName || user.displayName || ""},</p>
+      <p>Merci d'avoir créé votre compte sur Hive.</p>
+      <p>Voici votre code de vérification :</p>
+      <h2 style="letter-spacing:2px">${verificationCode}</h2>
+      <p>Ce code est valable <strong>15 minutes</strong>.</p>
+      <p>Si vous n'êtes pas à l'origine de cette inscription, ignorez cet email.</p>
+    `,
+  });
+}
+
+
+// ==============================
+// INSCRIPTION 
+// ==============================
+exports.register = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
+      return res.status(400).json({ error: 'Email et mot de passe requis' });
+    }
+
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
+      return res.status(400).json({ error: "Veuillez saisir une adresse email valide." });
+    }
+
+    if (!PASSWORD_REGEX.test(password)) {
+      return res.status(400).json({
+        error: "Le mot de passe doit contenir 8 à 15 caractères, avec majuscule, minuscule, chiffre et caractère spécial.",
+      });
+    }
+
+    let user = await User.findOne({ email: normalizedEmail });
+    console.log("REGISTER existing user:", user);
+
+    if (user && user.emailVerified) {
+      return res.status(409).json({ error: 'Cet email existe déjà' });
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    if (!user) {
+      user = new User({
+        email: normalizedEmail,
+        passwordHash,
+        role: 'user',
+      });
+    } else {
+      user.passwordHash = passwordHash;
+      user.loginAttempts = 0;
+      user.lockUntil = null;
+    }
+
+    user.emailVerified = false;
+    const verificationCode = await assignEmailVerificationCode(user);
+    console.log("REGISTER saving user in DB:", normalizedEmail);
+
+    await user.save();
+    await sendVerificationEmail(user, verificationCode);
+    registrationsTotal.inc();
+
+    return res.status(201).json({
+      message: "Compte créé. Vérifiez votre email avec le code reçu.",
+      email: normalizedEmail,
+    });
+  } catch (err) {
+    console.error('Register error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// ==============================
+// CONNEXION
+// ==============================
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutes
+
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      loginsTotal.inc({ status: 'failed' });
+      return res.status(401).json({ error: 'Email ou mot de passe invalide' });
+    }
+
+    if (user.lockUntil && user.lockUntil > Date.now()) {
+      const remainingMs = user.lockUntil - Date.now();
+      const remainingMin = Math.ceil(remainingMs / 60000);
+      loginsTotal.inc({ status: 'failed' });
+      return res.status(423).json({
+        error: `Compte bloqué suite à trop de tentatives. Réessayez dans ${remainingMin} minute${remainingMin > 1 ? 's' : ''}.`
+      });
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isValid) {
+      loginsTotal.inc({ status: 'failed' });
+      user.loginAttempts += 1;
+
+      if (user.loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+        user.lockUntil = new Date(Date.now() + LOCK_DURATION_MS);
+        await user.save();
+        return res.status(423).json({
+          error: `Compte bloqué après ${MAX_LOGIN_ATTEMPTS} tentatives échouées. Réessayez dans 15 minutes.`
+        });
+      }
+
+      await user.save();
+      const remaining = MAX_LOGIN_ATTEMPTS - user.loginAttempts;
+      return res.status(401).json({
+        error: `Email ou mot de passe invalide. ${remaining} tentative${remaining > 1 ? 's' : ''} restante${remaining > 1 ? 's' : ''}.`
+      });
+    }
+
+    user.loginAttempts = 0;
+    user.lockUntil = null;
+    await user.save();
+
+    const rememberMe = req.body.rememberMe === true;
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: rememberMe ? '30d' : '1d' }
+    );
+
+    loginsTotal.inc({ status: 'success' });
+    return res.json({ message: 'Connexion réussie', token, user });
+  } catch (err) {
+    console.error('Login error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+};
+
+// ==============================
+// MOT DE PASSE OUBLIÉ
+// ==============================
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+    if (!normalizedEmail) {
+      return res.status(400).json({ message: "Email requis" });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (user) {
+      // code 6 chiffres
+      const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // hash du code
+      const resetCodeHash = await bcrypt.hash(resetCode, 10);
+
+      user.resetCodeHash = resetCodeHash;
+      user.resetCodeExpire = Date.now() + 15 * 60 * 1000; // 15 min
+      await user.save();
+
+      await sendEmail({
+        to: user.email,
+        subject: "Code de réinitialisation",
+        html: `
+          <p>Bonjour ${user.firstName || ""},</p>
+          <p>Voici votre code de réinitialisation :</p>
+          <h2 style="letter-spacing:2px">${resetCode}</h2>
+          <p>Ce code est valable <strong>15 minutes</strong>.</p>
+          <p>Si vous n’êtes pas à l’origine de cette demande, ignorez cet email.</p>
+        `,
+      });
+    }
+
+    return res.json({
+      message:
+        "Si un compte existe avec cet email, un code a été envoyé.",
+    });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    return res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+
+// ==============================
+// RESET MOT DE PASSE
+// ==============================
+exports.resetPassword = async (req, res) => {
+  try {
+    const { email, code, newPassword } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail || !code || !newPassword) {
+      return res.status(400).json({ error: "Données manquantes" });
+    }
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+      resetCodeExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Code invalide ou expiré" });
+    }
+
+    const isValidCode = await bcrypt.compare(code, user.resetCodeHash);
+
+    if (!isValidCode) {
+      return res.status(400).json({ error: "Code invalide" });
+    }
+
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.resetCodeHash = null;
+    user.resetCodeExpire = null;
+
+    await user.save();
+
+    return res.json({
+      message: "Mot de passe réinitialisé avec succès",
+    });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    return res.status(500).json({ error: "Erreur serveur" });
+  }
+};
+
+
+// ==============================
+// VÉRIFICATION DU CODE DE RESET
+// ==============================
+
+// POST /auth/verify-reset-code — vérifie le code sans encore changer le mot de passe (étape intermédiaire UI)
+exports.verifyResetCode = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail || !code) {
+      return res.status(400).json({ message: "Données manquantes" });
+    }
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+      resetCodeExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: "Code invalide ou expiré" });
+    }
+
+    const isValid = await bcrypt.compare(code, user.resetCodeHash);
+    if (!isValid) {
+      return res.status(400).json({ message: "Code invalide" });
+    }
+
+    return res.json({ message: "Code valide" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// ==============================
+// VÉRIFICATION EMAIL (OTP)
+// ==============================
+
+// POST /auth/verify-email — valide le code reçu par email et marque le compte comme vérifié
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail || !code) {
+      return res.status(400).json({ message: "Données manquantes" });
+    }
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+      emailVerificationExpire: { $gt: Date.now() },
+    });
+
+    if (!user || !user.emailVerificationCodeHash) {
+      return res.status(400).json({ message: "Code invalide ou expiré" });
+    }
+
+    const isValid = await bcrypt.compare(code, user.emailVerificationCodeHash);
+    if (!isValid) {
+      return res.status(400).json({ message: "Code invalide" });
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationCodeHash = null;
+    user.emailVerificationExpire = null;
+    await user.save();
+
+    return res.json({ message: "Email vérifié avec succès." });
+  } catch (err) {
+    console.error("Verify email error:", err);
+    return res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// ==============================
+// RENVOI DU CODE DE VÉRIFICATION
+// ==============================
+
+// POST /auth/resend-verification — renvoie un code si le compte existe et n'est pas encore vérifié
+exports.resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      return res.status(400).json({ message: "Email requis" });
+    }
+
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (user && !user.emailVerified) {
+      const verificationCode = await assignEmailVerificationCode(user);
+      await user.save();
+      await sendVerificationEmail(user, verificationCode);
+    }
+
+    return res.json({
+      message: "Si un compte non vérifié existe avec cet email, un code a été renvoyé.",
+    });
+  } catch (err) {
+    console.error("Resend verification email error:", err);
+    return res.status(500).json({ message: "Erreur serveur" });
+  }
+};
+
+// ==============================
+// UTILISATEUR CONNECTÉ
+// ==============================
+
+// GET /auth/me — retourne l'utilisateur connecté depuis le token JWT (sans passwordHash)
+exports.getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-passwordHash');
+    res.json({ user });
+  } catch (err) {
+    console.error("GetMe error:", err);
+    res.status(500).json({ message: "Erreur serveur" });
+  }
+};

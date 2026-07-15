@@ -1,0 +1,64 @@
+:root {
+  --bg-main: #14100c;
+  --bg-surface: #1c1712;
+  --bg-card: #241d16;
+  --bg-card-soft: #2c241a;
+  --border-soft: #3a2f22;
+  --accent: #EF9F27;
+  --accent-hover: #FAC775;
+  --accent-rgb: 239, 159, 39;
+  --cta: #ED93B1;
+  --cta-hover: #E67CA0;
+  --cta-text: #4B1528;
+  --cta-rgb: 237, 147, 177;
+  --text-main: #f5efe4;
+  --text-muted: #b8ab95;
+  --danger: #ef4444;
+}
+
+body.light {
+  --bg-main: #fcf9f2;
+  --bg-surface: #ffffff;
+  --bg-card: #faeeda;
+  --bg-card-soft: #f1e3c6;
+  --border-soft: #e8d9b8;
+  --accent: #854F0B;
+  --accent-hover: #633806;
+  --accent-rgb: 133, 79, 11;
+  --cta: #ED93B1;
+  --cta-hover: #E67CA0;
+  --cta-text: #4B1528;
+  --cta-rgb: 237, 147, 177;
+  --text-main: #2c2417;
+  --text-muted: #6b5f4a;
+  --danger: #ef4444;
+
+}
+
+html{
+  background: #14100c;
+}
+body.light, body.light html {
+  background: #fcf9f2;
+}
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --bottom-nav-height: 64px;
+  }
+}
+
+body {
+  font-family: 'Satoshi', sans-serif;
+  background: linear-gradient(135deg, #14100c, #1f1912, #100d09);
+}
+
+body.light {
+  background: #fcf9f2;
+}
+

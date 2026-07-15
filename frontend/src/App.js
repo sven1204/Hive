@@ -1,0 +1,53 @@
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Header from "./components/Header";
+import { useAuth } from "./context/AuthContext";
+import Home from "./pages/Home";
+import Projects from "./pages/Projects";
+import Profile from "./pages/Profile";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import CreateProject from "./pages/CreateProject";
+import ProjectDetails from "./pages/ProjectDetails";
+import UserProfile from "./pages/UserProfile";
+import ManageUsers from "./pages/ManageUsers";
+import MessagesPage from "./pages/MessagesPage";
+import BottomNav from "./components/BottomNav";
+
+import "./App.css";
+
+export default function App() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return null; 
+  }
+  return (
+    <>
+      <Header />
+      <main style={{ paddingBottom: "var(--bottom-nav-height, 0px)" }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/projects" element ={<Projects />} />
+          <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" replace />} />
+          <Route path="/manage-users" element={user && user.role === 'admin' ? <ManageUsers /> : <Navigate to="/" replace />} />
+          <Route path="/messages" element={user ? <MessagesPage /> : <Navigate to="/login" replace />} />
+
+          <Route path="/login" element={user ? <Navigate to="/profile" replace /> : <Login />} />
+          <Route path="/register" element={user ? <Navigate to="/profile" replace /> : <Register />} />
+          <Route path="/create-project" element={user ? <CreateProject /> : <Navigate to="/login" replace />} />
+          <Route path="/projects/:id/edit" element={user ? <CreateProject /> : <Navigate to="/login" replace />} />
+          <Route path="/projects/:id" element={<ProjectDetails />} />
+          <Route path="/users/:id" element={<UserProfile />} />
+          <Route path="/forgotpassword" element={user ? <Navigate to="/profile" replace /> : <ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          <Route path="*" element={<h1>Page introuvable</h1>} />
+        </Routes>
+      </main>
+      <BottomNav />
+    </>
+  );
+}

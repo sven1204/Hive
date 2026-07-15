@@ -1,0 +1,375 @@
+.createProjectPage {
+  min-height: 100vh;
+  padding: 80px 20px;
+  background: var(--bg-main);
+  color: var(--text-main);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pageHeader {
+  margin-bottom: 40px;
+  width: 100%;
+  max-width: 970px;
+  padding: 0 40px;
+}
+
+.pageHeader h1 {
+  font-size: 36px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.pageHeader p {
+  color: var(--text-muted);
+}
+
+.formContainer {
+  width: 100%;
+  max-width: 900px;
+  background: var(--bg-card);
+  padding: 40px;
+  border-radius: 16px;
+  border: 1px solid var(--border-soft);
+}
+
+.projectForm {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.formGroup input,
+.formGroup textarea,
+.formGroup select {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-soft);
+  padding: 12px 14px;
+  border-radius: 10px;
+  color: var(--text-main);
+  font-size: 14px;
+  transition: 0.2s ease;
+  font-family : Satoshi,sans-serif;
+}
+
+.formGroup input,
+.formGroup textarea {
+  cursor: text;
+}
+
+.formGroup select {
+  cursor: pointer;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(239, 159, 39, 0.2);
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 120px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.formGroupSelect {
+  position: relative;
+}
+
+.formGroupSelect select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 40px;
+}
+
+.formGroupSelect::after {
+  content: "⌄";
+  position: absolute;
+  right: 14px;
+  top: 38px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.formRow {
+  display: flex;
+  gap: 20px;
+}
+
+.formRow .formGroup {
+  flex: 1;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.btnPrimary {
+  background: var(--accent);
+  color: var(--bg-main);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btnPrimary:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btnSecondary {
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  color: var(--text-muted);
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.btnSecondary:hover {
+  background: var(--bg-card-soft);
+}
+
+.tagInputWrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.tagInputWrapper input {
+  flex: 1;
+}
+
+.tagInputWrapper button {
+  width: 44px;
+  height: 44px;
+  background: var(--accent);
+  border: none;
+  color: var(--bg-main);
+  font-size: 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.tagInputWrapper button:hover {
+  background: var(--accent-hover);
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.tag {
+  background: rgba(239, 159, 39, 0.1);
+  border: 1px solid rgba(239, 159, 39, 0.3);
+  color: var(--accent);
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.tag:hover {
+  background: rgba(239, 159, 39, 0.2);
+}
+
+.tag button {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.errorMsg {
+  padding: 14px 18px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  color: #ef4444;
+  font-size: 14px;
+}
+
+.btnPrimary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: var(--accent);
+}
+
+.locationField {
+  position: relative;
+}
+
+.locationField input {
+  padding-right: 44px;
+}
+
+.locationInputIcon,
+.locationLoader {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.locationLoader {
+  animation: spin 1s linear infinite;
+}
+
+.locationSuggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.25);
+}
+
+.locationSuggestion {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.locationSuggestion:hover {
+  background: rgba(239, 159, 39, 0.08);
+}
+
+.locationSuggestion small {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.locationHint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.locationPreview {
+  height: 280px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+}
+
+.coordinatesRow {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .createProjectPage {
+    padding: 64px 16px;
+  }
+
+  .pageHeader,
+  .formContainer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .formRow {
+    flex-direction: column;
+  }
+
+  .formActions {
+    justify-content: stretch;
+  }
+
+  .btnPrimary {
+    width: 100%;
+  }
+
+  .locationPreview {
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .createProjectPage {
+    padding: 40px 12px;
+  }
+
+  .pageHeader {
+    padding-left: 0;
+    padding-right: 0;
+    margin-bottom: 24px;
+  }
+
+  .pageHeader h1 {
+    font-size: 24px;
+  }
+
+  .formContainer {
+    padding: 24px 16px;
+  }
+
+  .btnSecondary {
+    width: 100%;
+  }
+}

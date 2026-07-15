@@ -1,0 +1,102 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: hive_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: ./backend
+    container_name: hive_backend
+    restart: unless-stopped
+    command: npx nodemon server.js
+    environment:
+      NODE_ENV: development
+      PORT: ${PORT:-5050}
+      MONGO_URI: ${MONGO_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      FRONT_URL: ${FRONT_URL:-http://localhost:3000}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+    ports:
+      - "${PORT:-5050}:${PORT:-5050}"
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  frontend:
+    image: node:20-alpine
+    container_name: hive_frontend
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install --legacy-peer-deps && npm start"
+    environment:
+      REACT_APP_API_URL: http://localhost:${PORT:-5050}/api
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: hive_prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: hive_grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_SECURITY_CONTENT_SECURITY_POLICY: "false"
+      GF_SECURITY_COOKIE_SAMESITE: disabled
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_AUTH_ANONYMOUS_HIDE_VERSION: "true"
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+
+  mongodb-exporter:
+    image: percona/mongodb_exporter:0.40
+    container_name: hive_mongodb_exporter
+    restart: unless-stopped
+    command:
+      - --mongodb.uri=mongodb://mongo:27017
+      - --collect-all
+      - --compatible-mode
+    ports:
+      - "9216:9216"
+    depends_on:
+      - mongo
+
+
+volumes:
+  mongo_data:
+  grafana_data:
+  prometheus_data:

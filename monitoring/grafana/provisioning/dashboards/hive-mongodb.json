@@ -1,0 +1,135 @@
+{
+  "id": null,
+  "uid": "hive-mongodb",
+  "title": "Hive — MongoDB",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "15s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "MongoDB en ligne",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "1": { "text": "EN LIGNE", "color": "green" }, "0": { "text": "HORS LIGNE", "color": "red" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "red" }, { "value": 1, "color": "green" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "targets": [{ "expr": "mongodb_up", "legendFormat": "MongoDB", "datasource": { "type": "prometheus" } }]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Connexions actives",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 50, "color": "yellow" }, { "value": 100, "color": "red" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "targets": [{ "expr": "mongodb_connections{state=\"current\"}", "legendFormat": "Courantes", "datasource": { "type": "prometheus" } }]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Connexions disponibles",
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "red" }, { "value": 10, "color": "yellow" }, { "value": 50, "color": "green" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "targets": [{ "expr": "mongodb_connections{state=\"available\"}", "legendFormat": "Disponibles", "datasource": { "type": "prometheus" } }]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "Connexions MongoDB",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list" } },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 15 }
+        }
+      },
+      "targets": [
+        { "expr": "mongodb_connections{state=\"current\"}", "legendFormat": "Courantes", "datasource": { "type": "prometheus" } },
+        { "expr": "mongodb_connections{state=\"available\"}", "legendFormat": "Disponibles", "datasource": { "type": "prometheus" } }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Opérations MongoDB (taux/s)",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        }
+      },
+      "targets": [
+        { "expr": "rate(mongodb_op_counters_total[1m])", "legendFormat": "{{type}}", "datasource": { "type": "prometheus" } }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Mémoire MongoDB",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 7 },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "list" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        }
+      },
+      "targets": [
+        { "expr": "mongodb_memory{type=\"resident\"} * 1024 * 1024", "legendFormat": "Resident", "datasource": { "type": "prometheus" } },
+        { "expr": "mongodb_memory{type=\"virtual\"} * 1024 * 1024", "legendFormat": "Virtuel", "datasource": { "type": "prometheus" } }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Documents — opérations (taux/s)",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 7 },
+      "options": { "tooltip": { "mode": "multi" }, "legend": { "displayMode": "list" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops",
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        }
+      },
+      "targets": [
+        { "expr": "rate(mongodb_mongod_metrics_document_total[1m])", "legendFormat": "{{state}}", "datasource": { "type": "prometheus" } }
+      ]
+    }
+  ]
+}

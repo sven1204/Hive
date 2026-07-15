@@ -1,0 +1,30 @@
+.rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-main);
+  flex-wrap: nowrap;
+}
+
+.icon {
+  color: #EF9F27;
+  fill: rgba(239, 159, 39, 0.14);
+}
+
+.value {
+  font-weight: 700;
+}
+
+.label {
+  color: var(--text-muted);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.compact {
+  gap: 5px;
+}
+
+.compact .label {
+  font-size: 12px;
+}

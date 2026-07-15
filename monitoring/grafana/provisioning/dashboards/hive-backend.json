@@ -1,0 +1,177 @@
+{
+  "id": null,
+  "uid": "hive-backend",
+  "title": "Hive — Backend Node.js",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "15s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "API en ligne",
+      "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "orientation": "auto",
+        "text": {}
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "1": { "text": "EN LIGNE", "color": "green" }, "0": { "text": "HORS LIGNE", "color": "red" } } }
+          ],
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "red" }, { "value": 1, "color": "green" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "targets": [{ "expr": "up{job=\"backend\"}", "legendFormat": "API", "datasource": { "type": "prometheus" } }]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Heap utilisé",
+      "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 200000000, "color": "yellow" }, { "value": 400000000, "color": "red" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "targets": [{ "expr": "nodejs_heap_size_used_bytes{job=\"backend\"}", "legendFormat": "Heap", "datasource": { "type": "prometheus" } }]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Mémoire RSS",
+      "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 300000000, "color": "yellow" }, { "value": 600000000, "color": "red" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "targets": [{ "expr": "process_resident_memory_bytes{job=\"backend\"}", "legendFormat": "RSS", "datasource": { "type": "prometheus" } }]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Event Loop Lag",
+      "gridPos": { "x": 12, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "decimals": 4,
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 0.1, "color": "yellow" }, { "value": 0.5, "color": "red" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "targets": [{ "expr": "nodejs_eventloop_lag_seconds{job=\"backend\"}", "legendFormat": "Lag", "datasource": { "type": "prometheus" } }]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Requêtes actives",
+      "gridPos": { "x": 16, "y": 0, "w": 4, "h": 4 },
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [{ "value": null, "color": "green" }, { "value": 50, "color": "yellow" }, { "value": 100, "color": "red" }] },
+          "color": { "mode": "thresholds" }
+        }
+      },
+      "targets": [{ "expr": "nodejs_active_requests_total{job=\"backend\"}", "legendFormat": "Actives", "datasource": { "type": "prometheus" } }]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Utilisation du Heap Node.js",
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "list" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 15 }
+        }
+      },
+      "targets": [
+        { "expr": "nodejs_heap_size_used_bytes{job=\"backend\"}", "legendFormat": "Heap utilisé", "datasource": { "type": "prometheus" } },
+        { "expr": "nodejs_heap_size_total_bytes{job=\"backend\"}", "legendFormat": "Heap total", "datasource": { "type": "prometheus" } }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "CPU Backend (%)",
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "list" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 15 }
+        }
+      },
+      "targets": [
+        { "expr": "rate(process_cpu_seconds_total{job=\"backend\"}[1m]) * 100", "legendFormat": "CPU %", "datasource": { "type": "prometheus" } }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "GC — Durée (p99)",
+      "gridPos": { "x": 0, "y": 12, "w": 12, "h": 7 },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "list" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        }
+      },
+      "targets": [
+        { "expr": "rate(nodejs_gc_duration_seconds_sum{job=\"backend\"}[1m]) / rate(nodejs_gc_duration_seconds_count{job=\"backend\"}[1m])", "legendFormat": "GC moy {{gctype}}", "datasource": { "type": "prometheus" } }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Mémoire externe Node.js",
+      "gridPos": { "x": 12, "y": 12, "w": 12, "h": 7 },
+      "options": { "tooltip": { "mode": "single" }, "legend": { "displayMode": "list" } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes",
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+        }
+      },
+      "targets": [
+        { "expr": "nodejs_external_memory_bytes{job=\"backend\"}", "legendFormat": "Externe", "datasource": { "type": "prometheus" } }
+      ]
+    }
+  ]
+}

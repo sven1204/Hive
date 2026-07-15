@@ -1,0 +1,108 @@
+services:
+  traefik:
+    image: traefik:v3
+    container_name: hive_traefik_local
+    restart: unless-stopped
+    command:
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --api.dashboard=true
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  mongo:
+    image: mongo:7
+    container_name: hive_mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: hive_backend_local
+    restart: unless-stopped
+    command: npx nodemon server.js
+    environment:
+      NODE_ENV: development
+      PORT: ${PORT:-5050}
+      MONGO_URI: ${MONGO_URI}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      FRONT_URL: http://hive.test
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USER: ${MAIL_USER}
+      MAIL_PASS: ${MAIL_PASS}
+      MAIL_FROM_EMAIL: ${MAIL_FROM_EMAIL}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME}
+    depends_on:
+      - mongo
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.backend.rule=Host(`api.hive.test`)
+      - traefik.http.routers.backend.entrypoints=web
+      - traefik.http.services.backend.loadbalancer.server.port=${PORT:-5050}
+
+  frontend:
+    image: node:20-alpine
+    container_name: hive_frontend_local
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install --legacy-peer-deps && HOST=0.0.0.0 WDS_SOCKET_HOST=hive.test WDS_SOCKET_PORT=80 CHOKIDAR_USEPOLLING=true npm start"
+    environment:
+      REACT_APP_API_URL: http://api.hive.test/api
+      CHOKIDAR_USEPOLLING: "true"
+      DANGEROUSLY_DISABLE_HOST_CHECK: "true"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.frontend.rule=Host(`hive.test`)
+      - traefik.http.routers.frontend.entrypoints=web
+      - traefik.http.services.frontend.loadbalancer.server.port=3000
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: hive_prometheus_local
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data_local:/prometheus
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.prometheus.rule=Host(`prometheus.hive.test`)
+      - traefik.http.routers.prometheus.entrypoints=web
+      - traefik.http.services.prometheus.loadbalancer.server.port=9090
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: hive_grafana_local
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_SERVER_ROOT_URL: http://grafana.hive.test
+    volumes:
+      - grafana_data_local:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.grafana.rule=Host(`grafana.hive.test`)
+      - traefik.http.routers.grafana.entrypoints=web
+      - traefik.http.services.grafana.loadbalancer.server.port=3000
+
+volumes:
+  mongo_data:
+  grafana_data_local:
+  prometheus_data_local:
