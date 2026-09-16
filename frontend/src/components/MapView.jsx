@@ -4,7 +4,7 @@ import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MagnifyingGlass } from 'react-loader-spinner';
-import { MapPin, Users, Calendar, X } from 'lucide-react';
+import { MapPin, Users, Calendar, X, ArrowUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { api } from '../lib/api';
@@ -230,6 +230,18 @@ function MapView() {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [showHint, setShowHint] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Le scroll sur la carte zoome au lieu de faire défiler la page : ce bouton
+  // permet de revenir en haut sans avoir à quitter la carte au clavier/trackpad.
+  useEffect(() => {
+    const onScroll = () => setShowScrollTop(window.scrollY > 200);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   useEffect(() => {
     api('/projects?status=open')
@@ -256,6 +268,18 @@ function MapView() {
 
   return (
     <div className={classes.mapShell}>
+      {showScrollTop && (
+        <button
+          type="button"
+          className={classes.scrollTopBtn}
+          onClick={scrollToTop}
+          aria-label={t("map.backToTop")}
+          title={t("map.backToTop")}
+        >
+          <ArrowUp size={16} />
+        </button>
+      )}
+
       {isBusy && (
         <div className={classes.loadingOverlay}>
           <MagnifyingGlass

@@ -170,7 +170,8 @@
     "description": "Description",
     "noDescription": "Aucune description pour ce projet.",
     "tags": "Tags",
-    "openProject": "Ouvrir le projet"
+    "openProject": "Ouvrir le projet",
+    "backToTop": "Revenir en haut de la page"
   },
   "createProject": {
     "titleCreate": "Créer un projet",
