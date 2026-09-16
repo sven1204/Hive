@@ -171,7 +171,8 @@
     "noDescription": "Aucune description pour ce projet.",
     "tags": "Tags",
     "openProject": "Ouvrir le projet",
-    "backToTop": "Revenir en haut de la page"
+    "backToTop": "Revenir en haut de la page",
+    "scrollHint": "Cliquez sur la carte pour zoomer avec la molette"
   },
   "createProject": {
     "titleCreate": "Créer un projet",

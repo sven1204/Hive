@@ -171,7 +171,8 @@
     "noDescription": "No description for this project.",
     "tags": "Tags",
     "openProject": "Open project",
-    "backToTop": "Back to top of page"
+    "backToTop": "Back to top of page",
+    "scrollHint": "Click the map to zoom with your scroll wheel"
   },
   "createProject": {
     "titleCreate": "Create a project",

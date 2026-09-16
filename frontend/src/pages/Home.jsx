@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, Compass, Plus } from 'lucide-react';
+import { Sparkles, Compass, Plus, ArrowDown } from 'lucide-react';
 import MapView from '../components/MapView';
+import HowItWorks from '../components/HowItWorks';
 import classes from './Home.module.css';
 
 function Home() {
@@ -36,8 +37,19 @@ function Home() {
               Créer un projet
             </Link>
           </div>
+
+          <button
+            type="button"
+            className={classes.scrollCue}
+            onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+            aria-label="En savoir plus sur Hive"
+          >
+            <ArrowDown size={20} />
+          </button>
         </div>
       </section>
+
+      <HowItWorks />
 
       <MapView />
     </div>

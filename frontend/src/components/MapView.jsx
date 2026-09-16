@@ -231,6 +231,9 @@ function MapView() {
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [showHint, setShowHint] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  // La molette ne zoome la carte qu'après un clic dessus, pour ne pas
+  // capturer le scroll de la page quand on la traverse simplement.
+  const [mapActive, setMapActive] = useState(false);
 
   // Le scroll sur la carte zoome au lieu de faire défiler la page : ce bouton
   // permet de revenir en haut sans avoir à quitter la carte au clavier/trackpad.
@@ -400,16 +403,32 @@ function MapView() {
         </aside>
       </div>
 
-      <MapContainer center={DEFAULT_CENTER} zoom={7} zoomControl={false} className={classes.mapCanvas}>
-        <TileLayer
-          attribution={tileLayer.attribution}
-          url={tileLayer.url}
-        />
-        <MapSizeInvalidator />
-        <PanToSelected project={selectedProject} />
-        {userLocation && <Recenter position={userLocation} />}
-        <ProjectMarkers projects={mappableProjects} onProjectClick={setSelectedProjectId} />
-      </MapContainer>
+      <div
+        className={classes.mapCanvasWrap}
+        onClick={() => setMapActive(true)}
+        onMouseLeave={() => setMapActive(false)}
+      >
+        {!mapActive && (
+          <div className={classes.scrollHint}>{t("map.scrollHint")}</div>
+        )}
+
+        <MapContainer
+          center={DEFAULT_CENTER}
+          zoom={7}
+          zoomControl={false}
+          scrollWheelZoom={mapActive}
+          className={classes.mapCanvas}
+        >
+          <TileLayer
+            attribution={tileLayer.attribution}
+            url={tileLayer.url}
+          />
+          <MapSizeInvalidator />
+          <PanToSelected project={selectedProject} />
+          {userLocation && <Recenter position={userLocation} />}
+          <ProjectMarkers projects={mappableProjects} onProjectClick={setSelectedProjectId} />
+        </MapContainer>
+      </div>
     </div>
   );
 }

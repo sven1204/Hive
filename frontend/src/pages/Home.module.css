@@ -119,6 +119,38 @@
   color: var(--accent);
 }
 
+.scrollCue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-top: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-soft);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+  animation: bounce 2.2s ease-in-out infinite;
+}
+
+.scrollCue:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollCue {
+    animation: none;
+  }
+}
+
 @media (max-width: 600px) {
   .hero {
     padding: 40px 20px 44px;
