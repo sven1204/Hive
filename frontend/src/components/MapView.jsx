@@ -76,6 +76,23 @@ function MapSizeInvalidator() {
   return null;
 }
 
+// MapContainer ne crée l'instance Leaflet qu'une fois au montage : changer la prop
+// scrollWheelZoom ensuite ne fait rien. Il faut activer/désactiver le handler
+// directement sur l'instance existante.
+function ScrollZoomController({ active }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (active) {
+      map.scrollWheelZoom.enable();
+    } else {
+      map.scrollWheelZoom.disable();
+    }
+  }, [active, map]);
+
+  return null;
+}
+
 function PanToSelected({ project }) {
   const map = useMap();
 
@@ -416,7 +433,7 @@ function MapView() {
           center={DEFAULT_CENTER}
           zoom={7}
           zoomControl={false}
-          scrollWheelZoom={mapActive}
+          scrollWheelZoom={false}
           className={classes.mapCanvas}
         >
           <TileLayer
@@ -424,6 +441,7 @@ function MapView() {
             url={tileLayer.url}
           />
           <MapSizeInvalidator />
+          <ScrollZoomController active={mapActive} />
           <PanToSelected project={selectedProject} />
           {userLocation && <Recenter position={userLocation} />}
           <ProjectMarkers projects={mappableProjects} onProjectClick={setSelectedProjectId} />
