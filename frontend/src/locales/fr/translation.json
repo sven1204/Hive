@@ -11,6 +11,28 @@
     "lightMode": "Mode clair",
     "darkMode": "Mode sombre"
   },
+  "home": {
+    "badge": "Fais avancer ton projet",
+    "titleMain": "Trouve les bonnes personnes pour",
+    "titleAccent": "faire naître ton projet",
+    "subtitle": "Hive connecte les porteurs de projets aux personnes qui ont les compétences pour les faire vivre — un club de foot du dimanche, un site web, ou une idée qui n'attend que la bonne équipe. Explore la carte ou lance le tien.",
+    "explore": "Explorer les projets",
+    "createProject": "Créer un projet",
+    "scrollCue": "En savoir plus sur Hive",
+    "mapEyebrow": "En direct",
+    "mapTitle": "Explore les projets sur la carte"
+  },
+  "howItWorks": {
+    "eyebrow": "Comment ça marche",
+    "title": "Trois étapes pour donner vie à ton projet",
+    "subtitle": "Hive simplifie la rencontre entre les idées et les compétences qui les font avancer.",
+    "step1Title": "Découvre les projets autour de toi",
+    "step1Description": "Explore la carte interactive et repère les projets qui vivent près de chez toi, filtrés par compétences et par domaine.",
+    "step2Title": "Rejoins une équipe qui te ressemble",
+    "step2Description": "Propose tes compétences, échange avec les porteurs de projet, et embarque sur une aventure qui te correspond.",
+    "step3Title": "Lance ton propre projet",
+    "step3Description": "Publie ton idée en quelques minutes et laisse les bonnes personnes venir la faire grandir avec toi."
+  },
   "forgot": {
     "title": "Mot de passe oublié",
     "emailPlaceholder": "Adresse email",

@@ -11,6 +11,28 @@
     "lightMode": "Light mode",
     "darkMode": "Dark mode"
   },
+  "home": {
+    "badge": "Push your project forward",
+    "titleMain": "Find the right people to",
+    "titleAccent": "bring your project to life",
+    "subtitle": "Hive connects project owners with people who have the skills to bring them to life — a Sunday football club, a website, or an idea that just needs the right team. Explore the map or launch your own.",
+    "explore": "Explore projects",
+    "createProject": "Create a project",
+    "scrollCue": "Learn more about Hive",
+    "mapEyebrow": "Live",
+    "mapTitle": "Explore projects on the map"
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "title": "Three steps to bring your project to life",
+    "subtitle": "Hive makes it simple to connect ideas with the skills that bring them to life.",
+    "step1Title": "Discover projects around you",
+    "step1Description": "Explore the interactive map and find projects happening near you, filtered by skills and category.",
+    "step2Title": "Join a team that fits you",
+    "step2Description": "Offer your skills, connect with project owners, and join an adventure that matches who you are.",
+    "step3Title": "Launch your own project",
+    "step3Description": "Publish your idea in minutes and let the right people help it grow with you."
+  },
   "forgot": {
     "title": "Forgot password",
     "emailPlaceholder": "Email address",
