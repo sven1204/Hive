@@ -212,10 +212,10 @@
 
 .errorMsg {
   padding: 14px 18px;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
   border-radius: 12px;
-  color: #ef4444;
+  color: var(--danger-text);
   font-size: 14px;
 }
 
@@ -264,7 +264,7 @@
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 20px 35px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 35px rgba(var(--shadow-rgb), calc(0.25 * var(--shadow-k)));
 }
 
 .locationSuggestion {

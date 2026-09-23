@@ -16,7 +16,7 @@
 .projectCard:hover {
   border-color: var(--card-accent, var(--accent));
   transform: translateY(-4px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 25px rgba(var(--shadow-rgb), calc(0.25 * var(--shadow-k)));
 }
 
 /* TITLE */
@@ -76,7 +76,7 @@
 }
 
 .statusBadge {
-  background: rgba(239, 68, 68, 0.15);
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
   color: var(--danger);
   padding: 4px 10px;
   border-radius: 999px;

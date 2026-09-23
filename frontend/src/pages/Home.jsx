@@ -65,11 +65,6 @@ function Home() {
 
       <HowItWorks />
 
-      <section className={classes.mapIntro}>
-        <span className={classes.mapIntroEyebrow}>{t("home.mapEyebrow")}</span>
-        <h2 className={classes.mapIntroTitle}>{t("home.mapTitle")}</h2>
-      </section>
-
       <MapView />
     </div>
   );

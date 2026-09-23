@@ -50,6 +50,9 @@
   --danger-solid: #c9353a;
   /* Hauteur réelle du Header : 64px de barre + 1px de bordure basse */
   --app-header-h: 65px;
+  /* Ombres : noires en sombre ; teintées vert-gris et allégées en clair. */
+  --shadow-rgb: 0, 0, 0;
+  --shadow-k: 1;
 }
 
 body.light {
@@ -79,6 +82,8 @@ body.light {
   --person-4: #a14c37;
   --person-5: #704f98;
   --danger-text: var(--danger);
+  --shadow-rgb: 22, 32, 27;
+  --shadow-k: 0.45;
 }
 
 @media (max-width: 600px) {
@@ -93,10 +98,16 @@ html{
 body.light, body.light html {
   background: #f6f7f4;
 }
-html, body, #root {
+html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+/* min-height et non height : avec une hauteur fixe, le Header (sticky) cessait
+   de rester en haut dès qu'on défilait au-delà d'un écran. */
+#root {
+  min-height: 100%;
 }
 
 @media (max-width: 900px) {

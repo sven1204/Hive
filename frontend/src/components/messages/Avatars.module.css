@@ -1,0 +1,42 @@
+/* Avatars de la messagerie : taille fixée par --avatar-size */
+.person,
+.project {
+  width: var(--avatar-size, 48px);
+  height: var(--avatar-size, 48px);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.person {
+  border-radius: var(--radius-full);
+}
+
+.personImg {
+  display: block;
+  object-fit: cover;
+  border: 2px solid color-mix(in srgb, var(--person, var(--border-soft)) 60%, transparent);
+}
+
+.personFallback,
+.project {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--person, var(--text-muted)) 45%, transparent);
+  background: color-mix(in srgb, var(--person, var(--text-muted)) 16%, var(--bg-card));
+  color: var(--person, var(--text-main));
+  font-weight: 700;
+  font-size: max(11px, calc(var(--avatar-size, 48px) * 0.32));
+  line-height: 1;
+  user-select: none;
+}
+
+.project {
+  border-radius: var(--radius-md);
+  font-size: max(15px, calc(var(--avatar-size, 48px) * 0.3));
+}
+
+/* Conversations archivées : seule l'image est atténuée */
+.dimmed {
+  opacity: 0.6;
+}

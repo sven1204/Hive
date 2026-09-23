@@ -79,7 +79,7 @@
   box-shadow:
     0 14px 28px -10px rgba(var(--accent-rgb), 0.5),
     inset 0 2px 6px rgba(255, 255, 255, 0.35),
-    inset 0 -8px 14px rgba(0, 0, 0, 0.22);
+    inset 0 -8px 14px rgba(var(--shadow-rgb), calc(0.22 * var(--shadow-k)));
   animation: float 6s ease-in-out infinite;
 }
 

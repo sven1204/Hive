@@ -1,13 +1,125 @@
 .mapShell {
   position: relative;
-  height: calc(100vh - 72px);
-  min-height: 680px;
+  /* La carte remplit exactement l'écran sous le Header. */
+  height: calc(100vh - var(--app-header-h, 65px));
+  height: calc(100dvh - var(--app-header-h, 65px));
+  min-height: 520px;
   overflow: hidden;
-  background: var(--glass);
+  background: var(--bg-main);
+}
+
+/* Plein écran (mobile) : au-dessus du Header (1100) et de la barre du bas (600). */
+.fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+}
+
+/* Titre de section posé sur la carte */
+.mapIntro {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 420;
+  max-width: min(400px, calc(100% - 96px));
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--border-soft);
+  background: color-mix(in srgb, var(--bg-surface) 92%, transparent);
+  box-shadow: 0 12px 32px rgba(var(--shadow-rgb), calc(0.22 * var(--shadow-k)));
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.mapIntroHidden {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+
+.mapTitle {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text-main);
+}
+
+.mapIntroText {
+  position: relative;
+  margin: 8px 0 0;
+  padding-right: 28px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.mapCount {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.fullscreenBtn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 430;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: color-mix(in srgb, var(--bg-surface) 92%, transparent);
+  color: var(--text-main);
+  box-shadow: 0 8px 20px rgba(var(--shadow-rgb), calc(0.2 * var(--shadow-k)));
+  cursor: pointer;
+}
+
+.fullscreenBtn:active {
+  transform: scale(0.96);
+}
+
+.fullscreenBtn:focus-visible,
+.hintClose:focus-visible,
+.closeButton:focus-visible,
+.primaryButton:focus-visible,
+.scrollTopBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.twoFingers {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 440;
+  transform: translate(-50%, -50%);
+  max-width: calc(100% - 48px);
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: rgba(17, 20, 19, 0.82);
+  color: #eef1ec;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  pointer-events: none;
+  animation: fadeIn 0.16s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .mapCanvasWrap {
   position: relative;
+  z-index: 0;
   height: 100%;
   width: 100%;
 }
@@ -25,8 +137,8 @@
   z-index: 410;
   padding: 8px 16px;
   border-radius: 999px;
-  background: rgba(8, 17, 29, 0.72);
-  color: #fff;
+  background: rgba(17, 20, 19, 0.78);
+  color: #eef1ec;
   font-size: 12.5px;
   font-weight: 500;
   white-space: nowrap;
@@ -55,7 +167,7 @@
   background: rgba(var(--accent-rgb), 0.28);
   border: 1px solid rgba(var(--accent-rgb), 0.55);
   box-shadow:
-    0 10px 24px rgba(0, 0, 0, 0.28),
+    0 10px 24px rgba(var(--shadow-rgb), calc(0.28 * var(--shadow-k))),
     inset 0 0 0 1px rgba(240, 253, 244, 0.12);
 }
 
@@ -115,7 +227,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-soft);
   border-radius: 24px;
-  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 24px 50px rgba(var(--shadow-rgb), calc(0.35 * var(--shadow-k)));
   overflow: hidden;
   transform: translateX(-108%);
   opacity: 0;
@@ -152,18 +264,17 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  border-bottom: 1px solid var(--border-soft);
 }
 
-.panelEyebrow {
+.panelMeta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--text-muted);
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .panelTitle {
@@ -174,11 +285,11 @@
 }
 
 .closeButton {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-soft);
+  background: transparent;
   color: var(--text-main);
   display: inline-flex;
   align-items: center;
@@ -188,16 +299,13 @@
 }
 
 .panelBody {
-  padding: 18px 22px 22px;
+  flex: 1;
+  min-height: 0;
+  padding: 18px 22px 8px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  transition: background 0.2s ease;
-}
-
-.panelBody:hover {
-  background: rgba(var(--accent-rgb), 0.04);
 }
 
 .metaRow {
@@ -211,8 +319,8 @@
   align-items: center;
   gap: 7px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
   color: var(--text-muted);
   padding: 8px 12px;
   font-size: 13px;
@@ -251,7 +359,8 @@
 .actions {
   display: flex;
   gap: 12px;
-  margin-top: auto;
+  padding: 12px 22px 20px;
+  border-top: 1px solid var(--border-soft);
 }
 
 .primaryButton,
@@ -264,15 +373,20 @@
 }
 
 .primaryButton {
-  background: var(--accent);
+  flex: 1;
+  min-height: 44px;
+  background: var(--cta);
   color: var(--cta-text);
-  transition: 0.2s ease;
+  font-size: 15px;
+  transition: background 0.15s ease, transform 0.15s ease;
 }
 
 .primaryButton:hover {
-  background: #ffffff;
-  color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  background: var(--cta-hover);
+}
+
+.primaryButton:active {
+  transform: scale(0.98);
 }
 
 .ghostButton {
@@ -296,7 +410,7 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-soft);
   color: var(--text-main);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 12px 28px rgba(var(--shadow-rgb), calc(0.28 * var(--shadow-k)));
   cursor: pointer;
   animation: scrollTopIn 160ms ease;
 }
@@ -317,37 +431,25 @@
   }
 }
 
-.mapHint {
-  position: absolute;
-  right: 24px;
-  top: 24px;
-  z-index: 420;
-  max-width: 340px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-soft);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22);
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.55;
-  padding-right: 44px;
-}
-
 .hintClose {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 28px;
-  height: 28px;
+  top: -4px;
+  right: -8px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: 1px solid rgba(148, 163, 184, 0.16);
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-main);
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.hintClose:hover {
+  color: var(--text-main);
+  background: color-mix(in srgb, var(--text-main) 8%, transparent);
 }
 
 .emptyState {
@@ -370,23 +472,56 @@
 }
 
 @media (max-width: 900px) {
+  /* Intégrée à la page : remplit l'espace entre le Header et la barre du bas. */
   .mapShell {
-    height: calc(100vh - 64px);
-    min-height: 400px;
+    height: calc(100vh - var(--app-header-h, 57px) - var(--bottom-nav-height, 64px));
+    height: calc(100dvh - var(--app-header-h, 57px) - var(--bottom-nav-height, 64px));
+    min-height: 420px;
   }
 
+  .mapShell.fullscreen {
+    height: 100dvh;
+    min-height: 0;
+  }
+
+  .mapIntro {
+    top: 12px;
+    left: 12px;
+    max-width: calc(100% - 80px);
+    padding: 12px 14px;
+  }
+
+  .mapTitle {
+    font-size: 17px;
+  }
+
+  .fullscreenBtn {
+    top: 12px;
+    right: 12px;
+  }
+
+  /* Fiche projet : feuille basse à la hauteur de son contenu */
   .panelWrap {
     top: auto;
-    bottom: 64px;
+    bottom: 0;
     left: 0;
     right: 0;
     width: 100%;
-    height: calc(100vh - 130px);
+    height: auto;
+    max-height: calc(100% - 16px);
+    display: flex;
+    align-items: flex-end;
   }
 
   .panel {
+    height: auto;
+    max-height: 100%;
     border-radius: 20px 20px 0 0;
     transform: translateY(calc(100% + 10px));
+  }
+
+  .fullscreen .panel {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   .panelOpen {
@@ -401,9 +536,9 @@
     font-size: 18px;
   }
 
-  .panelEyebrow {
-    font-size: 11px;
-    margin-bottom: 6px;
+  .panelMeta {
+    font-size: 12px;
+    margin-bottom: 4px;
   }
 
   .panelBody {
@@ -421,17 +556,21 @@
     font-size: 12px;
   }
 
-  .mapHint {
-    left: 16px;
-    right: 16px;
-    top: 16px;
-    max-width: none;
-  }
 
   .emptyState {
-    left: 16px;
-    right: 16px;
-    bottom: 80px;
+    left: 12px;
+    right: 12px;
+    bottom: 56px;
     max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .mapIntro,
+  .twoFingers,
+  .scrollTopBtn {
+    transition: none;
+    animation: none;
   }
 }

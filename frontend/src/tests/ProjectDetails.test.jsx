@@ -33,6 +33,8 @@ jest.mock("react-leaflet", () => ({
   TileLayer: () => null,
   Marker: () => <div data-testid="project-marker" />,
   Popup: ({ children }) => <div>{children}</div>,
+  // Le fond de carte (BaseMapLayers) accède à l'instance Leaflet via useMap.
+  useMap: () => ({}),
 }));
 
 const fakeProject = {

@@ -33,16 +33,18 @@ jest.mock("react-router-dom", () => {
   };
 });
 
-// La factory ne référence pas mockEmit directement : elle crée une closure qui y accède
-// au moment de l'appel (bien après l'initialisation de la variable).
-jest.mock("socket.io-client", () => ({
-  io: () => ({
-    on: jest.fn(),
-    off: jest.fn(),
-    emit: (...args) => mockEmit && mockEmit(...args),
-    disconnect: jest.fn(),
-    join: jest.fn(),
-  }),
+// La page obtient le socket partagé via useSocket() (SocketContext), pas via io() :
+// on simule donc le contexte. La factory ne référence pas mockEmit directement : elle crée
+// une closure qui y accède au moment de l'appel (bien après l'initialisation de la variable).
+const mockSocket = {
+  on: jest.fn(),
+  off: jest.fn(),
+  emit: (...args) => mockEmit && mockEmit(...args),
+  disconnect: jest.fn(),
+};
+
+jest.mock("../context/SocketContext", () => ({
+  useSocket: () => mockSocket,
 }));
 
 const fakePartner = {
@@ -97,7 +99,7 @@ test("TF-37 — envoie un message direct via socket", async () => {
     expect(mockApi).toHaveBeenCalledWith(`/user/${fakePartner._id}`)
   );
 
-  const textarea = await screen.findByPlaceholderText(/écrire un message/i);
+  const textarea = await screen.findByRole("textbox", { name: /votre message/i });
 
   await userEvent.type(textarea, "Bonjour Alice");
   await userEvent.click(screen.getByRole("button", { name: /envoyer/i }));
@@ -115,7 +117,7 @@ test("TF-37 — la zone de saisie est vidée après envoi", async () => {
     expect(mockApi).toHaveBeenCalledWith(`/user/${fakePartner._id}`)
   );
 
-  const textarea = await screen.findByPlaceholderText(/écrire un message/i);
+  const textarea = await screen.findByRole("textbox", { name: /votre message/i });
 
   await userEvent.type(textarea, "Test message");
   await userEvent.click(screen.getByRole("button", { name: /envoyer/i }));
@@ -130,7 +132,7 @@ test("TF-16 — envoie un message de groupe via socket", async () => {
     expect(mockApi).toHaveBeenCalledWith("/messages/group/mine")
   );
 
-  const textarea = await screen.findByPlaceholderText(/écrire un message/i);
+  const textarea = await screen.findByRole("textbox", { name: /votre message/i });
 
   await userEvent.type(textarea, "Salut le groupe");
   await userEvent.click(screen.getByRole("button", { name: /envoyer/i }));
@@ -148,7 +150,7 @@ test("TF-16 — le bouton d'envoi est désactivé si le message est vide", async
     expect(mockApi).toHaveBeenCalledWith("/messages/group/mine")
   );
 
-  await screen.findByPlaceholderText(/écrire un message/i);
+  await screen.findByRole("textbox", { name: /votre message/i });
 
   const sendBtn = screen.getByRole("button", { name: /envoyer/i });
   expect(sendBtn).toBeDisabled();
@@ -161,7 +163,7 @@ test("TF-37 — envoie le message via la touche Entrée", async () => {
     expect(mockApi).toHaveBeenCalledWith(`/user/${fakePartner._id}`)
   );
 
-  const textarea = await screen.findByPlaceholderText(/écrire un message/i);
+  const textarea = await screen.findByRole("textbox", { name: /votre message/i });
 
   await userEvent.type(textarea, "Message clavier{Enter}");
 

@@ -38,10 +38,9 @@
   background: rgba(var(--accent-rgb), 0.12);
   border: 1px solid rgba(var(--accent-rgb), 0.3);
   color: var(--accent);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .sidebarNav {
@@ -105,8 +104,8 @@
 }
 
 .sidebarLogout:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--danger-text);
+  color: var(--danger-text);
 }
 
 /* MAIN */
@@ -255,7 +254,7 @@
 
 .table tr:last-child td { border-bottom: 0; }
 .table tbody tr { transition: 0.15s ease; }
-.table tbody tr:hover { background: rgba(255,255,255,0.02); }
+.table tbody tr:hover { background: color-mix(in srgb, var(--text-main) 4%, transparent); }
 
 /* USER CELL */
 .userBtn {
@@ -368,8 +367,8 @@
 }
 
 .actionDanger:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--danger-text);
+  color: var(--danger-text);
 }
 
 /* STATE */
@@ -382,7 +381,7 @@
   font-size: 14px;
 }
 
-.errorState { color: #ef4444; }
+.errorState { color: var(--danger-text); }
 
 /* MOBILE TABS — visible only on small screens */
 .mobileTabs {

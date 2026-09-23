@@ -85,7 +85,7 @@
 /* État erreur */
 .fieldError .input {
   border-color: var(--danger);
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--danger) 20%, transparent);
 }
 
 .fieldError .input:focus ~ .label,

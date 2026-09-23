@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MagnifyingGlass } from 'react-loader-spinner';
-import { MapPin, Users, Calendar, X, ArrowUp } from 'lucide-react';
+import { MapPin, Users, Calendar, X, ArrowUp, Maximize2, Minimize2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { api } from '../lib/api';
@@ -83,13 +83,27 @@ function Recenter({ position }) {
   return null;
 }
 
-function MapSizeInvalidator() {
+function MapSizeInvalidator({ layoutKey }) {
   const map = useMap();
 
   useEffect(() => {
     const t = setTimeout(() => map.invalidateSize(), 50);
     return () => clearTimeout(t);
-  }, [map]);
+  }, [map, layoutKey]);
+
+  return null;
+}
+
+/* Au doigt, dans la page : un doigt fait défiler la page (le glisser de la carte est
+   coupé), deux doigts zooment et déplacent la carte, un toucher sélectionne un projet.
+   En plein écran, la carte se manipule normalement à un doigt. */
+function TouchGestureController({ enabled }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (enabled) map.dragging.disable();
+    else map.dragging.enable();
+  }, [enabled, map]);
 
   return null;
 }
@@ -120,9 +134,10 @@ function PanToSelected({ project }) {
     if (!pos) return;
     if (window.innerWidth > 900) return;
 
-    // Décaler le centre vers le haut pour que le marqueur soit au-dessus du panel
+    // La fiche occupe le bas de l'écran : on place le marqueur au quart supérieur de la
+    // carte, dans la zone restée visible (centre = marqueur + 25 % de la hauteur).
     const containerPt = map.latLngToContainerPoint(pos);
-    const shifted = L.point(containerPt.x, containerPt.y - 100);
+    const shifted = L.point(containerPt.x, containerPt.y + map.getSize().y * 0.25);
     map.panTo(map.containerPointToLatLng(shifted), { animate: true, duration: 0.3 });
   }, [project, map]);
 
@@ -269,6 +284,14 @@ function MapView() {
   // La molette ne zoome la carte qu'après un clic dessus, pour ne pas
   // capturer le scroll de la page quand on la traverse simplement.
   const [mapActive, setMapActive] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [showTwoFingers, setShowTwoFingers] = useState(false);
+  const twoFingersTimer = useRef(null);
+  const canvasRef = useRef(null);
+  const isTouch = useMemo(
+    () => typeof window !== 'undefined' && Boolean(window.matchMedia?.('(pointer: coarse)').matches),
+    []
+  );
 
   // Le scroll sur la carte zoome au lieu de faire défiler la page : ce bouton
   // permet de revenir en haut sans avoir à quitter la carte au clavier/trackpad.
@@ -297,6 +320,37 @@ function MapView() {
     }
   }, []);
 
+  // Plein écran : bloque le défilement de la page et se ferme avec Échap.
+  useEffect(() => {
+    if (!fullscreen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (event) => { if (event.key === 'Escape') setFullscreen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [fullscreen]);
+
+  // Un doigt qui glisse sur la carte intégrée fait défiler la page : on explique
+  // brièvement comment la déplacer.
+  useEffect(() => {
+    const el = canvasRef.current;
+    if (!el || !isTouch || fullscreen) return undefined;
+    const onTouchMove = (event) => {
+      if (event.touches.length !== 1) return;
+      setShowTwoFingers(true);
+      clearTimeout(twoFingersTimer.current);
+      twoFingersTimer.current = setTimeout(() => setShowTwoFingers(false), 1600);
+    };
+    el.addEventListener('touchmove', onTouchMove, { passive: true });
+    return () => {
+      el.removeEventListener('touchmove', onTouchMove);
+      clearTimeout(twoFingersTimer.current);
+    };
+  }, [isTouch, fullscreen]);
+
   const { theme } = useTheme();
 
   const mappableProjects = useMemo(() => projects.filter((project) => getProjectPosition(project)), [projects]);
@@ -304,8 +358,11 @@ function MapView() {
   const isBusy = !userLocation && loadingProjects;
 
   return (
-    <div className={classes.mapShell}>
-      {showScrollTop && (
+    <section
+      className={`${classes.mapShell} ${fullscreen ? classes.fullscreen : ''}`}
+      aria-labelledby="map-title"
+    >
+      {showScrollTop && !fullscreen && (
         <button
           type="button"
           className={classes.scrollTopBtn}
@@ -332,17 +389,42 @@ function MapView() {
         </div>
       )}
 
-      {showHint && !selectedProject && (
-        <div className={classes.mapHint}>
-          <button
-            type="button"
-            className={classes.hintClose}
-            onClick={() => setShowHint(false)}
-            aria-label={t("map.closeHint")}
-          >
-            <X size={16} />
-          </button>
-          {t("map.hint")}
+      {/* Titre de la section posé sur la carte (la carte occupe tout l'écran) */}
+      <div className={`${classes.mapIntro} ${selectedProject ? classes.mapIntroHidden : ''}`}>
+        <h2 id="map-title" className={classes.mapTitle}>{t("home.mapTitle")}</h2>
+        {showHint && (
+          <p className={classes.mapIntroText}>
+            {mappableProjects.length > 0 && (
+              <span className={classes.mapCount}>{t("map.projectsCount", { count: mappableProjects.length })}</span>
+            )}
+            {t("map.hint")}
+            <button
+              type="button"
+              className={classes.hintClose}
+              onClick={() => setShowHint(false)}
+              aria-label={t("map.closeHint")}
+            >
+              <X size={14} />
+            </button>
+          </p>
+        )}
+      </div>
+
+      {isTouch && (
+        <button
+          type="button"
+          className={classes.fullscreenBtn}
+          onClick={() => setFullscreen((value) => !value)}
+          aria-label={fullscreen ? t("map.exitFullscreen") : t("map.fullscreen")}
+          aria-pressed={fullscreen}
+        >
+          {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+        </button>
+      )}
+
+      {showTwoFingers && !fullscreen && (
+        <div className={classes.twoFingers} role="status">
+          {t("map.twoFingers")}
         </div>
       )}
 
@@ -360,7 +442,7 @@ function MapView() {
             <>
               <div className={classes.panelHeader}>
                 <div>
-                  <div className={classes.panelEyebrow}>
+                  <div className={classes.panelMeta}>
                     <MapPin size={14} />
                     {t("map.projectOnMap")}
                   </div>
@@ -373,12 +455,11 @@ function MapView() {
                   onClick={() => setSelectedProjectId(null)}
                   aria-label={t("map.closePanel")}
                 >
-                  
                   <X size={18} />
                 </button>
               </div>
 
-              <div className={classes.panelBody} onClick={() => navigate(`/projects/${selectedProject._id}`)} style={{ cursor: 'pointer' }}>
+              <div className={classes.panelBody}>
                 <div className={classes.metaRow}>
                   {selectedProject.projectMeta?.city && (
                     <span className={classes.metaPill}>
@@ -425,12 +506,16 @@ function MapView() {
                     </div>
                   </div>
                 )}
+              </div>
 
-                <div className={classes.actions}>
-                  <span className={classes.primaryButton}>
-                    {t("map.openProject")}
-                  </span>
-                </div>
+              <div className={classes.actions}>
+                <button
+                  type="button"
+                  className={classes.primaryButton}
+                  onClick={() => navigate(`/projects/${selectedProject._id}`)}
+                >
+                  {t("map.openProject")}
+                </button>
               </div>
             </>
           )}
@@ -438,11 +523,12 @@ function MapView() {
       </div>
 
       <div
+        ref={canvasRef}
         className={classes.mapCanvasWrap}
         onClick={() => setMapActive(true)}
         onMouseLeave={() => setMapActive(false)}
       >
-        {!mapActive && (
+        {!mapActive && !isTouch && (
           <div className={classes.scrollHint}>{t("map.scrollHint")}</div>
         )}
 
@@ -454,14 +540,15 @@ function MapView() {
           className={classes.mapCanvas}
         >
           <BaseMapLayers theme={theme} />
-          <MapSizeInvalidator />
-          <ScrollZoomController active={mapActive} />
+          <MapSizeInvalidator layoutKey={fullscreen} />
+          <ScrollZoomController active={mapActive || fullscreen} />
+          <TouchGestureController enabled={isTouch && !fullscreen} />
           <PanToSelected project={selectedProject} />
           {userLocation && <Recenter position={userLocation} />}
           <ProjectMarkers projects={mappableProjects} onProjectClick={setSelectedProjectId} />
         </MapContainer>
       </div>
-    </div>
+    </section>
   );
 }
 

@@ -8,45 +8,6 @@
   padding: 56px 32px 64px;
 }
 
-.mapIntro {
-  text-align: center;
-  padding: 0 32px 36px;
-  background: var(--bg-main);
-}
-
-.mapIntroEyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 16px;
-  border-radius: 999px;
-  background: rgba(var(--cta-rgb), 0.12);
-  border: 1px solid rgba(var(--cta-rgb), 0.3);
-  color: var(--cta-hover);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
-  margin-bottom: 14px;
-}
-
-.mapIntroTitle {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.2px;
-  color: var(--text-main);
-}
-
-@media (max-width: 600px) {
-  .mapIntro {
-    padding: 0 20px 28px;
-  }
-
-  .mapIntroTitle {
-    font-size: 19px;
-  }
-}
-
 .heroGlow1 {
   position: absolute;
   top: -60px;

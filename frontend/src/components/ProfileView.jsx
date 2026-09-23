@@ -62,7 +62,8 @@ export default function Profile() {
       return;
     }
     fetchProfile();
-  }, [user, navigate]);
+    // fetchProfile est recréée à chaque rendu : on ne recharge qu'au changement d'utilisateur.
+  }, [user, navigate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDeleteProject = async (projectId) => {
     if (!window.confirm(t("profile.deleteConfirm"))) return;

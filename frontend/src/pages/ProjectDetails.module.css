@@ -137,9 +137,8 @@
 .summaryLabel {
   display: block;
   color: var(--text-muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 13px;
+  letter-spacing: 0;
   margin-bottom: 10px;
 }
 
@@ -154,8 +153,7 @@
 .sectionTitle {
   font-size: 14px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0;
   color: var(--text-muted);
   margin-bottom: 14px;
 }
@@ -223,7 +221,7 @@
 .ownerButton {
   width: 100%;
   border: 1px solid var(--border-soft);
-  background: rgba(255, 255, 255, 0.01);
+  background: color-mix(in srgb, var(--text-main) 4%, transparent);
   border-radius: 16px;
   padding: 16px;
   color: inherit;
@@ -322,8 +320,7 @@
 .cardTitle {
   font-size: 14px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0;
   color: var(--text-muted);
   margin-bottom: 20px;
 }
@@ -347,9 +344,8 @@
 }
 
 .infoLabel {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 13px;
+  letter-spacing: 0;
   color: var(--text-muted);
   margin-bottom: 3px;
 }
@@ -427,8 +423,8 @@
   font-size: 14px;
   font-weight: 600;
   z-index: 9999;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
-  animation: toastIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), toastOut 0.3s ease 2.7s forwards;
+  box-shadow: 0 8px 28px rgba(var(--shadow-rgb), calc(0.28 * var(--shadow-k)));
+  animation: toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1), toastOut 0.3s ease 2.7s forwards;
   white-space: nowrap;
   background: var(--accent);
   border: none;
@@ -436,7 +432,7 @@
 }
 
 .toast_error {
-  background: #ef4444;
+  background: var(--danger-solid);
 }
 
 @keyframes toastIn {
@@ -481,7 +477,7 @@
 
 .joinPending { color: var(--text-muted); }
 .joinAccepted { color: var(--accent); }
-.joinDeclined { color: #ef4444; }
+.joinDeclined { color: var(--danger-text); }
 
 .joinMemberBlock {
   display: flex;
@@ -494,9 +490,9 @@
   width: 100%;
   padding: 9px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
   background: transparent;
-  color: #ef4444;
+  color: var(--danger-text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -504,14 +500,14 @@
 }
 
 .leaveBtn:hover {
-  background: rgba(239, 68, 68, 0.08);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
 }
 
 .leaveConfirmBtn {
   padding: 10px 20px;
   border-radius: 10px;
   border: none;
-  background: #ef4444;
+  background: var(--danger-solid);
   color: #fff;
   font-size: 14px;
   font-weight: 600;
@@ -746,8 +742,8 @@
 }
 
 .declineBtn:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--danger-text);
+  color: var(--danger-text);
 }
 
 /* JOIN MODAL */
@@ -769,7 +765,7 @@
   padding: 28px;
   width: 100%;
   max-width: 460px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 16px 48px rgba(var(--shadow-rgb), calc(0.3 * var(--shadow-k)));
 }
 
 .modalHead {
@@ -800,8 +796,8 @@
 }
 
 .modalClose:hover {
-  border-color: #ef4444;
-  color: #ef4444;
+  border-color: var(--danger-text);
+  color: var(--danger-text);
 }
 
 .modalSubtitle {
@@ -889,8 +885,8 @@
 
 .closeProjectBtn {
   background: transparent;
-  border: 1px solid #ef4444;
-  color: #ef4444;
+  border: 1px solid var(--danger-text);
+  color: var(--danger-text);
   padding: 8px 20px;
   border-radius: 10px;
   font-size: 14px;
@@ -900,11 +896,11 @@
 }
 
 .closeProjectBtn:hover {
-  background: rgba(239, 68, 68, 0.08);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
 }
 
 .closeConfirmBtn {
-  background: #ef4444;
+  background: var(--danger-solid);
   color: #fff;
   border: none;
   padding: 9px 18px;

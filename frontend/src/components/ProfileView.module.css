@@ -152,8 +152,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0;
   margin: 24px 0 12px;
 }
 
@@ -187,18 +186,18 @@
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
   border-radius: 20px;
-  padding: 36px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
 .cardTitle {
-  font-size: 16px;
+  /* margin 0 : la marge par défaut du h3 laissait un grand vide en haut de la carte */
+  margin: 0 0 4px;
+  font-size: 17px;
   font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.2px;
-  margin-bottom: 4px;
+  color: var(--text-main);
 }
 
 .avatarEditor {
@@ -206,7 +205,7 @@
   align-items: center;
   gap: 18px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.02);
+  background: color-mix(in srgb, var(--text-main) 4%, transparent);
   border: 1px solid var(--border-soft);
   border-radius: 16px;
 }
@@ -290,11 +289,10 @@
 }
 
 .label {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
 }
 
 /* INPUTS */
@@ -329,6 +327,11 @@
   flex-wrap: wrap;
   gap: 8px;
   min-height: 28px;
+}
+
+/* Liste vide (ex. aucune formation) : pas d'espace réservé sous le libellé */
+.tagList:empty {
+  display: none;
 }
 
 .tag {
@@ -372,7 +375,7 @@
   height: 42px;
   border-radius: 12px;
   cursor: pointer;
-  color: #0b1220;
+  color: var(--cta-text);
   font-size: 20px;
   font-weight: 600;
   display: flex;
@@ -403,7 +406,7 @@
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  color: #0b1220;
+  color: var(--cta-text);
   transition: 0.2s ease;
 }
 
@@ -425,8 +428,8 @@
 
 .messageError {
   padding: 14px 18px;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
   border-radius: 12px;
   margin-bottom: 20px;
   color: var(--danger);
@@ -470,8 +473,8 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger-text);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -489,9 +492,9 @@
 .unblockBtn {
   padding: 7px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(239, 68, 68, 0.35);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
   background: transparent;
-  color: #ef4444;
+  color: var(--danger-text);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -500,7 +503,7 @@
 }
 
 .unblockBtn:hover {
-  background: rgba(239, 68, 68, 0.08);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
 }
 
 /* RATING HISTORY */

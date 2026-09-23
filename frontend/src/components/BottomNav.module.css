@@ -15,6 +15,11 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
+  /* Masquée pendant une discussion ouverte (attribut posé par MessagesPage) */
+  :global(body[data-chat="open"]) .nav {
+    display: none;
+  }
+
   .item {
     flex: 1;
     display: flex;
