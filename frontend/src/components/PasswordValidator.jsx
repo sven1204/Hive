@@ -23,7 +23,7 @@ function getStrengthLabel(score) {
   if (score <= 2) return { label: "Faible", color: "#ef4444" };
   if (score <= 3) return { label: "Moyen", color: "#f97316" };
   if (score === 4) return { label: "Bon", color: "#eab308" };
-  return { label: "Fort", color: "#EF9F27" };
+  return { label: "Fort", color: "#34B27B" };
 }
 
 export default function PasswordStrengthMeter({ password }) {

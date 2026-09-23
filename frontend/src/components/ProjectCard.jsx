@@ -7,11 +7,11 @@ import { useTranslation } from "react-i18next";
 /* Palette d'accents assignée par catégorie (déterministe, basée sur le premier
    tag du projet) pour que les cartes ne soient plus toutes identiques. */
 const ACCENTS = [
-  { text: "#EF9F27", bg: "rgba(239, 159, 39, 0.12)", border: "rgba(239, 159, 39, 0.35)" },
-  { text: "#D85A30", bg: "rgba(216, 90, 48, 0.12)", border: "rgba(216, 90, 48, 0.35)" },
-  { text: "#ED93B1", bg: "rgba(237, 147, 177, 0.15)", border: "rgba(237, 147, 177, 0.4)" },
-  { text: "#1D9E75", bg: "rgba(29, 158, 117, 0.15)", border: "rgba(29, 158, 117, 0.4)" },
-  { text: "#378ADD", bg: "rgba(55, 138, 221, 0.15)", border: "rgba(55, 138, 221, 0.4)" },
+  { text: "#2FA372", bg: "rgba(47, 163, 114, 0.12)", border: "rgba(47, 163, 114, 0.35)" },   // émeraude
+  { text: "#C79A4A", bg: "rgba(199, 154, 74, 0.12)", border: "rgba(199, 154, 74, 0.35)" },   // sable
+  { text: "#5B8DB8", bg: "rgba(91, 141, 184, 0.12)", border: "rgba(91, 141, 184, 0.35)" },   // ardoise
+  { text: "#C9705A", bg: "rgba(201, 112, 90, 0.12)", border: "rgba(201, 112, 90, 0.35)" },   // argile
+  { text: "#9B7BB8", bg: "rgba(155, 123, 184, 0.12)", border: "rgba(155, 123, 184, 0.35)" }, // prune
 ];
 
 function getAccent(project) {

@@ -29,36 +29,22 @@
   text-decoration: none;
 }
 
+/* The logo PNG is used as a mask so it always takes the palette's
+   primary colour (dark and light themes) instead of its baked-in green. */
 .logo {
-  height: 36px;
+  display: block;
+  width: 32px;
+  height: 32px;
+  background-color: var(--accent);
+  -webkit-mask: var(--logo-url) center / contain no-repeat;
+  mask: var(--logo-url) center / contain no-repeat;
 }
 
 .logoName {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  background: linear-gradient(90deg, #EF9F27, #EF9F27);
-  background-size: 200%;
-  background-position: 0%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  transition: letter-spacing 0.4s ease, background-position 0s;
-}
-
-.logoName:hover {
-  letter-spacing: 4px;
-  background: linear-gradient(90deg, #EF9F27, #ED93B1, #EF9F27);
-  background-size: 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: logoShimmer 0.8s linear infinite;
-}
-
-@keyframes logoShimmer {
-  0%   { background-position: 0% }
-  100% { background-position: 200% }
+  letter-spacing: -0.01em;
+  color: var(--text-main);
 }
 
 /* CENTER — nav links */
@@ -208,7 +194,7 @@
 }
 
 .langBtnActive {
-  background: rgba(239, 159, 39, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   color: var(--accent);
 }
 
@@ -318,7 +304,7 @@
 }
 
 .notifUnread {
-  background: rgba(239, 159, 39, 0.06);
+  background: rgba(var(--accent-rgb), 0.06);
   font-weight: 500;
 }
 
@@ -414,7 +400,7 @@
 
 .notifItem:hover { background: rgba(255,255,255,0.04); }
 
-.notifUnread { background: rgba(239, 159, 39, 0.06); font-weight: 500; }
+.notifUnread { background: rgba(var(--accent-rgb), 0.06); font-weight: 500; }
 
 .notifDot {
   width: 18px;
@@ -466,7 +452,7 @@
   border-radius: 50%;
   flex-shrink: 0;
   overflow: hidden;
-  background: rgba(239, 159, 39, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -609,7 +595,7 @@
 }
 
 .drawerLink:hover {
-  background: rgba(239, 159, 39, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
   color: var(--accent);
 }
 
@@ -671,7 +657,7 @@
   justify-content: center;
   font-weight: 700;
   font-size: 17px;
-  color: #fff;
+  color: var(--cta-text);
   flex-shrink: 0;
   overflow: hidden;
 }
@@ -718,7 +704,7 @@
 }
 
 .drawerActionLink:hover {
-  background: rgba(239, 159, 39, 0.1);
+  background: rgba(var(--accent-rgb), 0.1);
   color: var(--accent);
 }
 

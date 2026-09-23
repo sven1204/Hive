@@ -1,17 +1,30 @@
-// CARTO exige désormais une clé API (gratuite) même pour les fonds de carte de base.
-// Injectée au build via REACT_APP_CARTO_API_KEY (voir docker-compose.*.yml).
-const CARTO_API_KEY = process.env.REACT_APP_CARTO_API_KEY || "";
-const KEY_PARAM = CARTO_API_KEY ? `?api_key=${CARTO_API_KEY}` : "";
+// Fond de carte : Esri (aucune clé API requise), en trois couches superposées :
+//   1. un fond neutre (gris clair ou gris foncé selon le thème),
+//   2. un ombrage du relief pour voir les montagnes (Alpes, Jura…),
+//   3. les noms de lieux par-dessus pour qu'ils restent lisibles.
+// CARTO a été abandonné : sans clé, ses tuiles affichent « API KEY REQUIRED ».
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
+const tile = (service) => `${ESRI}/${service}/MapServer/tile/{z}/{y}/{x}`;
 
-export const DARK_TILE_LAYER = {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-  url: `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png${KEY_PARAM}`,
+const ATTRIBUTION =
+  'Fond &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, USGS, NGA, NASA, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+
+// Les services « Canvas » ne vont pas au-delà du niveau 16 : Leaflet agrandit
+// ensuite les tuiles au lieu d'afficher des cases vides.
+const MAX_NATIVE_ZOOM = 16;
+
+export const LIGHT_MAP = {
+  base: {url: tile('Canvas/World_Light_Gray_Base'), attribution: ATTRIBUTION},
+  relief: {url: tile('Elevation/World_Hillshade'), className: 'hive-relief hive-relief--light'},
+  labels: {url: tile('Canvas/World_Light_Gray_Reference')},
+  maxNativeZoom: MAX_NATIVE_ZOOM,
 };
 
-export const LIGHT_TILE_LAYER = {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>',
-  url: `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png${KEY_PARAM}`,
+export const DARK_MAP = {
+  base: {url: tile('Canvas/World_Dark_Gray_Base'), attribution: ATTRIBUTION},
+  relief: {url: tile('Elevation/World_Hillshade_Dark'), className: 'hive-relief hive-relief--dark'},
+  labels: {url: tile('Canvas/World_Dark_Gray_Reference')},
+  maxNativeZoom: MAX_NATIVE_ZOOM,
 };
 
-// Alias conservé pour ne pas casser les imports existants
-export const DEFAULT_TILE_LAYER = DARK_TILE_LAYER;
+export const getMapLayers = (theme) => (theme === 'light' ? LIGHT_MAP : DARK_MAP);

@@ -78,7 +78,7 @@
 .formGroup select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(239, 159, 39, 0.2);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
 }
 
 .formGroup textarea {
@@ -187,8 +187,8 @@
 }
 
 .tag {
-  background: rgba(239, 159, 39, 0.1);
-  border: 1px solid rgba(239, 159, 39, 0.3);
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
   color: var(--accent);
   padding: 6px 12px;
   border-radius: 999px;
@@ -200,7 +200,7 @@
 }
 
 .tag:hover {
-  background: rgba(239, 159, 39, 0.2);
+  background: rgba(var(--accent-rgb), 0.2);
 }
 
 .tag button {
@@ -230,7 +230,7 @@
   font-weight: 600;
   margin-top: 20px;
   margin-bottom: 10px;
-  color: var(--accent);
+  color: var(--text-muted);
 }
 
 .locationField {
@@ -282,7 +282,7 @@
 }
 
 .locationSuggestion:hover {
-  background: rgba(239, 159, 39, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
 }
 
 .locationSuggestion small {

@@ -7,8 +7,8 @@
 }
 
 .icon {
-  color: #EF9F27;
-  fill: rgba(239, 159, 39, 0.14);
+  color: var(--accent);
+  fill: rgba(var(--accent-rgb), 0.14);
 }
 
 .value {

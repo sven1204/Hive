@@ -12,10 +12,9 @@
     "darkMode": "Mode sombre"
   },
   "home": {
-    "badge": "Fais avancer ton projet",
     "titleMain": "Trouve les bonnes personnes pour",
     "titleAccent": "faire naître ton projet",
-    "subtitle": "Hive connecte les porteurs de projets aux personnes qui ont les compétences pour les faire vivre — un club de foot du dimanche, un site web, ou une idée qui n'attend que la bonne équipe. Explore la carte ou lance le tien.",
+    "subtitle": "Du club de foot du dimanche au site web, trouve les personnes qui ont les compétences pour faire vivre ton projet.",
     "explore": "Explorer les projets",
     "createProject": "Créer un projet",
     "scrollCue": "En savoir plus sur Hive",
@@ -169,16 +168,21 @@
     "title": "Découvrez les projets",
     "subtitle": "Parcourez et rejoignez des projets passionnants",
     "create": "Créer un projet",
-    "searchPlaceholder": "Rechercher...",
-    "tags": "Tags",
-    "regions": "Régions",
-    "showLess": "Voir moins",
-    "moreTags": "… +{{count}} tags",
+    "searchPlaceholder": "Rechercher un projet, un thème…",
+    "regions": "Région",
     "resetFilters": "Réinitialiser les filtres",
     "result_one": "{{count}} projet",
     "result_other": "{{count}} projets",
     "loading": "Chargement des projets...",
-    "noResults": "Aucun projet trouvé"
+    "noResults": "Aucun projet trouvé",
+    "allRegions": "Toutes les régions",
+    "popular": "Populaires",
+    "allThemes": "Tous les thèmes",
+    "hideThemes": "Masquer les thèmes",
+    "searchThemes": "Chercher un thème…",
+    "noTheme": "Aucun thème ne correspond",
+    "recommended": "Recommandés pour toi",
+    "clearSearch": "Effacer la recherche"
   },
   "map": {
     "closeHint": "Fermer l'aide de la carte",
@@ -325,7 +329,8 @@
     "closedBannerTitle": "Projet clôturé — discussion fermée",
     "closedBannerSub": "Notez les membres avec qui vous avez collaboré :",
     "ratingDone": "Noté",
-    "rateBtn": "Noter"
+    "rateBtn": "Noter",
+    "actions": "Actions du message"
   },
   "header": {
     "notifications": "Notifications",

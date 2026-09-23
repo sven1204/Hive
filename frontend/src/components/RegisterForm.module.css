@@ -73,8 +73,8 @@
   padding: 10px 14px;
   font-size: 14px;
   color: var(--accent);
-  background: rgba(239, 159, 39, 0.08);
-  border: 1px solid rgba(239, 159, 39, 0.3);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
   border-radius: 10px;
   text-align: left;
 }
@@ -94,8 +94,8 @@
   gap: 10px;
   padding: 14px 16px;
   border-radius: 12px;
-  background: rgba(239, 159, 39, 0.08);
-  border: 1px solid rgba(239, 159, 39, 0.18);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.18);
   color: var(--text-main);
   text-align: left;
 }
@@ -185,7 +185,7 @@
 }
 
 .ruleOk {
-  color: #EF9F27;
+  color: var(--accent);
 }
 
 .ruleFail {

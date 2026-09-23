@@ -44,8 +44,8 @@
 }
 
 .tag {
-  background: var(--card-accent-bg, rgba(239, 159, 39, 0.08));
-  border: 1px solid var(--card-accent-border, rgba(239, 159, 39, 0.3));
+  background: var(--card-accent-bg, rgba(var(--accent-rgb), 0.08));
+  border: 1px solid var(--card-accent-border, rgba(var(--accent-rgb), 0.3));
   color: var(--card-accent, var(--accent));
   padding: 4px 10px;
   border-radius: 999px;

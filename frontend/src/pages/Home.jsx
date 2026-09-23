@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Sparkles, Compass, Plus, ArrowDown } from 'lucide-react';
+import { Compass, Plus, ArrowDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import MapView from '../components/MapView';
 import HowItWorks from '../components/HowItWorks';
@@ -15,11 +15,6 @@ function Home() {
         <div className={classes.heroGlow2} />
 
         <div className={classes.heroInner}>
-          <span className={classes.badge}>
-            <Sparkles size={14} />
-            {t("home.badge")}
-          </span>
-
           <h1 className={classes.title}>
             {t("home.titleMain")} <span className={classes.titleAccent}>{t("home.titleAccent")}</span>
           </h1>

@@ -3,7 +3,6 @@
   min-height: 100vh;
   background: var(--bg-main);
   color: var(--text-main);
-  font-family: "Inter", sans-serif;
   padding-bottom: 64px;
 }
 
@@ -45,7 +44,7 @@
 }
 
 .avatarFallback {
-  background: rgba(239, 159, 39, 0.08);
+  background: rgba(var(--accent-rgb), 0.08);
   border: 2px solid var(--accent);
   display: flex;
   align-items: center;
@@ -152,7 +151,7 @@
 .projectGroupLabel {
   font-size: 13px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.6px;
   margin: 24px 0 12px;
@@ -197,7 +196,7 @@
 .cardTitle {
   font-size: 16px;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--text-muted);
   letter-spacing: 0.2px;
   margin-bottom: 4px;
 }
@@ -224,15 +223,15 @@
 .avatarEditorImage {
   display: block;
   object-fit: cover;
-  border: 2px solid rgba(239, 159, 39, 0.35);
+  border: 2px solid rgba(var(--accent-rgb), 0.35);
 }
 
 .avatarEditorFallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(239, 159, 39, 0.08);
-  border: 2px solid rgba(239, 159, 39, 0.35);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 2px solid rgba(var(--accent-rgb), 0.35);
   color: var(--accent);
   font-weight: 700;
   font-size: 22px;
@@ -316,7 +315,7 @@
 .textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(239, 159, 39, 0.15);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.15);
 }
 
 .textarea {
@@ -333,8 +332,8 @@
 }
 
 .tag {
-  background: rgba(239, 159, 39, 0.1);
-  border: 1px solid rgba(239, 159, 39, 0.3);
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
   color: var(--accent);
   padding: 5px 12px;
   border-radius: 20px;
@@ -416,8 +415,8 @@
 /* MESSAGES */
 .messageSuccess {
   padding: 14px 18px;
-  background: rgba(239, 159, 39, 0.08);
-  border: 1px solid rgba(239, 159, 39, 0.3);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
   border-radius: 12px;
   margin-bottom: 20px;
   color: var(--success);
@@ -550,7 +549,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(239, 159, 39, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   color: var(--accent);
   font-weight: 700;
   font-size: 13px;
@@ -585,7 +584,7 @@
   flex-shrink: 0;
 }
 
-.starFilled { color: #f59e0b; }
+.starFilled { color: var(--highlight); }
 .starEmpty  { color: var(--border-soft); }
 
 .ratingHistoryComment {

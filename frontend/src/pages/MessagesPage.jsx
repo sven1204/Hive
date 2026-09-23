@@ -525,7 +525,6 @@ export default function MessagesPage() {
       {/* Sidebar */}
       <aside className={`${classes.sidebar} ${!showSidebar ? classes.sidebarHidden : ""}`}>
         <div className={classes.sidebarHead}>
-          <span className={classes.sidebarEyebrow}>{t("messages.title")}</span>
           <h2 className={classes.sidebarTitle}>{t("messages.conversations")}</h2>
         </div>
 
@@ -788,7 +787,16 @@ export default function MessagesPage() {
 
                         {/* Wrapper bulle + bouton ••• (position: relative) */}
                         <div className={`${classes.bubbleWrap} ${isMine ? classes.bubbleWrapMine : ""}`}>
-                          <div className={`${classes.bubble} ${isMine ? classes.bubbleMine : classes.bubbleTheirs} ${msg.deleted ? classes.bubbleDeleted : ""}`}>
+                          {/* Sur écran tactile (pas de survol), toucher sa propre bulle ouvre ses actions. */}
+                          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+                          <div
+                            className={`${classes.bubble} ${isMine ? classes.bubbleMine : classes.bubbleTheirs} ${msg.deleted ? classes.bubbleDeleted : ""}`}
+                            onClick={() => {
+                              if (!isMine || msg.deleted || isEditing) return;
+                              if (!window.matchMedia("(hover: none)").matches) return;
+                              setMenuMsg(isMenuOpen ? null : msgId);
+                            }}
+                          >
                             {activeGroup && !isMine && (
                               <span className={classes.bubbleSender}>{getUserName(msg.senderId)}</span>
                             )}
@@ -808,12 +816,15 @@ export default function MessagesPage() {
                             <span className={classes.bubbleTime}>{formatTime(msg.createdAt)}</span>
                           </div>
 
-                          {/* Bouton ••• flottant — seulement si une action est disponible */}
-                          {!msg.deleted && !isEditing && (isMine || !activeGroup) && (
+                          {/* Bouton ••• (souris / clavier) — seulement sur ses propres messages.
+                              Bloquer un correspondant se fait depuis l'en-tête de la conversation. */}
+                          {!msg.deleted && !isEditing && isMine && (
                             <button
                               type="button"
-                              className={`${classes.dotsBtn} ${isMine ? classes.dotsMine : classes.dotsTheirs} ${isMenuOpen ? classes.dotsBtnActive : ""}`}
+                              className={`${classes.dotsBtn} ${classes.dotsMine} ${isMenuOpen ? classes.dotsBtnActive : ""}`}
                               onClick={() => setMenuMsg(isMenuOpen ? null : msgId)}
+                              aria-label={t("messages.actions")}
+                              aria-expanded={isMenuOpen}
                             >
                               <MoreVertical size={14} />
                             </button>
@@ -832,12 +843,6 @@ export default function MessagesPage() {
                                 <button type="button" className={`${classes.msgMenuItem} ${classes.msgMenuDanger}`}
                                   onClick={() => handleDeleteMsg(msgId)}>
                                   <Trash2 size={13} /> {t("messages.delete")}
-                                </button>
-                              )}
-                              {!isMine && !activeGroup && (
-                                <button type="button" className={`${classes.msgMenuItem} ${classes.msgMenuDanger}`}
-                                  onClick={() => { setBlockTarget(msg.senderId); setMenuMsg(null); }}>
-                                  <Ban size={13} /> {t("messages.block")}
                                 </button>
                               )}
                             </div>

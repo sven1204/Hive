@@ -24,16 +24,6 @@
   background: var(--bg-card);
 }
 
-.sidebarEyebrow {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--accent);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .sidebarTitle {
   margin: 0;
   font-size: 20px;
@@ -83,8 +73,8 @@
 .convItem:hover { background: rgba(255, 255, 255, 0.05); }
 
 .convActive {
-  background: rgba(239, 159, 39, 0.1) !important;
-  border: 1px solid rgba(239, 159, 39, 0.18);
+  background: var(--bg-card-soft) !important;
+  border: 1px solid var(--border-soft);
 }
 
 /* GROUP CONV ROW — conv button + archive icon side by side */
@@ -206,7 +196,7 @@
 }
 
 .unarchiveBtn:hover {
-  background: rgba(239, 159, 39, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
 }
 
 .deleteConvBtn {
@@ -231,24 +221,24 @@
 .headerGroupIcon {
   display: grid;
   place-items: center;
-  border: 2px solid rgba(239, 159, 39, 0.28);
-  background: rgba(239, 159, 39, 0.1);
-  color: var(--accent);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card-soft);
+  color: var(--text-muted);
 }
 
 .avatarImg {
   display: block;
   object-fit: cover;
-  border: 2px solid rgba(239, 159, 39, 0.3);
+  border: 1px solid var(--border-soft);
 }
 
 .avatarFallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(239, 159, 39, 0.3);
-  background: rgba(239, 159, 39, 0.1);
-  color: var(--accent);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card-soft);
+  color: var(--text-main);
   font-weight: 700;
   font-size: 15px;
 }
@@ -300,7 +290,7 @@
   padding: 0 6px;
   border-radius: 999px;
   background: var(--accent);
-  color: #fff;
+  color: var(--cta-text);
   font-size: 11px;
   font-weight: 700;
 }
@@ -351,7 +341,7 @@
   text-align: left;
 }
 
-.headerProfileBtn:hover { background: rgba(239, 159, 39, 0.07); }
+.headerProfileBtn:hover { background: rgba(var(--accent-rgb), 0.07); }
 
 .headerInfo {
   display: flex;
@@ -371,16 +361,16 @@
 .headerAvatarImg {
   display: block;
   object-fit: cover;
-  border: 2px solid rgba(239, 159, 39, 0.35);
+  border: 1px solid var(--border-soft);
 }
 
 .headerAvatarFallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(239, 159, 39, 0.35);
-  background: rgba(239, 159, 39, 0.12);
-  color: var(--accent);
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card-soft);
+  color: var(--text-main);
   font-weight: 700;
   font-size: 14px;
 }
@@ -394,9 +384,8 @@
 
 .headerSub {
   display: block;
-  font-size: 11px;
-  color: var(--accent);
-  opacity: 0.7;
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .typingIndicator {
@@ -488,9 +477,9 @@
 }
 
 .systemMsg span {
-  background: rgba(239, 159, 39, 0.08);
-  border: 1px solid rgba(239, 159, 39, 0.18);
-  color: var(--accent);
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-soft);
+  color: var(--text-muted);
   font-size: 12px;
   padding: 6px 16px;
   border-radius: 999px;
@@ -534,9 +523,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(239, 159, 39, 0.1);
-  border: 1px solid rgba(239, 159, 39, 0.25);
-  color: var(--accent);
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-soft);
+  color: var(--text-main);
   font-weight: 700;
   font-size: 10px;
 }
@@ -563,10 +552,9 @@
 }
 
 .bubbleMine {
-  background: var(--accent);
-  color: #fff;
+  background: var(--bubble-out-bg);
+  color: var(--bubble-out-text);
   border-bottom-right-radius: 5px;
-  box-shadow: 0 2px 8px rgba(239, 159, 39, 0.25);
 }
 
 .bubbleTheirs {
@@ -613,8 +601,6 @@
 
 /* Mes messages → bouton à gauche de la bulle */
 .dotsMine    { left: -30px; }
-/* Messages des autres → bouton à droite de la bulle */
-.dotsTheirs  { right: -30px; }
 
 .bubbleWrap:hover .dotsBtn,
 .dotsBtnActive { opacity: 1; }
@@ -750,15 +736,15 @@
   height: 44px;
   border: none;
   border-radius: 12px;
-  background: var(--accent);
-  color: #fff;
+  background: var(--cta);
+  color: var(--cta-text);
   cursor: pointer;
   flex-shrink: 0;
-  transition: filter 0.15s ease, opacity 0.15s ease;
-  box-shadow: 0 2px 8px rgba(239, 159, 39, 0.3);
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 
-.sendBtn:hover:not(:disabled) { filter: brightness(1.1); }
+.sendBtn:hover:not(:disabled) { background: var(--cta-hover); }
+
 .sendBtn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
 
 /* PARTICIPANTS PANEL */
@@ -979,7 +965,7 @@
 }
 
 .starBtn:hover   { transform: scale(1.15); }
-.starActive      { color: #f59e0b; }
+.starActive      { color: var(--highlight); }
 
 /* MODAL ACTIONS */
 .modalActions {
@@ -1113,8 +1099,8 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: var(--accent);
-  color: #fff;
+  background: var(--cta);
+  color: var(--cta-text);
   border: none;
   padding: 5px 12px;
   border-radius: 7px;
@@ -1157,7 +1143,7 @@
 }
 
 .starBtn:hover, .starActive {
-  color: #f59e0b;
+  color: var(--highlight);
   transform: scale(1.15);
 }
 
@@ -1262,8 +1248,16 @@
     overflow-y: auto;
   }
 
-  /* Sur mobile (touch), hover n'existe pas → les ... sont toujours visibles */
+}
+
+/* Écrans tactiles : pas de ••• permanents à côté des bulles, on touche sa
+   propre bulle pour ouvrir ses actions (voir MessagesPage.jsx). */
+@media (hover: none) {
   .dotsBtn {
-    opacity: 1;
+    display: none;
   }
+}
+
+.dotsBtn:focus-visible {
+  opacity: 1;
 }

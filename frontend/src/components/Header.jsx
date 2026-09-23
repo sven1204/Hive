@@ -119,7 +119,11 @@ export default function Header() {
         {/* LEFT — logo */}
         <div className={classes.navLeft}>
           <Link to={user?.role === "admin" ? "/manage-users" : "/"} className={classes.logoLink}>
-            <img src={logoHive} alt="Hive logo" className={classes.logo} />
+            <span
+              className={classes.logo}
+              style={{"--logo-url": `url(${logoHive})`}}
+              aria-hidden="true"
+            />
             <span className={classes.logoName}>Hive</span>
           </Link>
         </div>
@@ -271,7 +275,11 @@ export default function Header() {
       <div className={`${classes.drawer} ${menuOpen ? classes.drawerOpen : ""}`}>
         <div className={classes.drawerHead}>
           <Link to={user?.role === "admin" ? "/manage-users" : "/"} className={classes.logoLink} onClick={closeMenu}>
-            <img src={logoHive} alt="Hive logo" className={classes.logo} />
+            <span
+              className={classes.logo}
+              style={{"--logo-url": `url(${logoHive})`}}
+              aria-hidden="true"
+            />
             <span className={classes.logoName}>Hive</span>
           </Link>
           <button className={classes.drawerClose} onClick={closeMenu}>

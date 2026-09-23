@@ -12,10 +12,9 @@
     "darkMode": "Dark mode"
   },
   "home": {
-    "badge": "Push your project forward",
     "titleMain": "Find the right people to",
     "titleAccent": "bring your project to life",
-    "subtitle": "Hive connects project owners with people who have the skills to bring them to life — a Sunday football club, a website, or an idea that just needs the right team. Explore the map or launch your own.",
+    "subtitle": "From a Sunday football club to a website, find the people with the skills to bring your project to life.",
     "explore": "Explore projects",
     "createProject": "Create a project",
     "scrollCue": "Learn more about Hive",
@@ -169,16 +168,21 @@
     "title": "Discover projects",
     "subtitle": "Browse and join exciting projects",
     "create": "Create a project",
-    "searchPlaceholder": "Search...",
-    "tags": "Tags",
-    "regions": "Regions",
-    "showLess": "Show less",
-    "moreTags": "… +{{count}} tags",
+    "searchPlaceholder": "Search a project, a theme…",
+    "regions": "Region",
     "resetFilters": "Reset filters",
     "result_one": "{{count}} project",
     "result_other": "{{count}} projects",
     "loading": "Loading projects...",
-    "noResults": "No projects found"
+    "noResults": "No projects found",
+    "allRegions": "All regions",
+    "popular": "Popular",
+    "allThemes": "All themes",
+    "hideThemes": "Hide themes",
+    "searchThemes": "Search a theme…",
+    "noTheme": "No matching theme",
+    "recommended": "Recommended for you",
+    "clearSearch": "Clear search"
   },
   "map": {
     "closeHint": "Close map hint",
@@ -325,7 +329,8 @@
     "closedBannerTitle": "Project closed — discussion locked",
     "closedBannerSub": "Rate the members you collaborated with:",
     "ratingDone": "Rated",
-    "rateBtn": "Rate"
+    "rateBtn": "Rate",
+    "actions": "Message actions"
   },
   "header": {
     "notifications": "Notifications",

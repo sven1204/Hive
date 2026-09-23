@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MagnifyingGlass } from 'react-loader-spinner';
@@ -8,7 +8,7 @@ import { MapPin, Users, Calendar, X, ArrowUp } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { api } from '../lib/api';
-import { DARK_TILE_LAYER, LIGHT_TILE_LAYER } from '../lib/mapTiles';
+import BaseMapLayers from './BaseMapLayers';
 import classes from './MapView.module.css';
 
 /* Centre par défaut : Genève. Recalé sur la position réelle de l'utilisateur dès que la géolocalisation est disponible. */
@@ -17,15 +17,15 @@ const DEFAULT_CENTER = [46.2044, 6.1432];
 const PROJECT_PIN_SVG = `<svg width="34" height="42" viewBox="0 0 34 42" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <filter id="ps" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#08111d" flood-opacity="0.28"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#0a0d0c" flood-opacity="0.28"/>
     </filter>
   </defs>
   <g filter="url(#ps)">
-    <path d="M17 2C9.82 2 4 7.82 4 15c0 9.45 11.2 20.84 12.45 22.08a.78.78 0 0 0 1.1 0C18.8 35.84 30 24.45 30 15 30 7.82 24.18 2 17 2Z" fill="#EF9F27"/>
-    <path d="M17 5.2c5.4 0 9.8 4.4 9.8 9.8 0 6.03-6.15 13.96-9.8 17.82C13.35 28.96 7.2 21.03 7.2 15c0-5.4 4.4-9.8 9.8-9.8Z" fill="#0B1220"/>
+    <path d="M17 2C9.82 2 4 7.82 4 15c0 9.45 11.2 20.84 12.45 22.08a.78.78 0 0 0 1.1 0C18.8 35.84 30 24.45 30 15 30 7.82 24.18 2 17 2Z" fill="#2E9E6E"/>
+    <path d="M17 5.2c5.4 0 9.8 4.4 9.8 9.8 0 6.03-6.15 13.96-9.8 17.82C13.35 28.96 7.2 21.03 7.2 15c0-5.4 4.4-9.8 9.8-9.8Z" fill="#111413"/>
     <ellipse cx="17" cy="14.8" rx="6.3" ry="7.2" fill="#F8FFFB"/>
-    <path d="M12.7 16.1 14.7 18.2 16 15.2 17.2 17.5 18.8 14.5 20.8 18 21.5 17.2" fill="none" stroke="#0B1220" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M11.95 16.85c.25 3.7 2.48 6.42 5.05 6.42 2.63 0 4.85-2.79 5.06-6.57l-1 1.01c-.28.28-.74.2-.91-.16l-1.13-2.23-1.3 2.49c-.22.42-.81.43-1.04.02l-.85-1.57-.99 2.26c-.18.42-.73.52-1.04.19l-1.85-1.86Z" fill="#EF9F27"/>
+    <path d="M12.7 16.1 14.7 18.2 16 15.2 17.2 17.5 18.8 14.5 20.8 18 21.5 17.2" fill="none" stroke="#111413" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11.95 16.85c.25 3.7 2.48 6.42 5.05 6.42 2.63 0 4.85-2.79 5.06-6.57l-1 1.01c-.28.28-.74.2-.91-.16l-1.13-2.23-1.3 2.49c-.22.42-.81.43-1.04.02l-.85-1.57-.99 2.26c-.18.42-.73.52-1.04.19l-1.85-1.86Z" fill="#2E9E6E"/>
   </g>
 </svg>`;
 
@@ -280,7 +280,6 @@ function MapView() {
   }, []);
 
   const { theme } = useTheme();
-  const tileLayer = theme === "light" ? LIGHT_TILE_LAYER : DARK_TILE_LAYER;
 
   const mappableProjects = useMemo(() => projects.filter((project) => getProjectPosition(project)), [projects]);
   const selectedProject = useMemo(() => mappableProjects.find((project) => project._id === selectedProjectId) || null, [mappableProjects, selectedProjectId]);
@@ -436,10 +435,7 @@ function MapView() {
           scrollWheelZoom={false}
           className={classes.mapCanvas}
         >
-          <TileLayer
-            attribution={tileLayer.attribution}
-            url={tileLayer.url}
-          />
+          <BaseMapLayers theme={theme} />
           <MapSizeInvalidator />
           <ScrollZoomController active={mapActive} />
           <PanToSelected project={selectedProject} />

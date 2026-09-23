@@ -45,10 +45,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background:
-    radial-gradient(circle at 30% 30%, rgba(134, 239, 172, 0.34), transparent 45%),
-    rgba(239, 159, 39, 0.24);
-  border: 1px solid rgba(52, 211, 153, 0.45);
+  background: rgba(var(--accent-rgb), 0.28);
+  border: 1px solid rgba(var(--accent-rgb), 0.55);
   box-shadow:
     0 10px 24px rgba(0, 0, 0, 0.28),
     inset 0 0 0 1px rgba(240, 253, 244, 0.12);
@@ -59,7 +57,7 @@
   content: "";
   position: absolute;
   border-radius: 999px;
-  background: rgba(239, 159, 39, 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
 }
 
 .clusterMarker::before {
@@ -80,8 +78,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(11, 18, 32, 0.88);
-  color: #f0fdf4;
+  background: rgba(17, 20, 19, 0.9);
+  color: #eef1ec;
   font-weight: 700;
   font-size: 14px;
   letter-spacing: 0.01em;
@@ -157,7 +155,7 @@
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--text-muted);
   margin-bottom: 10px;
 }
 
@@ -192,7 +190,7 @@
 }
 
 .panelBody:hover {
-  background: rgba(239, 159, 39, 0.04);
+  background: rgba(var(--accent-rgb), 0.04);
 }
 
 .metaRow {
@@ -237,8 +235,8 @@
   align-items: center;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(239, 159, 39, 0.12);
-  border: 1px solid rgba(239, 159, 39, 0.28);
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.28);
   color: var(--accent);
   font-size: 13px;
 }
@@ -260,7 +258,7 @@
 
 .primaryButton {
   background: var(--accent);
-  color: #ffffff;
+  color: var(--cta-text);
   transition: 0.2s ease;
 }
 

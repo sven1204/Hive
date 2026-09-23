@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate, useViewTransitionState } from "react-router-dom";
-import { Search, X, Filter, Plus } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, X, Plus, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import ProjectCard from "../components/ProjectCard";
 import classes from "./Projects.module.css";
 
-const DEFAULT_VISIBLE_TAGS = 12;
+// Only the most-used themes are shown up front; the rest live behind
+// "Tous les thèmes" so the page does not open on a wall of 130+ chips.
+const POPULAR_TAGS_COUNT = 8;
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -23,6 +25,7 @@ export default function Projects() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [showAllTags, setShowAllTags] = useState(false);
+  const [tagQuery, setTagQuery] = useState("");
 
   const myId = user?._id || user?.id || "";
 
@@ -35,7 +38,6 @@ export default function Projects() {
     const fetchRecommended = async() => {
       try {
         const data = await api("/projects/recommended");
-        console.log("recommended raw:", data);
         setRecommended(Array.isArray(data) ? data.map(item => item.project) : []);
       } catch(err) {
         console.error("fetchRecommended error:", err);
@@ -108,8 +110,24 @@ export default function Projects() {
   };
 
   const hasActiveFilters = searchQuery || selectedTags.length > 0 || selectedRegion;
-  const visibleTags = showAllTags ? allTags : allTags.slice(0, DEFAULT_VISIBLE_TAGS);
-  const hiddenTagsCount = Math.max(allTags.length - DEFAULT_VISIBLE_TAGS, 0);
+
+  // Most-used themes across projects, plus any theme the user already picked.
+  const popularTags = useMemo(() => {
+    const counts = new Map();
+    projects.forEach((p) =>
+      (p?.tags ?? []).forEach((tag) => counts.set(tag, (counts.get(tag) || 0) + 1)),
+    );
+    const top = [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, POPULAR_TAGS_COUNT)
+      .map(([tag]) => tag);
+    return [...new Set([...selectedTags, ...top])];
+  }, [projects, selectedTags]);
+
+  const matchingTags = useMemo(() => {
+    const q = tagQuery.trim().toLowerCase();
+    return q ? allTags.filter((tag) => tag.toLowerCase().includes(q)) : allTags;
+  }, [allTags, tagQuery]);
 
   return (
     <div className={classes.page}>
@@ -133,81 +151,116 @@ export default function Projects() {
       </div>
 
       <div className={classes.container}>
-        {/* SEARCH */}
-        <div className={classes.searchBlock}>
-          <Search size={18} className={classes.searchIcon} />
-          <input
-            type="text"
-            placeholder={t("projects.searchPlaceholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={classes.searchInput}
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className={classes.clearBtn}>
-              <X size={16} />
-            </button>
+        {/* SEARCH + REGION */}
+        <div className={classes.searchRow}>
+          <div className={classes.searchBlock}>
+            <Search size={18} className={classes.searchIcon} aria-hidden="true" />
+            <input
+              type="search"
+              aria-label={t("projects.searchPlaceholder")}
+              placeholder={t("projects.searchPlaceholder")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={classes.searchInput}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className={classes.clearBtn}
+                aria-label={t("projects.clearSearch")}
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+
+          {allRegions.length > 0 && (
+            <label className={classes.regionSelect}>
+              <span className="sr-only">{t("projects.regions")}</span>
+              <select
+                value={selectedRegion}
+                onChange={(e) => setSelectedRegion(e.target.value)}
+              >
+                <option value="">{t("projects.allRegions")}</option>
+                {allRegions.map((region) => (
+                  <option key={region} value={region}>
+                    {region}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} aria-hidden="true" />
+            </label>
           )}
         </div>
 
-        {/* FILTERS */}
+        {/* THEMES */}
         <div className={classes.filters}>
-          <div className={classes.filterGroup}>
-            <div className={classes.filterLabel}>
-              <Filter size={14} />
-              <span>{t("projects.tags")}</span>
-            </div>
-            <div className={classes.filterList}>
-              {visibleTags.map((tag, i) => (
-                <button
-                  key={i}
-                  onClick={() => toggleTag(tag)}
-                  className={`${classes.filterBtn} ${selectedTags.includes(tag) ? classes.activeFilter : ""}`}
-                >
-                  {tag}
-                </button>
-              ))}
-              {hiddenTagsCount > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowAllTags((prev) => !prev)}
-                  className={classes.moreTagsBtn}
-                >
-                  {showAllTags ? t("projects.showLess") : t("projects.moreTags", { count: hiddenTagsCount })}
-                </button>
-              )}
-            </div>
+          <div className={classes.filterList}>
+            <span className={classes.filterLabel}>{t("projects.popular")}</span>
+            {popularTags.map((tag) => (
+              <button
+                type="button"
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                aria-pressed={selectedTags.includes(tag)}
+                className={`${classes.filterBtn} ${selectedTags.includes(tag) ? classes.activeFilter : ""}`}
+              >
+                {tag}
+              </button>
+            ))}
+            {allTags.length > popularTags.length && (
+              <button
+                type="button"
+                onClick={() => setShowAllTags((prev) => !prev)}
+                aria-expanded={showAllTags}
+                className={classes.moreTagsBtn}
+              >
+                {showAllTags ? t("projects.hideThemes") : t("projects.allThemes")}
+                <ChevronDown size={14} className={showAllTags ? classes.chevronOpen : ""} aria-hidden="true" />
+              </button>
+            )}
+            {hasActiveFilters && (
+              <button type="button" onClick={clearAllFilters} className={classes.clearFilters}>
+                {t("projects.resetFilters")}
+              </button>
+            )}
           </div>
 
-          <div className={classes.filterGroup}>
-            <div className={classes.filterLabel}>
-              <Filter size={14} />
-              <span>{t("projects.regions")}</span>
+          {showAllTags && (
+            <div className={classes.allThemes}>
+              <input
+                type="search"
+                className={classes.themeSearch}
+                placeholder={t("projects.searchThemes")}
+                aria-label={t("projects.searchThemes")}
+                value={tagQuery}
+                onChange={(e) => setTagQuery(e.target.value)}
+              />
+              <div className={classes.filterList}>
+                {matchingTags.map((tag) => (
+                  <button
+                    type="button"
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    aria-pressed={selectedTags.includes(tag)}
+                    className={`${classes.filterBtn} ${selectedTags.includes(tag) ? classes.activeFilter : ""}`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+                {matchingTags.length === 0 && (
+                  <span className={classes.noTheme}>{t("projects.noTheme")}</span>
+                )}
+              </div>
             </div>
-            <div className={classes.filterList}>
-              {allRegions.map((region, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedRegion(selectedRegion === region ? "" : region)}
-                  className={`${classes.filterBtn} ${selectedRegion === region ? classes.activeFilter : ""}`}
-                >
-                  {region}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {hasActiveFilters && (
-            <button onClick={clearAllFilters} className={classes.clearFilters}>
-              {t("projects.resetFilters")}
-            </button>
           )}
         </div>
 
         {/* RECOMMANDÉS */}
         {user && recommended.length > 0 && !hasActiveFilters && (
           <div className={classes.recommendedSection}>
-            <h2 className={classes.recommendedTitle}>Recommandés pour toi</h2>
+            <h2 className={classes.recommendedTitle}>{t("projects.recommended")}</h2>
             <div className={classes.grid}>
               {recommended.map((project) => (
                 <ProjectCard key={project._id} project={project} />

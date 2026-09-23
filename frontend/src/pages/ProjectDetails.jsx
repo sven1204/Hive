@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MapContainer, Marker, TileLayer } from "react-leaflet";
+import { MapContainer, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { ArrowLeft, Check, Clock, DollarSign, GitBranch, MapPin, Star, UserPlus, UserRound, X } from "lucide-react";
@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { DARK_TILE_LAYER, LIGHT_TILE_LAYER } from "../lib/mapTiles";
+import BaseMapLayers from "../components/BaseMapLayers";
 import HiveRating from "../components/HiveRating";
 import UserAvatar from "../components/UserAvatar";
 import classes from "./ProjectDetails.module.css";
@@ -27,14 +27,14 @@ const projectIcon = createIcon(
   svgToDataUrl(`
     <svg width="34" height="42" viewBox="0 0 34 42" xmlns="http://www.w3.org/2000/svg">
       <defs><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-        <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#08111d" flood-opacity="0.28"/>
+        <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#0a0d0c" flood-opacity="0.28"/>
       </filter></defs>
       <g filter="url(#shadow)">
-        <path d="M17 2C9.82 2 4 7.82 4 15c0 9.45 11.2 20.84 12.45 22.08a.78.78 0 0 0 1.1 0C18.8 35.84 30 24.45 30 15 30 7.82 24.18 2 17 2Z" fill="#EF9F27"/>
-        <path d="M17 5.2c5.4 0 9.8 4.4 9.8 9.8 0 6.03-6.15 13.96-9.8 17.82C13.35 28.96 7.2 21.03 7.2 15c0-5.4 4.4-9.8 9.8-9.8Z" fill="#0B1220"/>
+        <path d="M17 2C9.82 2 4 7.82 4 15c0 9.45 11.2 20.84 12.45 22.08a.78.78 0 0 0 1.1 0C18.8 35.84 30 24.45 30 15 30 7.82 24.18 2 17 2Z" fill="#2E9E6E"/>
+        <path d="M17 5.2c5.4 0 9.8 4.4 9.8 9.8 0 6.03-6.15 13.96-9.8 17.82C13.35 28.96 7.2 21.03 7.2 15c0-5.4 4.4-9.8 9.8-9.8Z" fill="#111413"/>
         <ellipse cx="17" cy="14.8" rx="6.3" ry="7.2" fill="#F8FFFB"/>
-        <path d="M12.7 16.1 14.7 18.2 16 15.2 17.2 17.5 18.8 14.5 20.8 18 21.5 17.2" fill="none" stroke="#0B1220" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M11.95 16.85c.25 3.7 2.48 6.42 5.05 6.42 2.63 0 4.85-2.79 5.06-6.57l-1 1.01c-.28.28-.74.2-.91-.16l-1.13-2.23-1.3 2.49c-.22.42-.81.43-1.04.02l-.85-1.57-.99 2.26c-.18.42-.73.52-1.04.19l-1.85-1.86Z" fill="#EF9F27"/>
+        <path d="M12.7 16.1 14.7 18.2 16 15.2 17.2 17.5 18.8 14.5 20.8 18 21.5 17.2" fill="none" stroke="#111413" stroke-width="1.45" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M11.95 16.85c.25 3.7 2.48 6.42 5.05 6.42 2.63 0 4.85-2.79 5.06-6.57l-1 1.01c-.28.28-.74.2-.91-.16l-1.13-2.23-1.3 2.49c-.22.42-.81.43-1.04.02l-.85-1.57-.99 2.26c-.18.42-.73.52-1.04.19l-1.85-1.86Z" fill="#2E9E6E"/>
       </g>
     </svg>
   `)
@@ -47,7 +47,6 @@ export default function ProjectDetails() {
   const { user } = useAuth();
   const { t } = useTranslation();
   const { theme } = useTheme();
-  const tileLayer = theme === "light" ? LIGHT_TILE_LAYER : DARK_TILE_LAYER;
 
   // ── States ──────────────────────────────────────────────────────────────────
   const [project, setProject]           = useState(null);
@@ -219,10 +218,10 @@ export default function ProjectDetails() {
 
   // ── Valeurs calculées ────────────────────────────────────────────────────────
   const STATUS_LABELS = {
-    open:     { label: t("projectDetails.statusOpen"),     color: "#EF9F27" },
-    closed:   { label: t("projectDetails.statusClosed"),   color: "#ef4444" },
+    open:     { label: t("projectDetails.statusOpen"),     color: "#34B27B" },
+    closed:   { label: t("projectDetails.statusClosed"),   color: "#E5484D" },
     draft:    { label: t("projectDetails.statusDraft"),    color: "#94a3b8" },
-    archived: { label: t("projectDetails.statusArchived"), color: "#f59e0b" },
+    archived: { label: t("projectDetails.statusArchived"), color: "#C79A4A" },
   };
 
   const coords = project.location?.coordinates;
@@ -279,6 +278,7 @@ export default function ProjectDetails() {
       {/* HERO */}
       <div className={classes.hero}>
         <div className={classes.heroInner}>
+          <div className={classes.heroText}>
           <div className={classes.heroTop}>
             <span className={classes.statusBadge} style={{ "--badge-color": status.color }}>
               {status.label}
@@ -294,6 +294,39 @@ export default function ProjectDetails() {
             <div className={classes.heroLocation}>
               <MapPin size={15} />
               {[project.projectMeta.city, project.projectMeta.region].filter(Boolean).join(", ")}
+            </div>
+          )}
+          </div>
+          {/* REJOINDRE — l'action principale, visible dès l'arrivée sur la page */}
+          {user && !isOwner && project.status === "open" && user.role !== 'admin' && (
+            <div className={classes.heroJoin}>
+              {joinStatus === "pending" && (
+                <p className={classes.joinPending}><Clock size={14} /> {t("projectDetails.joinPending")}</p>
+              )}
+              {joinStatus === "accepted" && isParticipant && (
+                <div className={classes.joinMemberBlock}>
+                  <p className={classes.joinAccepted}><Check size={14} /> {t("projectDetails.joinAccepted")}</p>
+                  <button
+                    type="button"
+                    className={classes.leaveBtn}
+                    onClick={() => setShowLeaveModal(true)}
+                  >
+                    Quitter le projet
+                  </button>
+                </div>
+              )}
+              {joinStatus === "declined" && (
+                <p className={classes.joinDeclined}><X size={14} /> {t("projectDetails.joinDeclined")}</p>
+              )}
+              {joinStatus === "kicked" && (
+                <p className={classes.joinDeclined}><X size={14} /> {t("projectDetails.joinKicked")}</p>
+              )}
+              {(!joinStatus || joinStatus === "expired" || (joinStatus === "accepted" && !isParticipant)) && (
+                <button type="button" className={classes.joinBtn} onClick={() => setShowJoinModal(true)}>
+                  <UserPlus size={16} />
+                  {t("projectDetails.joinBtn")}
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -497,7 +530,7 @@ export default function ProjectDetails() {
               <>
                 <div className={classes.mapPreview}>
                   <MapContainer center={mapCenter} zoom={11} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
-                    <TileLayer attribution={tileLayer.attribution} url={tileLayer.url} />
+                    <BaseMapLayers theme={theme} />
                     <Marker position={mapCenter} icon={projectIcon} />
                   </MapContainer>
                 </div>
@@ -509,40 +542,6 @@ export default function ProjectDetails() {
               <p className={classes.mapFallback}>{t("projectDetails.noLocation")}</p>
             )}
           </div>
-
-          {/* CARTE REJOINDRE — visible si connecté, pas owner, projet ouvert */}
-          {user && !isOwner && project.status === "open" && user.role !== 'admin' && (
-            <div className={classes.joinCard}>
-              <h2 className={classes.cardTitle}>{t("projectDetails.joinTitle")}</h2>
-              {joinStatus === "pending" && (
-                <p className={classes.joinPending}><Clock size={14} /> {t("projectDetails.joinPending")}</p>
-              )}
-              {joinStatus === "accepted" && isParticipant && (
-                <div className={classes.joinMemberBlock}>
-                  <p className={classes.joinAccepted}><Check size={14} /> {t("projectDetails.joinAccepted")}</p>
-                  <button
-                    type="button"
-                    className={classes.leaveBtn}
-                    onClick={() => setShowLeaveModal(true)}
-                  >
-                    Quitter le projet
-                  </button>
-                </div>
-              )}
-              {joinStatus === "declined" && (
-                <p className={classes.joinDeclined}><X size={14} /> {t("projectDetails.joinDeclined")}</p>
-              )}
-              {joinStatus === "kicked" && (
-                <p className={classes.joinDeclined}><X size={14} /> {t("projectDetails.joinKicked")}</p>
-              )}
-              {(!joinStatus || joinStatus === "expired" || (joinStatus === "accepted" && !isParticipant)) && (
-                <button type="button" className={classes.joinBtn} onClick={() => setShowJoinModal(true)}>
-                  <UserPlus size={16} />
-                  {t("projectDetails.joinBtn")}
-                </button>
-              )}
-            </div>
-          )}
 
         </aside>
       </div>
