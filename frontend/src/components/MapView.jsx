@@ -37,7 +37,25 @@ const projectIcon = L.divIcon({
   popupAnchor: [0, -42],
 });
 
+// Sur écran tactile, le doigt bouge toujours de quelques pixels pendant un toucher.
+// Avec la tolérance par défaut de Leaflet (3 px), ce micro-glissement est pris pour
+// un déplacement de la carte et le clic sur le marqueur est annulé.
+if (typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches) {
+  L.Draggable.mergeOptions({ clickTolerance: 12 });
+}
+
+// Une icône par taille de groupe, réutilisée : recréer l'icône à chaque rendu
+// remplaçait l'élément DOM du marqueur, et un toucher en cours tombait dans le vide.
+const clusterIconCache = new Map();
+
 function createClusterIcon(count) {
+  if (clusterIconCache.has(count)) return clusterIconCache.get(count);
+  const icon = buildClusterIcon(count);
+  clusterIconCache.set(count, icon);
+  return icon;
+}
+
+function buildClusterIcon(count) {
   const size = count >= 20 ? 58 : count >= 10 ? 52 : 46;
   return L.divIcon({
     html: `

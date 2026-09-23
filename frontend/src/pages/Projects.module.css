@@ -375,3 +375,37 @@
     width: 100%;
   }
 }
+
+/* LOAD MORE */
+.loadMoreRow {
+  display: flex;
+  justify-content: center;
+  margin: 32px 0 56px;
+}
+
+.loadMoreBtn {
+  min-width: 220px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.loadMoreBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.loadMoreBtn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.loadMoreBtn:disabled {
+  cursor: progress;
+  color: var(--text-muted);
+}

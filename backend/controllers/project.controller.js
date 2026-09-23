@@ -85,29 +85,61 @@ function cosinSimilarity(vecA, vecB){
    CRUD PROJETS
    ============================== */
 
-// GET /projects — liste tous les projets avec filtres optionnels (search, tags, status)
+// GET /projects — liste des projets avec filtres optionnels (search, q, tags, region, status)
+// Sans `limit` : renvoie le tableau complet (utilisé par la carte).
+// Avec `limit` : renvoie une page { items, total, page, hasMore } (page Projets).
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const MAX_PAGE_SIZE = 48;
+
 exports.getAllProjects = async (req, res) => {
-  const { search, tags, status } = req.query;
+  // Seules les chaînes sont acceptées : `?status[$ne]=x` ne doit pas devenir un opérateur Mongo.
+  const str = (value) => (typeof value === 'string' ? value : '');
+  const search = str(req.query.search);
+  const q = str(req.query.q);
+  const tags = str(req.query.tags);
+  const region = str(req.query.region);
+  const status = str(req.query.status);
   const userId = req.user?.id;
-  const query = {};
+  const conditions = [];
 
-  if (search) query.$text = { $search: search };
-  if (tags) query.tags = { $in: tags.split(',') };
+  if (search) conditions.push({ $text: { $search: search } });
+  if (tags) conditions.push({ tags: { $in: tags.split(',').filter(Boolean) } });
+  if (region) conditions.push({ 'projectMeta.region': region });
 
-  if (status) {
-    query.status = status;
-  } else if (userId) {
-    query.$or = [{ status: 'open' }, { ownerId: userId }];
-  } else {
-    query.status = 'open';
+  // Recherche partielle (titre, description, thèmes), comme la saisie en direct du front
+  const term = q.trim().slice(0, 100);
+  if (term) {
+    const pattern = new RegExp(escapeRegex(term), 'i');
+    conditions.push({ $or: [{ title: pattern }, { description: pattern }, { tags: pattern }] });
   }
 
-  const projects = await Project.find(query)
+  if (status) {
+    conditions.push({ status });
+  } else if (userId) {
+    conditions.push({ $or: [{ status: 'open' }, { ownerId: userId }] });
+  } else {
+    conditions.push({ status: 'open' });
+  }
+
+  const query = conditions.length === 1 ? conditions[0] : { $and: conditions };
+  const find = () => Project.find(query)
     .populate('ownerId', 'displayName firstName lastName email avatarUrl')
     .populate('participants', '_id')
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1, _id: -1 });
 
-  res.json(projects);
+  if (req.query.limit === undefined) {
+    return res.json(await find());
+  }
+
+  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 12, 1), MAX_PAGE_SIZE);
+  const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+
+  const [items, total] = await Promise.all([
+    find().skip((page - 1) * limit).limit(limit),
+    Project.countDocuments(query),
+  ]);
+
+  res.json({ items, total, page, hasMore: page * limit < total });
 };
 
 // GET /projects/:id — détail d'un projet avec owner et participants populés
@@ -197,7 +229,21 @@ exports.deleteProject = async (req, res) => {
 // ==============================
 
 // GET /projects/tags — liste tous les tags distincts pour les filtres
+// `?popular=N` : les N thèmes les plus utilisés parmi les projets ouverts
 exports.getAllTags = async (req, res) => {
+  const popular = parseInt(req.query.popular, 10);
+  if (popular > 0) {
+    const top = await Project.aggregate([
+      { $match: { status: 'open' } },
+      { $unwind: '$tags' },
+      { $match: { tags: { $type: 'string', $ne: '' } } },
+      { $group: { _id: '$tags', count: { $sum: 1 } } },
+      { $sort: { count: -1, _id: 1 } },
+      { $limit: Math.min(popular, 30) },
+    ]);
+    return res.json(top.map((entry) => entry._id).filter((t) => t.trim()));
+  }
+
   const tags = await Project.distinct('tags');
   res.json(tags.filter(t => t && t.trim()));
 };

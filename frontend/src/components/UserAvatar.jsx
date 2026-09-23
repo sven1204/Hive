@@ -14,6 +14,7 @@ export default function UserAvatar({
   imageClassName = "",
   fallbackClassName = "",
   alt,
+  style,
 }) {
   const [imageFailed, setImageFailed] = useState(false);
   const avatarUrl = user?.avatarUrl?.trim();
@@ -28,13 +29,14 @@ export default function UserAvatar({
         src={avatarUrl}
         alt={alt || user.displayName || `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Avatar utilisateur"}
         className={`${className} ${imageClassName}`.trim()}
+        style={style}
         onError={() => setImageFailed(true)}
       />
     );
   }
 
   return (
-    <div className={`${className} ${fallbackClassName}`.trim()} aria-label={alt || "Avatar utilisateur"}>
+    <div className={`${className} ${fallbackClassName}`.trim()} style={style} aria-label={alt || "Avatar utilisateur"}>
       {getInitials(user)}
     </div>
   );

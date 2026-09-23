@@ -34,6 +34,13 @@
   transition: opacity 0.2s ease;
 }
 
+/* « Cliquez pour zoomer avec la molette » n'a pas de sens au doigt. */
+@media (hover: none) {
+  .scrollHint {
+    display: none;
+  }
+}
+
 .clusterMarkerWrap {
   background: transparent;
   border: none;

@@ -18,9 +18,38 @@
   --text-main: #eef1ec;
   --text-muted: #9aa39d;
   --danger: #e5484d;
-  --bubble-out-bg: #1f4d3a;
+  --bubble-out-bg: #235a42;
   --bubble-out-text: #eef1ec;
   --pin: #2e9e6e;
+  /* Couleurs par personne (avatars, noms dans les groupes) : les mêmes
+     teintes que les cartes projet, lisibles sur fond sombre. */
+  --person-1: #3fb783;
+  --person-2: #d1a656;
+  --person-3: #6f9fc9;
+  --person-4: #d4806a;
+  --person-5: #ab8dc6;
+  /* Échelles partagées (rayons, espacements, mouvement) */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur-base: 160ms;
+  --dur-slow: 240ms;
+  --danger-text: #ef6b6f;
+  --danger-solid: #c9353a;
+  /* Hauteur réelle du Header : 64px de barre + 1px de bordure basse */
+  --app-header-h: 65px;
 }
 
 body.light {
@@ -41,8 +70,21 @@ body.light {
   --text-main: #16201b;
   --text-muted: #5b665f;
   --danger: #c9353a;
-  --bubble-out-bg: #dcefe4;
+  --bubble-out-bg: #cfe9da;
   --bubble-out-text: #10301f;
+  /* Variantes foncées pour garder un contraste AA sur fond clair. */
+  --person-1: #1f7a52;
+  --person-2: #87611c;
+  --person-3: #34658f;
+  --person-4: #a14c37;
+  --person-5: #704f98;
+  --danger-text: var(--danger);
+}
+
+@media (max-width: 600px) {
+  :root {
+    --app-header-h: 57px;
+  }
 }
 
 html{
@@ -60,6 +102,11 @@ html, body, #root {
 @media (max-width: 900px) {
   :root {
     --bottom-nav-height: 64px;
+  }
+
+  /* Discussion ouverte sur mobile : la BottomNav est masquée (voir MessagesPage) */
+  body[data-chat="open"] {
+    --bottom-nav-height: 0px;
   }
 }
 

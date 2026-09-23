@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X, Plus, ChevronDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,10 @@ import classes from "./Projects.module.css";
 // Only the most-used themes are shown up front; the rest live behind
 // "Tous les thèmes" so the page does not open on a wall of 130+ chips.
 const POPULAR_TAGS_COUNT = 8;
+// Projects are loaded page by page from the server ("Voir plus"),
+// filters and search are applied server-side.
+const PAGE_SIZE = 12;
+const SEARCH_DEBOUNCE_MS = 300;
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -17,15 +21,32 @@ export default function Projects() {
   const { t } = useTranslation();
 
   const [projects, setProjects] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
   const [allTags, setAllTags] = useState([]);
+  const [topTags, setTopTags] = useState([]);
   const [allRegions, setAllRegions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const requestId = useRef(0);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("");
   const [showAllTags, setShowAllTags] = useState(false);
   const [tagQuery, setTagQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (trimmed === "") {
+      setDebouncedQuery("");
+      return undefined;
+    }
+    const timer = setTimeout(() => setDebouncedQuery(trimmed), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const myId = user?._id || user?.id || "";
 
@@ -47,27 +68,57 @@ export default function Projects() {
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    fetchProjects();
     fetchTags();
     fetchRegions();
   }, []);
 
-  const fetchProjects = async () => {
+  const fetchPage = useCallback(async (pageToLoad) => {
+    const params = new URLSearchParams({ limit: String(PAGE_SIZE), page: String(pageToLoad) });
+    if (debouncedQuery) params.set("q", debouncedQuery);
+    if (selectedTags.length > 0) params.set("tags", selectedTags.join(","));
+    if (selectedRegion) params.set("region", selectedRegion);
+
+    // Ignore responses from requests that were superseded by newer filters.
+    const id = ++requestId.current;
+    if (pageToLoad === 1) setLoading(true);
+    else setLoadingMore(true);
+
     try {
-      const data = await api("/projects");
-      setProjects(Array.isArray(data) ? data : []);
+      const data = await api(`/projects?${params.toString()}`);
+      if (id !== requestId.current) return;
+      const items = Array.isArray(data?.items) ? data.items : [];
+      setProjects((prev) => (pageToLoad === 1 ? items : [...prev, ...items]));
+      setTotal(Number(data?.total) || 0);
+      setHasMore(Boolean(data?.hasMore));
+      setPage(pageToLoad);
     } catch (err) {
+      if (id !== requestId.current) return;
       console.error("Erreur chargement projets:", err);
-      setProjects([]);
+      if (pageToLoad === 1) {
+        setProjects([]);
+        setTotal(0);
+        setHasMore(false);
+      }
     } finally {
-      setLoading(false);
+      if (id === requestId.current) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
     }
-  };
+  }, [debouncedQuery, selectedTags, selectedRegion]);
+
+  useEffect(() => {
+    fetchPage(1);
+  }, [fetchPage, myId]);
 
   const fetchTags = async () => {
     try {
-      const data = await api("/projects/tags");
+      const [data, popular] = await Promise.all([
+        api("/projects/tags"),
+        api(`/projects/tags?popular=${POPULAR_TAGS_COUNT}`),
+      ]);
       setAllTags(Array.isArray(data) ? data.filter((t) => t && t.trim()) : []);
+      setTopTags(Array.isArray(popular) ? popular : []);
     } catch (err) {
       console.error("Erreur chargement tags:", err);
     }
@@ -82,23 +133,6 @@ export default function Projects() {
     }
   };
 
-  const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
-      const title = (project?.title ?? "").toLowerCase();
-      const desc = (project?.description ?? "").toLowerCase();
-      const q = searchQuery.toLowerCase();
-
-      const tags = (project?.tags ?? []).join(" ").toLowerCase();
-      const matchesSearch = q === "" || title.includes(q) || desc.includes(q) || tags.includes(q);
-      const matchesTags = selectedTags.length === 0 || selectedTags.some((tag) => project?.tags?.includes(tag));
-      const matchesRegion = selectedRegion === "" || project?.projectMeta?.region === selectedRegion;
-      const isMyProject = project?.ownerId?._id?.toString() === myId || project?.ownerId?.toString() === myId;
-      const matchesStatus = project?.status === "open" || isMyProject;
-
-      return matchesSearch && matchesTags && matchesRegion && matchesStatus;
-    });
-  }, [projects, searchQuery, selectedTags, selectedRegion, myId]);
-
   const toggleTag = (tag) => {
     setSelectedTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
   };
@@ -111,18 +145,11 @@ export default function Projects() {
 
   const hasActiveFilters = searchQuery || selectedTags.length > 0 || selectedRegion;
 
-  // Most-used themes across projects, plus any theme the user already picked.
-  const popularTags = useMemo(() => {
-    const counts = new Map();
-    projects.forEach((p) =>
-      (p?.tags ?? []).forEach((tag) => counts.set(tag, (counts.get(tag) || 0) + 1)),
-    );
-    const top = [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, POPULAR_TAGS_COUNT)
-      .map(([tag]) => tag);
-    return [...new Set([...selectedTags, ...top])];
-  }, [projects, selectedTags]);
+  // Most-used themes (computed server-side), plus any theme the user already picked.
+  const popularTags = useMemo(
+    () => [...new Set([...selectedTags, ...topTags])],
+    [selectedTags, topTags],
+  );
 
   const matchingTags = useMemo(() => {
     const q = tagQuery.trim().toLowerCase();
@@ -271,20 +298,36 @@ export default function Projects() {
 
         {/* RESULTS COUNT */}
         <div className={classes.results}>
-          {t("projects.result", { count: filteredProjects.length })}
+          {t("projects.result", { count: total })}
         </div>
 
         {/* GRID */}
         {loading ? (
           <div className={classes.center}>{t("projects.loading")}</div>
-        ) : filteredProjects.length === 0 ? (
+        ) : projects.length === 0 ? (
           <div className={classes.center}>{t("projects.noResults")}</div>
         ) : (
-          <div className={classes.grid}>
-            {filteredProjects.map((project) => (
-              <ProjectCard key={project._id} project={project} />
-            ))}
-          </div>
+          <>
+            <div className={classes.grid}>
+              {projects.map((project) => (
+                <ProjectCard key={project._id} project={project} />
+              ))}
+            </div>
+            {hasMore && (
+              <div className={classes.loadMoreRow}>
+                <button
+                  type="button"
+                  className={classes.loadMoreBtn}
+                  onClick={() => fetchPage(page + 1)}
+                  disabled={loadingMore}
+                >
+                  {loadingMore
+                    ? t("projects.loadingMore")
+                    : t("projects.loadMore", { count: total - projects.length })}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -10,6 +10,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import UserAvatar from "../components/UserAvatar";
+import { personStyle } from "../lib/personColor";
 import classes from "./MessagesPage.module.css";
 
 function getUserName(user) {
@@ -536,10 +537,10 @@ export default function MessagesPage() {
                 <li key={partner._id} className={classes.groupConvRow}>
                   <button
                     type="button"
-                    className={`${classes.convItem} ${!activeGroup && activePartner?._id?.toString() === partner._id?.toString() ? classes.convActive : ""}`}
+                    className={`${classes.convItem} ${!activeGroup && activePartner?._id?.toString() === partner._id?.toString() ? classes.convActive : ""} ${unread > 0 ? classes.convUnread : ""}`}
                     onClick={() => openDirect(partner)}
                   >
-                    <UserAvatar user={partner} className={classes.avatar} imageClassName={classes.avatarImg} fallbackClassName={classes.avatarFallback} alt={getUserName(partner)} />
+                    <UserAvatar user={partner} style={personStyle(partner)} className={classes.avatar} imageClassName={classes.avatarImg} fallbackClassName={classes.avatarFallback} alt={getUserName(partner)} />
                     <div className={classes.convMeta}>
                       <span className={classes.convName}>{getUserName(partner)}</span>
                       <span className={classes.convLast}>
@@ -622,7 +623,7 @@ export default function MessagesPage() {
               <>
                 {archivedDMs.map(({ partner }) => (
                   <li key={partner._id} className={classes.archivedItem}>
-                    <UserAvatar user={partner} className={`${classes.avatar} ${classes.archivedIcon}`} imageClassName={classes.avatarImg} fallbackClassName={classes.avatarFallback} alt={getUserName(partner)} />
+                    <UserAvatar user={partner} style={personStyle(partner)} className={`${classes.avatar} ${classes.archivedIcon}`} imageClassName={classes.avatarImg} fallbackClassName={classes.avatarFallback} alt={getUserName(partner)} />
                     <span className={classes.archivedName}>{getUserName(partner)}</span>
                     <div className={classes.archivedActions}>
                       <button
@@ -713,7 +714,7 @@ export default function MessagesPage() {
               ) : (
                 <>
                   <button type="button" className={classes.headerProfileBtn} onClick={() => navigate(`/users/${activePartner._id}`)} title="Voir le profil">
-                    <UserAvatar user={activePartner} className={classes.headerAvatar} imageClassName={classes.headerAvatarImg} fallbackClassName={classes.headerAvatarFallback} alt={activeName} />
+                    <UserAvatar user={activePartner} style={personStyle(activePartner)} className={classes.headerAvatar} imageClassName={classes.headerAvatarImg} fallbackClassName={classes.headerAvatarFallback} alt={activeName} />
                     <div className={classes.headerInfo}>
                       <span className={classes.chatHeaderName}>{activeName}</span>
                       {typingFrom
@@ -781,7 +782,7 @@ export default function MessagesPage() {
                             className={classes.msgAvatarBtn}
                             onClick={() => navigate(`/users/${msg.senderId?._id || msg.senderId}`)}
                           >
-                            <UserAvatar user={msg.senderId} className={classes.msgAvatar} imageClassName={classes.msgAvatarImg} fallbackClassName={classes.msgAvatarFallback} alt="" />
+                            <UserAvatar user={msg.senderId} style={personStyle(msg.senderId)} className={classes.msgAvatar} imageClassName={classes.msgAvatarImg} fallbackClassName={classes.msgAvatarFallback} alt="" />
                           </button>
                         )}
 
@@ -798,7 +799,7 @@ export default function MessagesPage() {
                             }}
                           >
                             {activeGroup && !isMine && (
-                              <span className={classes.bubbleSender}>{getUserName(msg.senderId)}</span>
+                              <span className={classes.bubbleSender} style={personStyle(msg.senderId)}>{getUserName(msg.senderId)}</span>
                             )}
                             {isEditing ? (
                               <EditArea
@@ -854,7 +855,7 @@ export default function MessagesPage() {
                 )}
                 {typingFrom && (
                   <div className={classes.msgRow}>
-                    {activePartner && <UserAvatar user={activePartner} className={classes.msgAvatar} imageClassName={classes.msgAvatarImg} fallbackClassName={classes.msgAvatarFallback} alt="" />}
+                    {activePartner && <UserAvatar user={activePartner} style={personStyle(activePartner)} className={classes.msgAvatar} imageClassName={classes.msgAvatarImg} fallbackClassName={classes.msgAvatarFallback} alt="" />}
                     <div className={`${classes.bubble} ${classes.bubbleTheirs} ${classes.typingBubble}`}>
                       <span className={classes.dot} /><span className={classes.dot} /><span className={classes.dot} />
                     </div>
@@ -880,7 +881,7 @@ export default function MessagesPage() {
                       const isMe = pId === myId;
                       return (
                         <li key={pId} className={classes.participantItem}>
-                          <UserAvatar user={p} className={classes.pAvatar} imageClassName={classes.pAvatarImg} fallbackClassName={classes.pAvatarFallback} alt="" />
+                          <UserAvatar user={p} style={personStyle(p)} className={classes.pAvatar} imageClassName={classes.pAvatarImg} fallbackClassName={classes.pAvatarFallback} alt="" />
                           <span className={classes.pName}>
                             {getUserName(p)}
                             {isMe && <span className={classes.pYou}> (moi)</span>}
@@ -936,7 +937,7 @@ export default function MessagesPage() {
                     const done = ratedUsers.has(pid);
                     return (
                       <li key={pid} className={classes.closedRatingItem}>
-                        <UserAvatar user={p} className={classes.pAvatar} imageClassName={classes.pAvatarImg} fallbackClassName={classes.pAvatarFallback} alt={name} />
+                        <UserAvatar user={p} style={personStyle(p)} className={classes.pAvatar} imageClassName={classes.pAvatarImg} fallbackClassName={classes.pAvatarFallback} alt={name} />
                         <span className={classes.pName}>{name}</span>
                         {done
                           ? <span className={classes.ratingDone}><Check size={13} /> {t("messages.ratingDone")}</span>

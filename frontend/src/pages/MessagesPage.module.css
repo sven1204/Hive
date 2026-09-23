@@ -73,8 +73,30 @@
 .convItem:hover { background: rgba(255, 255, 255, 0.05); }
 
 .convActive {
-  background: var(--bg-card-soft) !important;
-  border: 1px solid var(--border-soft);
+  position: relative;
+  background: rgba(var(--accent-rgb), 0.1) !important;
+  border: 1px solid rgba(var(--accent-rgb), 0.22);
+}
+
+/* Barre d'accent : repère immédiat de la conversation ouverte. */
+.convActive::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+
+.convUnread .convName {
+  font-weight: 700;
+}
+
+.convUnread .convLast {
+  color: var(--text-main);
+  font-weight: 500;
 }
 
 /* GROUP CONV ROW — conv button + archive icon side by side */
@@ -221,24 +243,24 @@
 .headerGroupIcon {
   display: grid;
   place-items: center;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-card-soft);
-  color: var(--text-muted);
+  border: 1px solid rgba(var(--accent-rgb), 0.3);
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
 }
 
 .avatarImg {
   display: block;
   object-fit: cover;
-  border: 1px solid var(--border-soft);
+  border: 2px solid color-mix(in srgb, var(--person, var(--border-soft)) 60%, transparent);
 }
 
 .avatarFallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-card-soft);
-  color: var(--text-main);
+  border: 1px solid color-mix(in srgb, var(--person, var(--text-muted)) 45%, transparent);
+  background: color-mix(in srgb, var(--person, var(--text-muted)) 16%, var(--bg-card));
+  color: var(--person, var(--text-main));
   font-weight: 700;
   font-size: 15px;
 }
@@ -361,16 +383,16 @@
 .headerAvatarImg {
   display: block;
   object-fit: cover;
-  border: 1px solid var(--border-soft);
+  border: 2px solid color-mix(in srgb, var(--person, var(--border-soft)) 60%, transparent);
 }
 
 .headerAvatarFallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-card-soft);
-  color: var(--text-main);
+  border: 1px solid color-mix(in srgb, var(--person, var(--text-muted)) 45%, transparent);
+  background: color-mix(in srgb, var(--person, var(--text-muted)) 16%, var(--bg-card));
+  color: var(--person, var(--text-main));
   font-weight: 700;
   font-size: 14px;
 }
@@ -440,7 +462,7 @@
 .bubbleSender {
   display: block;
   margin-bottom: 4px;
-  color: var(--accent);
+  color: var(--person, var(--accent));
   font-size: 11px;
   font-weight: 700;
 }
@@ -460,7 +482,12 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: var(--bg-main);
+  /* Fond vivant mais discret : halo d'accent en haut + trame de points. */
+  background-color: var(--bg-main);
+  background-image:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(var(--accent-rgb), 0.08), transparent 70%),
+    radial-gradient(rgba(var(--accent-rgb), 0.09) 1px, transparent 1.2px);
+  background-size: 100% 100%, 22px 22px;
 }
 
 .loadingMsgs {
@@ -523,9 +550,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-card-soft);
-  border: 1px solid var(--border-soft);
-  color: var(--text-main);
+  background: color-mix(in srgb, var(--person, var(--text-muted)) 16%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--person, var(--text-muted)) 45%, transparent);
+  color: var(--person, var(--text-main));
   font-weight: 700;
   font-size: 10px;
 }
@@ -816,15 +843,15 @@
   flex-shrink: 0;
 }
 
-.pAvatarImg { display: block; object-fit: cover; border: 1px solid rgba(34,197,94,0.25); }
+.pAvatarImg { display: block; object-fit: cover; border: 1px solid color-mix(in srgb, var(--person, var(--accent)) 45%, transparent); }
 
 .pAvatarFallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(34,197,94,0.1);
-  border: 1px solid rgba(34,197,94,0.22);
-  color: var(--accent);
+  background: color-mix(in srgb, var(--person, var(--accent)) 16%, var(--bg-card));
+  border: 1px solid color-mix(in srgb, var(--person, var(--accent)) 45%, transparent);
+  color: var(--person, var(--accent));
   font-weight: 700;
   font-size: 11px;
 }

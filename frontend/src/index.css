@@ -62,3 +62,20 @@ code {
   white-space: nowrap;
   border: 0;
 }
+
+/* Contrôles natifs (listes déroulantes, cases, barres de défilement) : indique au
+   navigateur le thème actif. Sans ça, sur mobile, le menu d'un <select> s'ouvrait
+   sur fond blanc avec le texte clair du thème sombre, donc illisible. */
+:root {
+  color-scheme: dark;
+}
+
+body.light {
+  color-scheme: light;
+}
+
+select option,
+select optgroup {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
