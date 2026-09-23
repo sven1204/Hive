@@ -29,7 +29,7 @@
   text-decoration: none;
 }
 
-/* The logo PNG is used as a mask so it always takes the palette's
+/* The logo SVG is used as a mask so it always takes the palette's
    primary colour (dark and light themes) instead of its baked-in green. */
 .logo {
   display: block;

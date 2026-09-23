@@ -1,10 +1,15 @@
 {
   "short_name": "Hive",
-  "name": "Hive — connecte tes projets",
+  "name": "Hive : connecte tes projets",
   "icons": [
     {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
       "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "48x48 32x32 16x16",
       "type": "image/x-icon"
     },
     {
@@ -20,6 +25,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#14100c",
-  "background_color": "#14100c"
+  "theme_color": "#111413",
+  "background_color": "#111413"
 }

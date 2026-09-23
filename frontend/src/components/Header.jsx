@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useSocket } from "../context/SocketContext";
-import logoHive from "../img/logoHive.png";
+import logoHive from "../img/logoHive.svg";
 import classes from "./Header.module.css";
 import { useTranslation } from "react-i18next";
 import { MessageSquare, Bell, X, Check, Menu, Sun, Moon, Plus, LogOut } from "lucide-react";
