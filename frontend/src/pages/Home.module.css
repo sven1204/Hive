@@ -57,6 +57,7 @@
   background: rgba(var(--accent-rgb), 0.14);
   filter: blur(10px);
   pointer-events: none;
+  animation: drift 14s ease-in-out infinite alternate;
 }
 
 .heroGlow2 {
@@ -69,6 +70,12 @@
   background: rgba(var(--cta-rgb), 0.12);
   filter: blur(10px);
   pointer-events: none;
+  animation: drift 18s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-60px, 40px, 0) scale(1.25); }
 }
 
 .heroInner {
@@ -89,7 +96,59 @@
 }
 
 .titleAccent {
+  position: relative;
+  display: inline-block;
   color: var(--accent);
+}
+
+/* Trait qui se dessine sous la partie accent une fois le décodage terminé. */
+.titleAccent::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.18em;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(var(--accent-rgb), 0), var(--accent) 30%, var(--accent) 70%, rgba(var(--accent-rgb), 0));
+  transform-origin: left center;
+  animation: underline 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--accent-delay) + 850ms);
+}
+
+/* ENTRÉE : mots du titre, puis texte et boutons en cascade. */
+.word {
+  display: inline-block;
+  animation: wordIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(150ms + var(--i) * 70ms);
+}
+
+.subtitle,
+.actions {
+  animation: riseIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.subtitle {
+  animation-delay: calc(var(--accent-delay) + 350ms);
+}
+
+.actions {
+  animation-delay: calc(var(--accent-delay) + 500ms);
+}
+
+@keyframes wordIn {
+  from { opacity: 0; transform: translateY(0.45em); filter: blur(8px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes underline {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
 }
 
 .subtitle {
@@ -125,6 +184,12 @@
 .primaryCta:hover {
   background: var(--cta-hover);
   transform: translateY(-1px);
+  box-shadow: 0 10px 28px -10px rgba(var(--cta-rgb), 0.7);
+}
+
+.primaryCta:active,
+.secondaryCta:active {
+  transform: scale(0.98);
 }
 
 .secondaryCta {
@@ -160,7 +225,9 @@
   color: var(--text-muted);
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease;
-  animation: bounce 2.2s ease-in-out infinite;
+  animation:
+    riseIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both calc(var(--accent-delay) + 900ms),
+    bounce 2.2s ease-in-out calc(var(--accent-delay) + 1800ms) infinite;
 }
 
 .scrollCue:hover {
@@ -174,7 +241,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scrollCue {
+  .scrollCue,
+  .word,
+  .subtitle,
+  .actions,
+  .heroGlow1,
+  .heroGlow2,
+  .titleAccent::after {
     animation: none;
   }
 }
