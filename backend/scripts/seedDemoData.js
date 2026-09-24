@@ -1,9 +1,11 @@
 require('dotenv').config({ path: require('path').join(__dirname, '..', '..', '.env') });
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const { attachDemoCovers } = require('./attachDemoCovers');
 const { connectDB, closeDB } = require('../db');
 const User            = require('../models/User');
 const Project         = require('../models/Project');
+const ProjectCover    = require('../models/ProjectCover');
 const ProjectHistory  = require('../models/ProjectHistory');
 const ProjectRequest  = require('../models/ProjectRequest');
 const Conversation    = require('../models/Conversation');
@@ -494,6 +496,7 @@ async function run() {
     Conversation.deleteMany({}),
     Message.deleteMany({}),
     Notification.deleteMany({}),
+    ProjectCover.deleteMany({}),
   ]);
   console.log('Collections vidées.');
 
@@ -525,6 +528,10 @@ async function run() {
     await Project.create(makeProject(owner._id, projectSeeds[i], i));
   }
   console.log(`${projectSeeds.length} projets créés.`);
+
+  // Images de couverture générées, attribuées par famille de thèmes.
+  await attachDemoCovers();
+
   console.log(`Mot de passe commun : ${PASSWORD}`);
 }
 
