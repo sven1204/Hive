@@ -15,4 +15,9 @@ router.post('/reset-password', authController.resetPassword);
 router.post("/verify-reset-code", authController.verifyResetCode);
 router.get('/me', requireAuth, authController.getMe);
 
+// Connexion via Google / GitHub (voir utils/oauthProviders.js)
+router.get('/providers', authController.oauthProviders);
+router.get('/oauth/:provider', authController.oauthStart);
+router.get('/oauth/:provider/callback', authController.oauthCallback);
+
 module.exports = router;

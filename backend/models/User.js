@@ -4,7 +4,10 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ["user", "admin"], default: "user" },
 
   email: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
+  passwordHash: { type: String, default: null }, // null pour un compte créé via Google/GitHub
+  // Identifiants chez les fournisseurs OAuth (absents tant que le compte n'est pas lié)
+  googleId: { type: String, unique: true, sparse: true },
+  githubId: { type: String, unique: true, sparse: true },
   emailVerified: { type: Boolean, default: false },
   emailVerificationCodeHash: { type: String, default: null },
   emailVerificationExpire: { type: Date, default: null },

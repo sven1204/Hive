@@ -1,8 +1,10 @@
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const sendEmail = require("../utils/sendEmail");
 const User = require('../models/User');
 const { registrationsTotal, loginsTotal } = require('../metric');
+const oauth = require('../utils/oauthProviders');
 
 /* Regex de validation — email RFC-compatible, mot de passe 8-15 cars avec maj/min/chiffre/spécial */
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
@@ -123,7 +125,15 @@ exports.login = async (req, res) => {
       });
     }
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
+    // Compte créé via Google/GitHub : pas de mot de passe tant que l'utilisateur n'en définit pas un
+    if (!user.passwordHash) {
+      loginsTotal.inc({ status: 'failed' });
+      return res.status(401).json({
+        error: "Ce compte utilise la connexion Google ou GitHub. Utilisez le bouton correspondant, ou « Mot de passe oublié » pour définir un mot de passe."
+      });
+    }
+
+    const isValid = await bcrypt.compare(password ?? '', user.passwordHash);
 
     if (!isValid) {
       loginsTotal.inc({ status: 'failed' });
@@ -160,6 +170,132 @@ exports.login = async (req, res) => {
   } catch (err) {
     console.error('Login error:', err);
     return res.status(500).json({ error: err.message });
+  }
+};
+
+// ==============================
+// CONNEXION GOOGLE / GITHUB (OAuth 2.0)
+// ==============================
+const OAUTH_COOKIE = 'hive_oauth';
+const OAUTH_STATE_TTL_S = 10 * 60;
+
+function frontUrl(path) {
+  return `${(process.env.FRONT_URL || 'http://localhost:3000').replace(/\/$/, '')}${path}`;
+}
+
+function oauthCookie(value, maxAgeS) {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  return `${OAUTH_COOKIE}=${value}; Path=/api/auth/oauth; HttpOnly; SameSite=Lax; Max-Age=${maxAgeS}${secure}`;
+}
+
+function readCookie(req, name) {
+  const match = (req.headers.cookie || '').split(';').map((c) => c.trim().split('='))
+    .find(([key]) => key === name);
+  return match ? decodeURIComponent(match.slice(1).join('=')) : null;
+}
+
+// GET /auth/providers — liste des fournisseurs configurés, pour afficher les bons boutons
+exports.oauthProviders = (_req, res) => {
+  res.json({ providers: oauth.enabledProviders() });
+};
+
+// GET /auth/oauth/:provider — redirige vers la page de connexion du fournisseur.
+// Le state est signé (JWT) et lié au navigateur par un cookie httpOnly (protection CSRF).
+exports.oauthStart = (req, res) => {
+  const { provider } = req.params;
+  if (!oauth.getProvider(provider)) {
+    return res.redirect(frontUrl('/login?oauthError=unavailable'));
+  }
+  const nonce = crypto.randomBytes(16).toString('hex');
+  const state = jwt.sign(
+    { n: nonce, p: provider, r: req.query.remember === '1' },
+    process.env.JWT_SECRET,
+    { expiresIn: OAUTH_STATE_TTL_S }
+  );
+  res.setHeader('Set-Cookie', oauthCookie(nonce, OAUTH_STATE_TTL_S));
+  return res.redirect(oauth.buildAuthorizeUrl(provider, state));
+};
+
+/* Retrouve le compte lié au fournisseur, sinon le compte ayant le même email, sinon en crée un. */
+async function findOrCreateOAuthUser(providerName, profile) {
+  const { idField } = oauth.getProvider(providerName);
+
+  let user = await User.findOne({ [idField]: profile.id });
+  if (user) return user;
+
+  const email = profile.email.trim().toLowerCase();
+  user = await User.findOne({ email });
+
+  if (user) {
+    if (!user.emailVerified) {
+      // Inscription jamais confirmée : le fournisseur prouve que l'email appartient à cette personne,
+      // on invalide donc le mot de passe choisi par un tiers qui aurait pu pré-créer le compte.
+      user.passwordHash = null;
+      user.emailVerified = true;
+      user.emailVerificationCodeHash = null;
+      user.emailVerificationExpire = null;
+    }
+    user[idField] = profile.id;
+  } else {
+    user = new User({
+      email,
+      role: 'user',
+      emailVerified: true,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      ...(profile.avatarUrl ? { avatarUrl: profile.avatarUrl } : {}),
+      [idField]: profile.id,
+    });
+    registrationsTotal.inc();
+  }
+
+  user.loginAttempts = 0;
+  user.lockUntil = null;
+  await user.save();
+  return user;
+}
+
+// GET /auth/oauth/:provider/callback — retour du fournisseur avec ?code&state.
+// Le JWT Hive est transmis au frontend dans le fragment d'URL (#token=…), jamais envoyé à un serveur.
+exports.oauthCallback = async (req, res) => {
+  const { provider } = req.params;
+  const fail = (reason) => {
+    loginsTotal.inc({ status: 'failed' });
+    return res.redirect(frontUrl(`/login?oauthError=${reason}`));
+  };
+
+  const nonce = readCookie(req, OAUTH_COOKIE);
+  res.setHeader('Set-Cookie', oauthCookie('', 0));
+
+  if (!oauth.getProvider(provider)) return fail('unavailable');
+  if (req.query.error) return fail('cancelled'); // l'utilisateur a refusé l'accès
+
+  let state;
+  try {
+    state = jwt.verify(String(req.query.state || ''), process.env.JWT_SECRET);
+  } catch {
+    return fail('expired');
+  }
+  if (!nonce || state.n !== nonce || state.p !== provider || !req.query.code) {
+    return fail('expired');
+  }
+
+  try {
+    const profile = await oauth.exchangeCode(provider, String(req.query.code));
+    if (!profile.email || !profile.emailVerified) return fail('email');
+
+    const user = await findOrCreateOAuthUser(provider, profile);
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: state.r ? '30d' : '1d' }
+    );
+
+    loginsTotal.inc({ status: 'success' });
+    return res.redirect(frontUrl(`/auth/callback#token=${encodeURIComponent(token)}`));
+  } catch (err) {
+    console.error(`OAuth ${provider} error:`, err.message);
+    return fail('server');
   }
 };
 
