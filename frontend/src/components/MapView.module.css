@@ -221,9 +221,11 @@
   pointer-events: none;
 }
 
+/* La fiche prend la hauteur de son contenu (plafonnée à la hauteur de la carte). */
 .panel {
   width: 100%;
-  height: 100%;
+  height: auto;
+  max-height: 100%;
   background: var(--bg-surface);
   border: 1px solid var(--border-soft);
   border-radius: 24px;
@@ -253,13 +255,49 @@
 }
 
 @media (max-width: 900px) {
+  /* Sur mobile, la poignée de la feuille est posée sur l'image */
+  .panel {
+    position: relative;
+  }
+
   .panelHandle {
     display: block;
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    z-index: 2;
+    margin: 0;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.75);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
   }
+
+}
+
+.panelCoverWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.panelCover {
+  aspect-ratio: 16 / 9;
+  max-height: 220px;
+  width: 100%;
+}
+
+/* Bouton de fermeture sur l'image : fond opaque pour rester visible sur toute photo */
+.closeOnCover {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px rgba(var(--shadow-rgb), calc(0.2 * var(--shadow-k)));
 }
 
 .panelHeader {
-  padding: 22px 22px 16px;
+  padding: 18px 22px 16px;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -522,6 +560,10 @@
 
   .fullscreen .panel {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .panelCover {
+    max-height: 150px;
   }
 
   .panelOpen {

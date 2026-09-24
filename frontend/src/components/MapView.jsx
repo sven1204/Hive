@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '../context/ThemeContext';
 import { api } from '../lib/api';
 import BaseMapLayers from './BaseMapLayers';
+import ProjectCover from './ProjectCover';
 import classes from './MapView.module.css';
 
 /* Centre par défaut : Genève. Recalé sur la position réelle de l'utilisateur dès que la géolocalisation est disponible. */
@@ -440,6 +441,19 @@ function MapView() {
           <div className={classes.panelHandle} />
           {selectedProject && (
             <>
+              {/* Image de couverture en bandeau, bouton de fermeture posé dessus */}
+              <div className={classes.panelCoverWrap}>
+                <ProjectCover project={selectedProject} size="full" showInitials={false} className={classes.panelCover} />
+                <button
+                  type="button"
+                  className={`${classes.closeButton} ${classes.closeOnCover}`}
+                  onClick={() => setSelectedProjectId(null)}
+                  aria-label={t("map.closePanel")}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
               <div className={classes.panelHeader}>
                 <div>
                   <div className={classes.panelMeta}>
@@ -448,15 +462,6 @@ function MapView() {
                   </div>
                   <h2 className={classes.panelTitle}>{selectedProject.title}</h2>
                 </div>
-
-                <button
-                  type="button"
-                  className={classes.closeButton}
-                  onClick={() => setSelectedProjectId(null)}
-                  aria-label={t("map.closePanel")}
-                >
-                  <X size={18} />
-                </button>
               </div>
 
               <div className={classes.panelBody}>
