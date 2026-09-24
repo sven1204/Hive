@@ -4,8 +4,11 @@
   color: var(--text-main);
 }
 
-/* TOP BAR */
+/* TOP BAR (dans la bannière) */
 .topBar {
+  position: relative;
+  z-index: 1;
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
   padding: 24px 32px 0;
@@ -15,14 +18,17 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: transparent;
+  min-height: 40px;
+  background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border-soft);
-  color: var(--text-muted);
-  padding: 8px 16px;
+  color: var(--text-main);
+  padding: 0 16px;
   border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 
 .backBtn:hover {
@@ -30,17 +36,43 @@
   color: var(--accent);
 }
 
-/* HERO */
+/* HERO : image de couverture derrière le titre. Le texte est en bas, sur un fondu
+   presque opaque vers le fond de page, pour rester lisible quelle que soit l'image. */
 .hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   border-bottom: 1px solid var(--border-soft);
-  padding: 32px 0 36px;
-  margin-top: 20px;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+}
+
+.heroCover {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.heroScrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--bg-main) 18%, transparent) 0%,
+    color-mix(in srgb, var(--bg-main) 45%, transparent) 38%,
+    color-mix(in srgb, var(--bg-main) 88%, transparent) 70%,
+    var(--bg-main) 100%
+  );
 }
 
 .heroInner {
+  position: relative;
+  width: 100%;
   max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 32px;
+  margin: auto auto 0;
+  padding: 120px 32px 36px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -49,7 +81,41 @@
 }
 
 .heroText {
+  flex: 1 1 420px;
   min-width: 0;
+}
+
+.heroOwnerActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.editProjectBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.editProjectBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.editProjectBtn:focus-visible,
+.backBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* Join action lives in the hero so it is visible on arrival. */
@@ -83,24 +149,31 @@
   color: var(--badge-color);
 }
 
+/* Sur la photo de couverture, le badge a un fond opaque pour rester lisible. */
+.hero .statusBadge {
+  background: color-mix(in srgb, var(--badge-color) 14%, var(--bg-surface));
+}
+
 .rating {
   display: inline-flex;
   align-items: center;
 }
 
 .title {
-  font-size: 32px;
+  font-size: clamp(28px, 4vw, 40px);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   margin: 0 0 12px;
+  text-wrap: balance;
 }
 
 .heroLocation {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--text-muted);
-  font-size: 14px;
+  color: color-mix(in srgb, var(--text-main) 78%, var(--bg-main));
+  font-size: 15px;
 }
 
 /* CONTENT LAYOUT */
@@ -884,11 +957,12 @@
 }
 
 .closeProjectBtn {
-  background: transparent;
+  min-height: 44px;
+  background: color-mix(in srgb, var(--bg-surface) 85%, transparent);
   border: 1px solid var(--danger-text);
   color: var(--danger-text);
-  padding: 8px 20px;
-  border-radius: 10px;
+  padding: 0 18px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -1071,6 +1145,19 @@
 }
 
 @media (max-width: 600px) {
+  .hero {
+    min-height: 300px;
+  }
+
+  .heroOwnerActions {
+    width: 100%;
+  }
+
+  .heroOwnerActions button {
+    flex: 1;
+    justify-content: center;
+  }
+
   .heroJoin {
     align-items: stretch;
     width: 100%;
@@ -1088,7 +1175,7 @@
   }
 
   .heroInner {
-    padding: 0 16px;
+    padding: 88px 16px 24px;
   }
 
   .content {
@@ -1098,7 +1185,7 @@
   }
 
   .title {
-    font-size: 20px;
+    font-size: 24px;
   }
 
   .summaryGrid {

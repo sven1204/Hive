@@ -1,0 +1,39 @@
+.cover {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-card-soft);
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Couverture générée : teinte du projet, motif en rayon de miel (rappel du logo). */
+.generated {
+  background:
+    radial-gradient(120% 90% at 85% 10%, color-mix(in srgb, var(--cover-accent) 34%, transparent), transparent 70%),
+    color-mix(in srgb, var(--cover-accent) 16%, var(--bg-card));
+}
+
+.pattern {
+  position: absolute;
+  inset: 0;
+  background: var(--cover-accent);
+  opacity: 0.15;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27.713' height='48' viewBox='0 0 27.713 48'%3E%3Cpath d='M13.856 0 27.713 8v16l-13.857 8L0 24V8zM13.856 32v16' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") 0 0 / 27.713px 48px repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27.713' height='48' viewBox='0 0 27.713 48'%3E%3Cpath d='M13.856 0 27.713 8v16l-13.857 8L0 24V8zM13.856 32v16' fill='none' stroke='%23000' stroke-width='1'/%3E%3C/svg%3E") 0 0 / 27.713px 48px repeat;
+}
+
+.initials {
+  position: absolute;
+  left: 16px;
+  bottom: 10px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: color-mix(in srgb, var(--cover-accent) 85%, var(--text-main));
+}

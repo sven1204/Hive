@@ -7,6 +7,7 @@ const { containsProfanity } = require('../utils/profanityFilter');
 const ProjectHistory = require('../models/ProjectHistory');
 const ProjectRequest = require('../models/ProjectRequest');
 const Rating         = require('../models/Rating');
+const ProjectCover   = require('../models/ProjectCover');
 const { projectsCreatedTotal, projectsClosedTotal } = require('../metric');
 
 // ==============================
@@ -52,6 +53,38 @@ function validateProjectPayload(body = {}, options = {}) {
   if (coordinates.some((value) => typeof value !== 'number' || Number.isNaN(value))) return 'La localisation du projet est invalide.';
 
   return null;
+}
+
+/* Seuls les champs du formulaire projet sont modifiables par l'utilisateur.
+   Sans cette liste, une requête forgée pouvait réécrire ownerId, participants,
+   cached (note moyenne), coverVersion, etc. */
+const EDITABLE_FIELDS = ['title', 'description', 'tags', 'requiredSkills', 'langues', 'minAge', 'maxAge', 'maxParticipants', 'visibility'];
+const EDITABLE_META_FIELDS = ['startDate', 'endDate', 'repoUrl', 'budget', 'city', 'region'];
+const EDITABLE_STATUSES = ['open', 'closed', 'draft'];
+
+function pickEditableProjectFields(body = {}) {
+  const picked = {};
+  EDITABLE_FIELDS.forEach((field) => {
+    if (body[field] !== undefined) picked[field] = body[field];
+  });
+
+  if (body.status !== undefined) {
+    if (!EDITABLE_STATUSES.includes(body.status)) return { error: 'Statut invalide.' };
+    picked.status = body.status;
+  }
+
+  if (body.location !== undefined) {
+    picked.location = { type: 'Point', coordinates: body.location?.coordinates };
+  }
+
+  if (body.projectMeta && typeof body.projectMeta === 'object') {
+    picked.projectMeta = {};
+    EDITABLE_META_FIELDS.forEach((field) => {
+      if (body.projectMeta[field] !== undefined) picked.projectMeta[field] = body.projectMeta[field];
+    });
+  }
+
+  return { picked };
 }
 
 /* ==============================
@@ -163,17 +196,21 @@ exports.getMyProjects = async (req, res) => {
 
 // POST /projects — crée un projet après validation, assigne l'owner depuis le token
 exports.createProject = async (req, res) => {
-  const validationError = validateProjectPayload(req.body);
+  const { picked, error } = pickEditableProjectFields(req.body);
+  if (error) return res.status(400).json({ error });
+
+  const validationError = validateProjectPayload(picked);
   if (validationError) {
     return res.status(400).json({ error: validationError });
   }
 
-  if (containsProfanity(req.body.title, req.body.description)) {
+  if (containsProfanity(picked.title, picked.description)) {
     return res.status(400).json({ error: 'Le contenu contient des termes inappropriés.' });
   }
 
+  // ownerId vient du jeton ; participants, notes et image ne passent jamais par ici.
   const project = await Project.create({
-    ...req.body,
+    ...picked,
     ownerId: req.user.id,
   });
 
@@ -191,19 +228,27 @@ exports.updateProject = async (req, res) => {
     return res.status(403).json({ error: 'Not authorized' });
   }
 
+  const { picked, error } = pickEditableProjectFields(req.body);
+  if (error) return res.status(400).json({ error });
+
+  // Les sous-champs envoyés complètent les métadonnées existantes au lieu de les effacer.
+  if (picked.projectMeta) {
+    picked.projectMeta = { ...(project.projectMeta?.toObject?.() || project.projectMeta || {}), ...picked.projectMeta };
+  }
+
   const validationError = validateProjectPayload(
-    { ...project.toObject(), ...req.body },
+    { ...project.toObject(), ...picked },
     { allowPastStartDate: true }
   );
   if (validationError) {
     return res.status(400).json({ error: validationError });
   }
 
-  if (containsProfanity(req.body.title, req.body.description)) {
+  if (containsProfanity(picked.title, picked.description)) {
     return res.status(400).json({ error: 'Le contenu contient des termes inappropriés.' });
   }
 
-  Object.assign(project, req.body);
+  Object.assign(project, picked);
   await project.save();
 
   res.json(project);
@@ -220,6 +265,7 @@ exports.deleteProject = async (req, res) => {
   }
 
   await project.deleteOne();
+  await ProjectCover.deleteOne({ projectId: project._id });
 
   res.json({ message: 'Project deleted' });
 };

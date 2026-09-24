@@ -70,6 +70,10 @@ const projectSchema = new Schema(
 
     // --- Langues (conforme à ta collection) ---
     langues: { type: [String], default: [] },
+
+    // --- Image de couverture : horodatage de la dernière image envoyée (null = aucune).
+    //     L'image elle-même est dans ProjectCover ; la version sert d'invalidation de cache.
+    coverVersion: { type: Number, default: null },
   },
   { timestamps: true }
 );

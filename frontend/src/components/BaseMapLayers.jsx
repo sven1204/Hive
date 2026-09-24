@@ -35,6 +35,38 @@ function MapBackground({ theme }) {
   return null;
 }
 
+/* L'extension MapLibre pour Leaflet peut encore exécuter une mise à jour différée
+   (image d'animation, zoom) après le retrait de la carte, d'où une erreur
+   « Cannot read properties of null (reading 'getZoom') » en quittant une page.
+   On protège ces méthodes une fois, avant de créer la moindre couche. */
+function guardMaplibreLayer() {
+  const proto = L.MaplibreGL?.prototype;
+  if (!proto || proto.__hiveGuarded) return;
+  proto.__hiveGuarded = true;
+
+  ["_update", "_zoomEnd", "_pinchZoom", "_animateZoom", "_zoomStart"].forEach((name) => {
+    const original = proto[name];
+    if (typeof original !== "function") return;
+    proto[name] = function guarded(...args) {
+      if (!this._map || !this._glMap) return undefined;
+      return original.apply(this, args);
+    };
+  });
+
+  proto._transitionEnd = function transitionEnd() {
+    L.Util.requestAnimFrame(function onFrame() {
+      if (!this._map || !this._glMap) return;
+      const zoom = this._map.getZoom();
+      const center = this._map.getCenter();
+      const offset = this._map.latLngToContainerPoint(this._map.getBounds().getNorthWest());
+      this._resizeContainer();
+      L.DomUtil.setTransform(this._glMap._actualCanvas, offset, 1);
+      this._glMap.once("moveend", L.Util.bind(function onMoveEnd() { this._zoomEnd(); }, this));
+      this._glMap.jumpTo({ center, zoom: zoom - 1 });
+    }, this);
+  };
+}
+
 function VectorLayer({ theme, onFail }) {
   const map = useMap();
 
@@ -49,6 +81,7 @@ function VectorLayer({ theme, onFail }) {
           import("maplibre-gl/dist/maplibre-gl.css"),
           import("@maplibre/maplibre-gl-leaflet"),
         ]);
+        guardMaplibreLayer();
         const style = await loadHiveMapStyle(theme);
         if (cancelled) return;
         layer = L.maplibreGL({ style, attributionControl: false, interactive: false });

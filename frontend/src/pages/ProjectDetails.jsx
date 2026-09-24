@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { MapContainer, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ArrowLeft, Check, Clock, DollarSign, GitBranch, MapPin, Star, UserPlus, UserRound, X } from "lucide-react";
+import { ArrowLeft, Check, Clock, DollarSign, GitBranch, MapPin, Pencil, Star, UserPlus, UserRound, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
@@ -11,6 +11,7 @@ import { useTheme } from "../context/ThemeContext";
 import BaseMapLayers from "../components/BaseMapLayers";
 import HiveRating from "../components/HiveRating";
 import UserAvatar from "../components/UserAvatar";
+import ProjectCover from "../components/ProjectCover";
 import classes from "./ProjectDetails.module.css";
 
 // ── Icône carte ──────────────────────────────────────────────────────────────
@@ -267,16 +268,18 @@ export default function ProjectDetails() {
   return (
     <div className={classes.page}>
 
-      {/* BACK */}
-      <div className={classes.topBar}>
-        <button className={classes.backBtn} onClick={() => navigate("/projects")}>
-          <ArrowLeft size={16} />
-          {t("projectDetails.backToProjects")}
-        </button>
-      </div>
-
-      {/* HERO */}
+      {/* HERO : image de couverture derrière le titre, fondue dans la page */}
       <div className={classes.hero}>
+        <ProjectCover project={project} size="full" showInitials={false} className={classes.heroCover} />
+        <div className={classes.heroScrim} aria-hidden="true" />
+
+        <div className={classes.topBar}>
+          <button className={classes.backBtn} onClick={() => navigate("/projects")}>
+            <ArrowLeft size={16} />
+            {t("projectDetails.backToProjects")}
+          </button>
+        </div>
+
         <div className={classes.heroInner}>
           <div className={classes.heroText}>
           <div className={classes.heroTop}>
@@ -329,19 +332,23 @@ export default function ProjectDetails() {
               )}
             </div>
           )}
+
+          {/* ACTIONS DU CRÉATEUR */}
+          {isOwner && (
+            <div className={classes.heroOwnerActions}>
+              <button type="button" className={classes.editProjectBtn} onClick={() => navigate(`/projects/${project._id}/edit`)}>
+                <Pencil size={16} aria-hidden="true" />
+                {t("projectDetails.editProject")}
+              </button>
+              {project.status === "open" && (
+                <button type="button" className={classes.closeProjectBtn} onClick={() => setShowCloseConfirm(true)}>
+                  {t("projectDetails.closeProject")}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* BOUTON CLÔTURER — owner uniquement, projet ouvert */}
-      {isOwner && project.status === "open" && (
-        <div className={classes.closeBar}>
-          <div className={classes.closeBarInner}>
-            <button className={classes.closeProjectBtn} onClick={() => setShowCloseConfirm(true)}>
-              Clôturer le projet
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* PANEL DEMANDES — visible uniquement par le owner */}
       {isOwner && joinRequests.length > 0 && (

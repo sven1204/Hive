@@ -4,6 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/project.controller');
+const coverController = require('../controllers/projectCover.controller');
 const requireAuth = require('../middlewares/requireAuth');
 const optionalAuth = require('../middlewares/optionalAuth');
 // Public
@@ -29,6 +30,11 @@ router.delete('/:id/participants/:userId', requireAuth, controller.kickParticipa
 router.post('/:id/close', requireAuth, controller.closeProject);
 router.post('/:id/rate', requireAuth, controller.rateParticipant);
 router.post('/:id/view', requireAuth, controller.recordView);
+
+// Image de couverture (lecture publique, écriture réservée au propriétaire)
+router.get('/:id/cover', coverController.getCover);
+router.put('/:id/cover', requireAuth, coverController.uploadCover);
+router.delete('/:id/cover', requireAuth, coverController.deleteCover);
 
 // Route dynamique toujours en dernier
 router.get('/:id', controller.getProjectById);

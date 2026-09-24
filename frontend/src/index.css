@@ -17,6 +17,33 @@ html {
   font-family: inherit;
 }
 
+/* Boutons de zoom Leaflet aux couleurs du thème (blancs par défaut, même en sombre) */
+.leaflet-bar {
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(var(--shadow-rgb, 0, 0, 0), calc(0.18 * var(--shadow-k, 1))) !important;
+}
+
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 30px !important;
+  background: var(--bg-surface);
+  color: var(--text-main);
+  border-bottom-color: var(--border-soft);
+}
+
+.leaflet-bar a:hover {
+  background: var(--bg-card-soft);
+}
+
+.leaflet-bar a.leaflet-disabled {
+  background: var(--bg-card);
+  color: var(--text-muted);
+}
+
 /* Crédit de carte compact (voir BaseMapLayers.jsx) */
 .leaflet-control.hive-map-credit {
   margin: 0 10px 10px 0;

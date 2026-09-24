@@ -45,7 +45,7 @@ afterEach(() => {
 });
 
 async function fillRequiredProjectFields() {
-  await userEvent.type(screen.getByPlaceholderText(/plateforme mern/i), "Mon super projet");
+  await userEvent.type(screen.getByPlaceholderText(/club de foot/i), "Mon super projet");
   await userEvent.type(screen.getByPlaceholderText(/genève/i), "Genève");
   await userEvent.type(screen.getByPlaceholderText(/suisse/i), "Suisse");
   fireEvent.change(screen.getByLabelText(/date de début/i), { target: { value: "2027-04-10" } });
@@ -63,7 +63,7 @@ test("EF-03 — affiche le formulaire de création avec les champs principaux", 
     screen.getByRole("heading", { name: /créer un projet/i })
   ).toBeInTheDocument();
   expect(
-    screen.getByPlaceholderText(/plateforme mern/i)
+    screen.getByPlaceholderText(/club de foot/i)
   ).toBeInTheDocument();
   expect(screen.getByTestId("mock-map")).toBeInTheDocument();
   expect(
@@ -116,7 +116,7 @@ test("EF-03 — charge un projet existant et envoie une mise à jour en mode éd
   expect(screen.getByRole("heading", { name: /modifier le projet/i })).toBeInTheDocument();
 
   await userEvent.clear(screen.getByDisplayValue("Projet existant"));
-  await userEvent.type(screen.getByPlaceholderText(/plateforme mern/i), "Projet mis à jour");
+  await userEvent.type(screen.getByPlaceholderText(/club de foot/i), "Projet mis à jour");
   await userEvent.click(screen.getByRole("button", { name: /enregistrer les modifications/i }));
 
   await waitFor(() =>
@@ -161,8 +161,8 @@ test("EF-03 — appelle l'API avec les bonnes données et les coordonnées chois
     </MemoryRouter>
   );
 
-  await userEvent.clear(screen.getByPlaceholderText(/plateforme mern/i));
-  await userEvent.type(screen.getByPlaceholderText(/plateforme mern/i), "Mon super projet");
+  await userEvent.clear(screen.getByPlaceholderText(/club de foot/i));
+  await userEvent.type(screen.getByPlaceholderText(/club de foot/i), "Mon super projet");
   fireEvent.change(screen.getByLabelText(/date de début/i), { target: { value: "2027-04-10" } });
   fireEvent.change(screen.getByLabelText(/date de fin/i), { target: { value: "2027-04-12" } });
   await userEvent.click(screen.getByRole("button", { name: /créer le projet/i }));
@@ -265,7 +265,7 @@ test("EF-03 — refuse une date de début avant aujourd'hui", async () => {
     </MemoryRouter>
   );
 
-  await userEvent.type(screen.getByPlaceholderText(/plateforme mern/i), "Projet date");
+  await userEvent.type(screen.getByPlaceholderText(/club de foot/i), "Projet date");
   await userEvent.type(screen.getByPlaceholderText(/genève/i), "Genève");
   await userEvent.type(screen.getByPlaceholderText(/suisse/i), "Suisse");
   fireEvent.change(screen.getByLabelText(/date de début/i), { target: { value: "2026-03-01" } });
@@ -283,7 +283,7 @@ test("EF-03 — refuse une date de fin qui n'est pas après la date de début", 
     </MemoryRouter>
   );
 
-  await userEvent.type(screen.getByPlaceholderText(/plateforme mern/i), "Projet date");
+  await userEvent.type(screen.getByPlaceholderText(/club de foot/i), "Projet date");
   await userEvent.type(screen.getByPlaceholderText(/genève/i), "Genève");
   await userEvent.type(screen.getByPlaceholderText(/suisse/i), "Suisse");
   fireEvent.change(screen.getByLabelText(/date de début/i), { target: { value: "2027-04-12" } });
@@ -303,7 +303,7 @@ test("EF-03 — permet de créer un projet sans date de fin", async () => {
     </MemoryRouter>
   );
 
-  await userEvent.type(screen.getByPlaceholderText(/plateforme mern/i), "Club de foot");
+  await userEvent.type(screen.getByPlaceholderText(/club de foot/i), "Club de foot");
   await userEvent.type(screen.getByPlaceholderText(/genève/i), "Genève");
   await userEvent.type(screen.getByPlaceholderText(/suisse/i), "Suisse");
   fireEvent.change(screen.getByLabelText(/date de début/i), { target: { value: "2027-04-10" } });
@@ -327,7 +327,7 @@ test("EF-03 — refuse un âge maximum plus petit que l'âge minimum", async () 
     </MemoryRouter>
   );
 
-  await userEvent.type(screen.getByPlaceholderText(/plateforme mern/i), "Club junior");
+  await userEvent.type(screen.getByPlaceholderText(/club de foot/i), "Club junior");
   await userEvent.type(screen.getByPlaceholderText(/genève/i), "Genève");
   await userEvent.type(screen.getByPlaceholderText(/suisse/i), "Suisse");
   fireEvent.change(screen.getByLabelText(/date de début/i), { target: { value: "2027-04-10" } });
@@ -364,8 +364,7 @@ test("EF-03 — permet d'ajouter un tag via le bouton +", async () => {
   const tagInput = screen.getByPlaceholderText(/ajouter un tag/i);
   await userEvent.type(tagInput, "React");
 
-  const addButtons = screen.getAllByRole("button", { name: "+" });
-  await userEvent.click(addButtons[0]);
+  await userEvent.click(screen.getByRole("button", { name: /ajouter \(tags\)/i }));
 
   expect(screen.getByText("React")).toBeInTheDocument();
 });
@@ -378,12 +377,12 @@ test("EF-03 — n'ajoute pas un tag en double", async () => {
   );
 
   const tagInput = screen.getByPlaceholderText(/ajouter un tag/i);
-  const addButtons = screen.getAllByRole("button", { name: "+" });
+  const addTag = screen.getByRole("button", { name: /ajouter \(tags\)/i });
 
   await userEvent.type(tagInput, "React");
-  await userEvent.click(addButtons[0]);
+  await userEvent.click(addTag);
   await userEvent.type(tagInput, "React");
-  await userEvent.click(addButtons[0]);
+  await userEvent.click(addTag);
 
   expect(screen.getAllByText("React")).toHaveLength(1);
 });
@@ -398,8 +397,7 @@ test("EF-03 — permet d'ajouter une compétence recherchée", async () => {
   const skillInput = screen.getByPlaceholderText(/ajouter une compétence/i);
   await userEvent.type(skillInput, "TypeScript");
 
-  const addButtons = screen.getAllByRole("button", { name: "+" });
-  await userEvent.click(addButtons[1]);
+  await userEvent.click(screen.getByRole("button", { name: /ajouter \(compétences recherchées\)/i }));
 
   expect(screen.getByText("TypeScript")).toBeInTheDocument();
 });

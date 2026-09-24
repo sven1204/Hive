@@ -1,6 +1,6 @@
 .createProjectPage {
   min-height: 100vh;
-  padding: 80px 20px;
+  padding: 56px 20px 80px;
   background: var(--bg-main);
   color: var(--text-main);
   display: flex;
@@ -9,35 +9,82 @@
 }
 
 .pageHeader {
-  margin-bottom: 40px;
   width: 100%;
-  max-width: 970px;
-  padding: 0 40px;
+  max-width: 860px;
+  margin-bottom: 28px;
 }
 
 .pageHeader h1 {
-  font-size: 36px;
-  font-weight: 600;
-  margin-bottom: 8px;
+  margin: 0 0 8px;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .pageHeader p {
+  margin: 0;
   color: var(--text-muted);
 }
 
-.formContainer {
-  width: 100%;
-  max-width: 900px;
-  background: var(--bg-card);
-  padding: 40px;
-  border-radius: 16px;
-  border: 1px solid var(--border-soft);
-}
-
+/* Formulaire découpé en sections (fieldset) : chacune est une carte avec un titre. */
 .projectForm {
+  width: 100%;
+  max-width: 860px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+.requiredNote {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.required {
+  color: var(--danger-text);
+  font-weight: 600;
+}
+
+.section {
+  margin: 0;
+  min-width: 0;
+  padding: 28px 32px 32px;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  background: var(--bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* La légende se place dans la carte (et non à cheval sur la bordure). */
+.sectionLegend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+}
+
+.sectionLegend + * {
+  clear: both;
+}
+
+.sectionHint {
+  margin: -12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.fieldLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-main);
 }
 
 .formGroup {
@@ -48,7 +95,8 @@
 
 .formGroup label {
   font-size: 14px;
-  color: var(--text-muted);
+  font-weight: 500;
+  color: var(--text-main);
 }
 
 .formGroup input,
@@ -59,9 +107,14 @@
   padding: 12px 14px;
   border-radius: 10px;
   color: var(--text-main);
-  font-size: 14px;
-  transition: 0.2s ease;
-  font-family : Satoshi,sans-serif;
+  font-size: 15px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.formGroup input::placeholder,
+.formGroup textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
 }
 
 .formGroup input,
@@ -73,12 +126,18 @@
   cursor: pointer;
 }
 
+.formGroup input:hover,
+.formGroup textarea:hover,
+.formGroup select:hover {
+  border-color: color-mix(in srgb, var(--text-muted) 45%, var(--border-soft));
+}
+
 .formGroup input:focus,
 .formGroup textarea:focus,
 .formGroup select:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
 }
 
 .formGroup textarea {
@@ -86,26 +145,6 @@
   min-height: 120px;
   max-height: 300px;
   overflow: auto;
-}
-
-.formGroupSelect {
-  position: relative;
-}
-
-.formGroupSelect select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-right: 40px;
-}
-
-.formGroupSelect::after {
-  content: "⌄";
-  position: absolute;
-  right: 14px;
-  top: 38px;
-  color: var(--text-muted);
-  pointer-events: none;
 }
 
 .formRow {
@@ -120,38 +159,52 @@
 .formActions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
-  margin-top: 20px;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btnPrimary,
+.btnSecondary {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 
 .btnPrimary {
-  background: var(--accent);
-  color: var(--bg-main);
+  background: var(--cta);
+  color: var(--cta-text);
   border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s ease;
 }
 
-.btnPrimary:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
+.btnPrimary:hover:not(:disabled) {
+  background: var(--cta-hover);
+}
+
+.btnPrimary:active:not(:disabled),
+.btnSecondary:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .btnSecondary {
   background: transparent;
   border: 1px solid var(--border-soft);
-  color: var(--text-muted);
-  padding: 12px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.2s ease;
+  color: var(--text-main);
 }
 
-.btnSecondary:hover {
-  background: var(--bg-card-soft);
+.btnSecondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--text-main) 6%, transparent);
+}
+
+.btnPrimary:focus-visible,
+.btnSecondary:focus-visible,
+.tagInputWrapper button:focus-visible,
+.tag button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .tagInputWrapper {
@@ -164,26 +217,28 @@
 }
 
 .tagInputWrapper button {
-  width: 44px;
-  height: 44px;
-  background: var(--accent);
-  border: none;
-  color: var(--bg-main);
-  font-size: 18px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.4);
+  color: var(--accent);
   border-radius: 12px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background 0.15s ease;
 }
 
 .tagInputWrapper button:hover {
-  background: var(--accent-hover);
+  background: rgba(var(--accent-rgb), 0.22);
 }
 
 .tagList {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .tag {
@@ -204,10 +259,21 @@
 }
 
 .tag button {
-  background: transparent;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: -4px;
+  padding: 0;
   border: none;
-  color: var(--text-muted);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
+}
+
+.tag button:hover {
+  background: rgba(var(--accent-rgb), 0.18);
 }
 
 .errorMsg {
@@ -225,19 +291,12 @@
   transform: none;
 }
 
-.sectionTitle {
-  font-size: 18px;
-  font-weight: 600;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  color: var(--text-muted);
-}
-
 .locationField {
   position: relative;
 }
 
 .locationField input {
+  width: 100%;
   padding-right: 44px;
 }
 
@@ -322,15 +381,19 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .locationLoader {
+    animation: none;
+  }
+}
+
 @media (max-width: 720px) {
   .createProjectPage {
     padding: 64px 16px;
   }
 
-  .pageHeader,
-  .formContainer {
-    padding-left: 20px;
-    padding-right: 20px;
+  .section {
+    padding: 22px 18px 24px;
   }
 
   .formRow {
@@ -338,11 +401,18 @@
   }
 
   .formActions {
-    justify-content: stretch;
+    flex-direction: column-reverse;
   }
 
-  .btnPrimary {
+  .btnPrimary,
+  .btnSecondary {
     width: 100%;
+  }
+
+  .formGroup input,
+  .formGroup textarea,
+  .formGroup select {
+    font-size: 16px;
   }
 
   .locationPreview {
@@ -356,20 +426,11 @@
   }
 
   .pageHeader {
-    padding-left: 0;
-    padding-right: 0;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
   .pageHeader h1 {
     font-size: 24px;
   }
 
-  .formContainer {
-    padding: 24px 16px;
-  }
-
-  .btnSecondary {
-    width: 100%;
-  }
 }

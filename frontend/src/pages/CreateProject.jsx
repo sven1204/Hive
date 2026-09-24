@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { X, MapPin, LoaderCircle } from "lucide-react";
+import { X, MapPin, LoaderCircle, Plus } from "lucide-react";
 import { MapContainer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
+import { coverUrl } from "../lib/projectCover";
+import CoverPicker from "../components/CoverPicker";
 import BaseMapLayers from "../components/BaseMapLayers";
 import { useTheme } from "../context/ThemeContext";
 import classes from "./CreateProject.module.css";
@@ -72,6 +74,27 @@ function MapRecenter({ center }) {
       map.setView(center, map.getZoom(), { animate: true });
     }
   }, [center, map]);
+
+  return null;
+}
+
+/* La carte est créée avant que son cadre ait sa taille finale : sans recalcul, elle
+   ne se dessinait que sur une partie de la zone (et le marqueur était décalé). */
+function MapSizeFix() {
+  const map = useMap();
+
+  useEffect(() => {
+    if (typeof map.invalidateSize !== "function" || typeof map.getContainer !== "function") return undefined;
+    const container = map.getContainer();
+    const refresh = () => map.invalidateSize();
+    const timer = window.setTimeout(refresh, 60);
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(refresh) : null;
+    observer?.observe(container);
+    return () => {
+      window.clearTimeout(timer);
+      observer?.disconnect();
+    };
+  }, [map]);
 
   return null;
 }
@@ -145,6 +168,10 @@ export default function CreateProject() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchingLocation, setIsSearchingLocation] = useState(false);
 
+  // Image de couverture : "unchanged" (garder l'existante), "new" (à envoyer), "removed".
+  const [existingCoverUrl, setExistingCoverUrl] = useState(null);
+  const [cover, setCover] = useState({ kind: "unchanged", prepared: null });
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingProject, setLoadingProject] = useState(isEditMode);
@@ -183,6 +210,7 @@ export default function CreateProject() {
           budget: data.projectMeta?.budget ?? "",
           repoUrl: data.projectMeta?.repoUrl || "",
         });
+        setExistingCoverUrl(coverUrl(data, "full"));
         setTags(Array.isArray(data.tags) ? data.tags : []);
         setSkills(Array.isArray(data.requiredSkills) ? data.requiredSkills : []);
         setLanguages(Array.isArray(data.langues) ? data.langues : []);
@@ -323,7 +351,7 @@ export default function CreateProject() {
 
     setLoading(true);
     try {
-      await api(isEditMode ? `/projects/${id}` : "/projects/create", {
+      const saved = await api(isEditMode ? `/projects/${id}` : "/projects/create", {
         method: isEditMode ? "PUT" : "POST",
         body: JSON.stringify({
           title: form.title,
@@ -349,7 +377,26 @@ export default function CreateProject() {
       });
 
       if (!isEditMode) window.localStorage.removeItem(DRAFT_STORAGE_KEY);
-      navigate(isEditMode ? `/projects/${id}` : "/projects");
+      const projectId = isEditMode ? id : saved?._id;
+
+      // L'image part une fois le projet enregistré (il faut son identifiant).
+      if (projectId && cover.kind !== "unchanged") {
+        try {
+          if (cover.kind === "new") {
+            await api(`/projects/${projectId}/cover`, { method: "PUT", body: JSON.stringify(cover.prepared) });
+          } else if (cover.kind === "removed" && existingCoverUrl) {
+            await api(`/projects/${projectId}/cover`, { method: "DELETE" });
+          }
+        } catch {
+          // Le projet est enregistré : on passe en modification pour réessayer l'image
+          // sans risquer de créer un doublon.
+          setError(t("cover.error.uploadFailed"));
+          if (!isEditMode) navigate(`/projects/${projectId}/edit`, { replace: true });
+          return;
+        }
+      }
+
+      navigate(projectId ? `/projects/${projectId}` : "/projects");
     } catch (err) {
       setError(err.message || (isEditMode ? t("createProject.errorEdit") : t("createProject.errorCreate")));
     } finally {
@@ -365,6 +412,52 @@ export default function CreateProject() {
     );
   }
 
+  const coverPreviewUrl =
+    cover.kind === "new" ? cover.prepared.full : cover.kind === "removed" ? null : existingCoverUrl;
+  const required = <span className={classes.required} aria-hidden="true">*</span>;
+
+  const renderChips = (list, setList, label) => (
+    list.length > 0 && (
+      <div className={classes.tagList}>
+        {list.map((item) => (
+          <span key={item} className={classes.tag}>
+            {item}
+            <button
+              type="button"
+              onClick={() => removeItem(item, setList, list)}
+              aria-label={t("createProject.removeItem", { item })}
+            >
+              <X size={13} strokeWidth={2.2} aria-hidden="true" />
+            </button>
+          </span>
+        ))}
+      </div>
+    )
+  );
+
+  const renderChipInput = ({ id: inputId, label, value, setValue, list, setList, placeholder }) => (
+    <div className={classes.formGroup}>
+      <label htmlFor={inputId}>{label}</label>
+      <div className={classes.tagInputWrapper}>
+        <input
+          id={inputId}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder={placeholder}
+          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addItem(value, setList, list, setValue))}
+        />
+        <button
+          type="button"
+          onClick={() => addItem(value, setList, list, setValue)}
+          aria-label={t("createProject.addItem", { label })}
+        >
+          <Plus size={18} aria-hidden="true" />
+        </button>
+      </div>
+      {renderChips(list, setList, label)}
+    </div>
+  );
+
   return (
     <section className={classes.createProjectPage}>
       <div className={classes.pageHeader}>
@@ -372,12 +465,27 @@ export default function CreateProject() {
         <p>{isEditMode ? t("createProject.subtitleEdit") : t("createProject.subtitleCreate")}</p>
       </div>
 
-      <div className={classes.formContainer}>
-        <form className={classes.projectForm} onSubmit={handleSubmit}>
-          {error && <div className={classes.errorMsg}>{error}</div>}
+      <form className={classes.projectForm} onSubmit={handleSubmit} noValidate>
+        {error && <div className={classes.errorMsg} role="alert">{error}</div>}
+        <p className={classes.requiredNote}>{required} {t("createProject.requiredNote")}</p>
+
+        {/* 1. L'ESSENTIEL */}
+        <fieldset className={classes.section}>
+          <legend className={classes.sectionLegend}>{t("createProject.sectionEssentials")}</legend>
+          <p className={classes.sectionHint}>{t("createProject.sectionEssentialsHint")}</p>
 
           <div className={classes.formGroup}>
-            <label htmlFor="project-title">{t("createProject.titleLabel")}</label>
+            <span className={classes.fieldLabel}>{t("cover.label")}</span>
+            <CoverPicker
+              previewUrl={coverPreviewUrl}
+              placeholderProject={{ title: form.title, tags }}
+              onPick={(prepared) => setCover({ kind: "new", prepared })}
+              onRemove={() => setCover({ kind: "removed", prepared: null })}
+            />
+          </div>
+
+          <div className={classes.formGroup}>
+            <label htmlFor="project-title">{t("createProject.titleLabel")} {required}</label>
             <input
               id="project-title"
               type="text"
@@ -385,13 +493,15 @@ export default function CreateProject() {
               value={form.title}
               onChange={handleChange}
               placeholder={t("createProject.titlePlaceholder")}
+              maxLength={120}
               required
             />
           </div>
 
           <div className={classes.formGroup}>
-            <label>{t("createProject.description")}</label>
+            <label htmlFor="project-description">{t("createProject.description")}</label>
             <textarea
+              id="project-description"
               rows="4"
               name="description"
               value={form.description}
@@ -400,89 +510,50 @@ export default function CreateProject() {
             />
           </div>
 
-          <div className={classes.formGroup}>
-            <label>{t("createProject.tags")}</label>
-            <div className={classes.tagInputWrapper}>
-              <input
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                placeholder={t("createProject.tagPlaceholder")}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addItem(tagInput, setTags, tags, setTagInput))}
-              />
-              <button type="button" onClick={() => addItem(tagInput, setTags, tags, setTagInput)}>+</button>
-            </div>
-            <div className={classes.tagList}>
-              {tags.map((tag) => (
-                <span key={tag} className={classes.tag}>
-                  {tag}
-                  <button type="button" onClick={() => removeItem(tag, setTags, tags)}>×</button>
-                </span>
-              ))}
-            </div>
-          </div>
+          {renderChipInput({
+            id: "project-tags", label: t("createProject.tags"), value: tagInput, setValue: setTagInput,
+            list: tags, setList: setTags, placeholder: t("createProject.tagPlaceholder"),
+          })}
+        </fieldset>
 
-          <div className={classes.formGroup}>
-            <label>{t("createProject.skills")}</label>
-            <div className={classes.tagInputWrapper}>
-              <input
-                value={skillInput}
-                onChange={(e) => setSkillInput(e.target.value)}
-                placeholder={t("createProject.skillPlaceholder")}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addItem(skillInput, setSkills, skills, setSkillInput))}
-              />
-              <button type="button" onClick={() => addItem(skillInput, setSkills, skills, setSkillInput)}>+</button>
-            </div>
-            <div className={classes.tagList}>
-              {skills.map((skill) => (
-                <span key={skill} className={classes.tag}>
-                  {skill}
-                  <button type="button" onClick={() => removeItem(skill, setSkills, skills)}>
-                    <X size={12} strokeWidth={2} />
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
+        {/* 2. QUI TU CHERCHES */}
+        <fieldset className={classes.section}>
+          <legend className={classes.sectionLegend}>{t("createProject.sectionPeople")}</legend>
+          <p className={classes.sectionHint}>{t("createProject.sectionPeopleHint")}</p>
 
-          <div className={classes.formGroup}>
-            <label>{t("createProject.languages")}</label>
-            <div className={classes.tagInputWrapper}>
-              <input
-                value={langInput}
-                onChange={(e) => setLangInput(e.target.value)}
-                placeholder={t("createProject.langPlaceholder")}
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addItem(langInput, setLanguages, languages, setLangInput))}
-              />
-              <button type="button" onClick={() => addItem(langInput, setLanguages, languages, setLangInput)}>+</button>
-            </div>
-            <div className={classes.tagList}>
-              {languages.map((lang) => (
-                <span key={lang} className={classes.tag}>
-                  {lang}
-                  <button type="button" onClick={() => removeItem(lang, setLanguages, languages)}>×</button>
-                </span>
-              ))}
-            </div>
-          </div>
+          {renderChipInput({
+            id: "project-skills", label: t("createProject.skills"), value: skillInput, setValue: setSkillInput,
+            list: skills, setList: setSkills, placeholder: t("createProject.skillPlaceholder"),
+          })}
+          {renderChipInput({
+            id: "project-languages", label: t("createProject.languages"), value: langInput, setValue: setLangInput,
+            list: languages, setList: setLanguages, placeholder: t("createProject.langPlaceholder"),
+          })}
 
           <div className={classes.formRow}>
             <div className={classes.formGroup}>
               <label htmlFor="project-max-participants">{t("createProject.maxParticipants")}</label>
-              <input id="project-max-participants" type="number" name="maxParticipants" value={form.maxParticipants} onChange={handleChange} min="1" max="20" />
+              <input id="project-max-participants" type="number" name="maxParticipants" value={form.maxParticipants} onChange={handleChange} min="1" max="20" inputMode="numeric" />
             </div>
             <div className={classes.formGroup}>
               <label htmlFor="project-min-age">{t("createProject.minAge")}</label>
-              <input id="project-min-age" type="number" name="minAge" value={form.minAge} onChange={handleChange} min="0" />
+              <input id="project-min-age" type="number" name="minAge" value={form.minAge} onChange={handleChange} min="0" inputMode="numeric" />
             </div>
             <div className={classes.formGroup}>
               <label htmlFor="project-max-age">{t("createProject.maxAge")}</label>
-              <input id="project-max-age" type="number" name="maxAge" value={form.maxAge} onChange={handleChange} min={form.minAge || "0"} />
+              <input id="project-max-age" type="number" name="maxAge" value={form.maxAge} onChange={handleChange} min={form.minAge || "0"} inputMode="numeric" />
             </div>
           </div>
+        </fieldset>
+
+        {/* 3. OÙ ET QUAND */}
+        <fieldset className={classes.section}>
+          <legend className={classes.sectionLegend}>{t("createProject.sectionPlace")}</legend>
+          <p className={classes.sectionHint}>{t("createProject.mapHint")}</p>
 
           <div className={classes.formRow}>
             <div className={classes.formGroup}>
-              <label htmlFor="project-city">{t("createProject.city")}</label>
+              <label htmlFor="project-city">{t("createProject.city")} {required}</label>
               <div className={classes.locationField}>
                 <input
                   id="project-city"
@@ -496,8 +567,9 @@ export default function CreateProject() {
                   autoComplete="off"
                   required
                 />
-                <MapPin size={16} className={classes.locationInputIcon} />
-                {isSearchingLocation && <LoaderCircle size={16} className={classes.locationLoader} />}
+                {isSearchingLocation
+                  ? <LoaderCircle size={16} className={classes.locationLoader} aria-hidden="true" />
+                  : <MapPin size={16} className={classes.locationInputIcon} aria-hidden="true" />}
                 {showSuggestions && locationSuggestions.length > 0 && (
                   <div className={classes.locationSuggestions}>
                     {locationSuggestions.map((suggestion) => {
@@ -521,7 +593,7 @@ export default function CreateProject() {
               </div>
             </div>
             <div className={classes.formGroup}>
-              <label htmlFor="project-country">{t("createProject.country")}</label>
+              <label htmlFor="project-country">{t("createProject.country")} {required}</label>
               <input
                 id="project-country"
                 type="text"
@@ -535,11 +607,11 @@ export default function CreateProject() {
           </div>
 
           <div className={classes.formGroup}>
-            <label>{t("createProject.mapLabel")}</label>
-            <p className={classes.locationHint}>{t("createProject.mapHint")}</p>
+            <span className={classes.fieldLabel}>{t("createProject.mapLabel")}</span>
             <div className={classes.locationPreview}>
               <MapContainer center={mapCenter} zoom={6} style={{ height: "100%", width: "100%" }} scrollWheelZoom>
                 <BaseMapLayers theme={theme} />
+                <MapSizeFix />
                 <MapRecenter center={mapCenter} />
                 <MapInteraction markerPosition={markerPosition} onChange={handleMarkerChange} />
               </MapContainer>
@@ -552,7 +624,7 @@ export default function CreateProject() {
 
           <div className={classes.formRow}>
             <div className={classes.formGroup}>
-              <label htmlFor="project-start-date">{t("createProject.startDate")}</label>
+              <label htmlFor="project-start-date">{t("createProject.startDate")} {required}</label>
               <input id="project-start-date" type="date" name="startDate" value={form.startDate} onChange={handleChange} min={minStartDate} required />
             </div>
             <div className={classes.formGroup}>
@@ -560,36 +632,50 @@ export default function CreateProject() {
               <input id="project-end-date" type="date" name="endDate" value={form.endDate} onChange={handleChange} min={form.startDate || today} />
             </div>
           </div>
+        </fieldset>
+
+        {/* 4. DÉTAILS */}
+        <fieldset className={classes.section}>
+          <legend className={classes.sectionLegend}>{t("createProject.sectionDetails")}</legend>
+          <p className={classes.sectionHint}>{t("createProject.sectionDetailsHint")}</p>
 
           <div className={classes.formRow}>
             <div className={classes.formGroup}>
-              <label>{t("createProject.budget")}</label>
-              <input type="number" name="budget" value={form.budget} onChange={handleChange} min="0" placeholder="0" />
+              <label htmlFor="project-budget">{t("createProject.budget")}</label>
+              <input id="project-budget" type="number" name="budget" value={form.budget} onChange={handleChange} min="0" placeholder="0" inputMode="decimal" />
             </div>
             <div className={classes.formGroup}>
-              <label>{t("createProject.repo")}</label>
-              <input type="url" name="repoUrl" value={form.repoUrl} onChange={handleChange} placeholder="https://github.com/..." />
+              <label htmlFor="project-repo">{t("createProject.repo")}</label>
+              <input id="project-repo" type="url" name="repoUrl" value={form.repoUrl} onChange={handleChange} placeholder="https://github.com/..." />
             </div>
           </div>
 
           <div className={classes.formGroup}>
-            <label>{t("createProject.status")}</label>
-            <select name="status" value={form.status} onChange={handleChange}>
+            <label htmlFor="project-status">{t("createProject.status")}</label>
+            <select id="project-status" name="status" value={form.status} onChange={handleChange}>
               <option value="open">{t("createProject.statusOpen")}</option>
               <option value="closed">{t("createProject.statusClosed")}</option>
               <option value="draft">{t("createProject.statusDraft")}</option>
             </select>
           </div>
+        </fieldset>
 
-          <div className={classes.formActions}>
-            <button type="submit" className={classes.btnPrimary} disabled={loading}>
-              {loading
-                ? (isEditMode ? t("createProject.loadingEdit") : t("createProject.loadingCreate"))
-                : (isEditMode ? t("createProject.submitEdit") : t("createProject.submitCreate"))}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className={classes.formActions}>
+          <button
+            type="button"
+            className={classes.btnSecondary}
+            onClick={() => navigate(isEditMode ? `/projects/${id}` : -1)}
+            disabled={loading}
+          >
+            {t("createProject.cancel")}
+          </button>
+          <button type="submit" className={classes.btnPrimary} disabled={loading}>
+            {loading
+              ? (isEditMode ? t("createProject.loadingEdit") : t("createProject.loadingCreate"))
+              : (isEditMode ? t("createProject.submitEdit") : t("createProject.submitCreate"))}
+          </button>
+        </div>
+      </form>
     </section>
   );
 }

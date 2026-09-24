@@ -212,13 +212,13 @@
   "createProject": {
     "titleCreate": "Créer un projet",
     "titleEdit": "Modifier le projet",
-    "subtitleCreate": "Lancez une nouvelle idée et trouvez des collaborateurs",
-    "subtitleEdit": "Mettez à jour votre projet et ses informations",
+    "subtitleCreate": "Lance une nouvelle idée et trouve les personnes pour la faire vivre",
+    "subtitleEdit": "Mets à jour ton projet et ses informations",
     "loading": "Chargement du projet…",
-    "titleLabel": "Titre *",
-    "titlePlaceholder": "Plateforme MERN...",
+    "titleLabel": "Titre",
+    "titlePlaceholder": "Ex. Club de foot du dimanche",
     "description": "Description",
-    "descriptionPlaceholder": "Décrivez votre projet...",
+    "descriptionPlaceholder": "Décris ton projet : l'idée, le rythme, ce que tu attends des participants…",
     "tags": "Tags",
     "tagPlaceholder": "Ajouter un tag",
     "skills": "Compétences recherchées",
@@ -233,7 +233,7 @@
     "country": "Pays",
     "countryPlaceholder": "Suisse",
     "mapLabel": "Emplacement sur la carte",
-    "mapHint": "Écrivez une ville pour obtenir une suggestion, puis cliquez sur la carte ou déplacez le marqueur pour ajuster précisément le lieu.",
+    "mapHint": "Écris une ville pour obtenir une suggestion, puis clique sur la carte ou déplace le marqueur pour ajuster le lieu.",
     "startDate": "Date de début",
     "endDate": "Date de fin",
     "budget": "Budget (CHF)",
@@ -256,7 +256,18 @@
     "errorMaxAge": "L'âge maximum est invalide.",
     "errorAgeRange": "L'âge maximum doit être supérieur ou égal à l'âge minimum.",
     "errorCreate": "Erreur lors de la création du projet.",
-    "errorEdit": "Erreur lors de la mise à jour du projet."
+    "errorEdit": "Erreur lors de la mise à jour du projet.",
+    "requiredNote": "Champs obligatoires",
+    "sectionEssentials": "L'essentiel",
+    "sectionEssentialsHint": "Ce que les gens voient en premier sur la carte et dans la liste des projets.",
+    "sectionPeople": "Qui tu cherches",
+    "sectionPeopleHint": "Les compétences et les langues aident les bonnes personnes à trouver ton projet.",
+    "sectionPlace": "Où et quand",
+    "sectionDetails": "Détails",
+    "sectionDetailsHint": "Facultatif.",
+    "cancel": "Annuler",
+    "removeItem": "Retirer {{item}}",
+    "addItem": "Ajouter ({{label}})"
   },
   "projectDetails": {
     "loading": "Chargement…",
@@ -299,7 +310,9 @@
     "joinSending": "Envoi…",
     "joinSubmit": "Envoyer la demande",
     "cancel": "Annuler",
-    "joinKicked": "Tu as été retiré de ce projet"
+    "joinKicked": "Tu as été retiré de ce projet",
+    "editProject": "Modifier le projet",
+    "closeProject": "Clôturer le projet"
   },
   "messages": {
     "title": "Messagerie",
@@ -461,5 +474,21 @@
     "mongodb": "MongoDB",
     "monitoringUnavailableTitle": "Monitoring non disponible",
     "monitoringUnavailableDesc": "Les dashboards Grafana sont uniquement accessibles en environnement de développement local (Docker). En production, le monitoring n'est pas déployé."
+  },
+  "cover": {
+    "label": "Image de couverture",
+    "choose": "Choisir une image",
+    "change": "Changer l'image",
+    "remove": "Retirer",
+    "preparing": "Préparation de l'image…",
+    "previewAlt": "Aperçu de l'image de couverture",
+    "hint": "JPG, PNG ou WebP, au format paysage de préférence. Tu peux aussi la glisser ici.",
+    "generatedNote": "Sans image, cette couverture est créée automatiquement.",
+    "error": {
+      "invalidType": "Ce format n'est pas pris en charge. Choisis une image JPG, PNG ou WebP.",
+      "tooLarge": "Cette image est trop lourde (15 Mo maximum).",
+      "unreadable": "Impossible de lire cette image. Essaie avec un autre fichier.",
+      "uploadFailed": "Le projet est enregistré, mais l'image n'a pas pu être envoyée. Réessaie depuis cette page."
+    }
   }
 }

@@ -215,10 +215,10 @@
     "subtitleCreate": "Launch a new idea and find collaborators",
     "subtitleEdit": "Update your project and its information",
     "loading": "Loading project…",
-    "titleLabel": "Title *",
-    "titlePlaceholder": "MERN platform...",
+    "titleLabel": "Title",
+    "titlePlaceholder": "E.g. Sunday football club",
     "description": "Description",
-    "descriptionPlaceholder": "Describe your project...",
+    "descriptionPlaceholder": "Describe your project: the idea, the pace, what you expect from participants…",
     "tags": "Tags",
     "tagPlaceholder": "Add a tag",
     "skills": "Required skills",
@@ -256,7 +256,18 @@
     "errorMaxAge": "Maximum age is invalid.",
     "errorAgeRange": "Maximum age must be greater than or equal to minimum age.",
     "errorCreate": "Error creating the project.",
-    "errorEdit": "Error updating the project."
+    "errorEdit": "Error updating the project.",
+    "requiredNote": "Required fields",
+    "sectionEssentials": "The essentials",
+    "sectionEssentialsHint": "What people see first on the map and in the project list.",
+    "sectionPeople": "Who you're looking for",
+    "sectionPeopleHint": "Skills and languages help the right people find your project.",
+    "sectionPlace": "Where and when",
+    "sectionDetails": "Details",
+    "sectionDetailsHint": "Optional.",
+    "cancel": "Cancel",
+    "removeItem": "Remove {{item}}",
+    "addItem": "Add ({{label}})"
   },
   "projectDetails": {
     "loading": "Loading…",
@@ -299,7 +310,9 @@
     "joinSending": "Sending…",
     "joinSubmit": "Send request",
     "cancel": "Cancel",
-    "joinKicked": "You have been removed from this project"
+    "joinKicked": "You have been removed from this project",
+    "editProject": "Edit project",
+    "closeProject": "Close project"
   },
   "messages": {
     "title": "Messaging",
@@ -461,5 +474,21 @@
     "mongodb": "MongoDB",
     "monitoringUnavailableTitle": "Monitoring unavailable",
     "monitoringUnavailableDesc": "Grafana dashboards are only accessible in the local development environment (Docker). Monitoring is not deployed in production."
+  },
+  "cover": {
+    "label": "Cover image",
+    "choose": "Choose an image",
+    "change": "Change image",
+    "remove": "Remove",
+    "preparing": "Preparing the image…",
+    "previewAlt": "Cover image preview",
+    "hint": "JPG, PNG or WebP, ideally landscape. You can also drop it here.",
+    "generatedNote": "Without an image, this cover is generated automatically.",
+    "error": {
+      "invalidType": "This format isn't supported. Choose a JPG, PNG or WebP image.",
+      "tooLarge": "This image is too large (15 MB max).",
+      "unreadable": "This image can't be read. Try another file.",
+      "uploadFailed": "The project is saved, but the image couldn't be uploaded. Try again from this page."
+    }
   }
 }

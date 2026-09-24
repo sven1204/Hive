@@ -1,34 +1,20 @@
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Users, MapPin } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
+import { getProjectAccent } from "../lib/projectCover";
+import ProjectCover from "./ProjectCover";
 import classes from "./ProjectCard.module.css";
 import { useTranslation } from "react-i18next";
 
-/* Palette d'accents assignée par catégorie (déterministe, basée sur le premier
-   tag du projet) pour que les cartes ne soient plus toutes identiques. */
-const ACCENTS = [
-  { text: "#2FA372", bg: "rgba(47, 163, 114, 0.12)", border: "rgba(47, 163, 114, 0.35)" },   // émeraude
-  { text: "#C79A4A", bg: "rgba(199, 154, 74, 0.12)", border: "rgba(199, 154, 74, 0.35)" },   // sable
-  { text: "#5B8DB8", bg: "rgba(91, 141, 184, 0.12)", border: "rgba(91, 141, 184, 0.35)" },   // ardoise
-  { text: "#C9705A", bg: "rgba(201, 112, 90, 0.12)", border: "rgba(201, 112, 90, 0.35)" },   // argile
-  { text: "#9B7BB8", bg: "rgba(155, 123, 184, 0.12)", border: "rgba(155, 123, 184, 0.35)" }, // prune
-];
-
-function getAccent(project) {
-  const key = project.tags?.[0] || project.title || "";
-  let hash = 0;
-  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
-  return ACCENTS[hash % ACCENTS.length];
-}
-
-/* Carte cliquable d'un projet. Gère :
+/* Carte d'un projet (lien vers sa page). Gère :
+   - l'image de couverture en bandeau (ou la couverture générée), le texte restant
+     sur fond uni en dessous pour rester lisible
    - l'affichage du propriétaire ("Vous" si c'est l'utilisateur connecté)
    - le label d'âge selon la combinaison minAge/maxAge
    - la troncature de la description
    - le badge "Complet" quand plus aucune place n'est disponible
    - un accent de couleur par catégorie pour varier visuellement les cartes */
 function ProjectCard({ project }) {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslation();
 
@@ -38,10 +24,6 @@ function ProjectCard({ project }) {
     if (!text) return "";
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
-  };
-
-  const handleViewDetails = () => {
-    navigate(`/projects/${project._id}`);
   };
 
   const currentUserId = user?._id || user?.id;
@@ -59,19 +41,21 @@ function ProjectCard({ project }) {
     return t("card.allAges");
   })();
 
-  const accent = getAccent(project);
+  const accent = getProjectAccent(project);
 
   return (
-    <div
+    <Link
+      to={`/projects/${project._id}`}
       className={classes.projectCard}
-      onClick={handleViewDetails}
       style={{
         "--card-accent": accent.text,
         "--card-accent-bg": accent.bg,
         "--card-accent-border": accent.border,
       }}
     >
+      <ProjectCover project={project} size="thumb" className={classes.cover} />
 
+      <div className={classes.body}>
       {/* HEADER */}
       <div>
         <h3 className={classes.projectTitle}>{project.title}</h3>
@@ -99,28 +83,25 @@ function ProjectCard({ project }) {
 
       {/* INFOS */}
       <div className={classes.projectInfo}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Users size={14} />
+        <div className={classes.infoItem}>
+          <Users size={14} aria-hidden="true" />
           <span>
             {project.participants?.length || 0}/{project.maxParticipants} • {ageLabel}
           </span>
+          {availableSlots === 0 && (
+            <span className={classes.statusBadge}>{t("card.full")}</span>
+          )}
         </div>
 
         {project.projectMeta?.city && (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <MapPin size={14} />
+          <div className={classes.infoItem}>
+            <MapPin size={14} aria-hidden="true" />
             <span>{project.projectMeta.city}</span>
           </div>
         )}
       </div>
-
-      {/* STATUS */}
-      {availableSlots === 0 && (
-        <div className={classes.status}>
-          <span className={classes.statusBadge}>{t("card.full")}</span>
-        </div>
-      )}
-    </div>
+      </div>
+    </Link>
   );
 }
 
