@@ -1,22 +1,30 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import classes from "./LoginForm.module.css";
 import { useTranslation } from "react-i18next";
 import { Eye, EyeOff } from "lucide-react";
 import FloatingField from "./FloatingField";
+import SocialLogin from "./SocialLogin";
+
+const OAUTH_ERRORS = ["cancelled", "expired", "email", "unavailable", "server"];
 
 export default function LoginForm() {
   const [email, setEmail]         = useState(() => localStorage.getItem("hive-last-email") || "");
   const [password, setPassword]   = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError]         = useState("");
   const [loading, setLoading]     = useState(false);
 
   const { login }  = useAuth();
   const navigate   = useNavigate();
   const { t }      = useTranslation();
+  // Erreur renvoyée par le retour Google/GitHub (?oauthError=…)
+  const [searchParams] = useSearchParams();
+  const oauthError = searchParams.get("oauthError");
+  const [error, setError] = useState(() =>
+    oauthError ? t(`social.errors.${OAUTH_ERRORS.includes(oauthError) ? oauthError : "server"}`) : ""
+  );
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -41,6 +49,8 @@ export default function LoginForm() {
     <div className={classes.loginWrapper}>
       <div className={classes.loginCard}>
         <h2>{t("login.title")}</h2>
+
+        <SocialLogin rememberMe={rememberMe} />
 
         <form onSubmit={onSubmit} noValidate className={classes.form}>
 

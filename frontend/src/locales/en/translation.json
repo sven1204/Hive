@@ -490,5 +490,18 @@
       "unreadable": "This image can't be read. Try another file.",
       "uploadFailed": "The project is saved, but the image couldn't be uploaded. Try again from this page."
     }
+  },
+  "social": {
+    "continueWith": "Continue with {{provider}}",
+    "orEmail": "or with your email",
+    "redirecting": "Redirecting…",
+    "signingIn": "Signing you in…",
+    "errors": {
+      "cancelled": "Sign-in cancelled.",
+      "expired": "Sign-in expired. Please try again.",
+      "email": "Your account has no verified email address. Verify it with the provider or sign up with your email.",
+      "unavailable": "This sign-in method is not available.",
+      "server": "Sign-in failed. Please try again."
+    }
   }
 }

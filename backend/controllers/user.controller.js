@@ -134,6 +134,11 @@ exports.changePassword = async (req, res) => {
       return res.status(404).json({ message: "Utilisateur introuvable" });
     }
 
+    // Compte créé via Google/GitHub : aucun mot de passe actuel à comparer
+    if (!user.passwordHash) {
+      return res.status(400).json({ message: "Ce compte n'a pas encore de mot de passe. Utilisez « Mot de passe oublié » pour en définir un." });
+    }
+
     const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
     if (!isMatch) {
       return res.status(401).json({ message: "Mot de passe actuel incorrect" });

@@ -490,5 +490,18 @@
       "unreadable": "Impossible de lire cette image. Essaie avec un autre fichier.",
       "uploadFailed": "Le projet est enregistré, mais l'image n'a pas pu être envoyée. Réessaie depuis cette page."
     }
+  },
+  "social": {
+    "continueWith": "Continuer avec {{provider}}",
+    "orEmail": "ou avec votre email",
+    "redirecting": "Redirection…",
+    "signingIn": "Connexion en cours…",
+    "errors": {
+      "cancelled": "Connexion annulée.",
+      "expired": "La connexion a expiré. Veuillez réessayer.",
+      "email": "Votre compte n'a pas d'adresse email vérifiée. Vérifiez-la chez le fournisseur ou inscrivez-vous avec votre email.",
+      "unavailable": "Ce mode de connexion n'est pas disponible.",
+      "server": "La connexion a échoué. Veuillez réessayer."
+    }
   }
 }

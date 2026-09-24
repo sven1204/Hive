@@ -64,6 +64,20 @@ export default function AuthProvider({ children }) {
     return data;
   };
 
+  // Connexion Google/GitHub : le backend renvoie seulement un token, on récupère le profil avec /auth/me
+  const loginWithToken = async (token) => {
+    localStorage.setItem("token", token);
+    try {
+      const data = await api("/auth/me");
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
+      return data.user;
+    } catch (err) {
+      localStorage.removeItem("token");
+      throw err;
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -120,6 +134,7 @@ export default function AuthProvider({ children }) {
         verifyEmail,
         resendVerificationEmail,
         login,
+        loginWithToken,
         logout,
         resetPassword,
         verifyResetCode,

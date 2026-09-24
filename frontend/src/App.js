@@ -14,6 +14,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import UserProfile from "./pages/UserProfile";
 import ManageUsers from "./pages/ManageUsers";
 import MessagesPage from "./pages/MessagesPage";
+import OAuthCallback from "./pages/OAuthCallback";
 import BottomNav from "./components/BottomNav";
 
 import "./App.css";
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/messages" element={user ? <MessagesPage /> : <Navigate to="/login" replace />} />
 
           <Route path="/login" element={user ? <Navigate to="/profile" replace /> : <Login />} />
+          <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/register" element={user ? <Navigate to="/profile" replace /> : <Register />} />
           <Route path="/create-project" element={user ? <CreateProject /> : <Navigate to="/login" replace />} />
           <Route path="/projects/:id/edit" element={user ? <CreateProject /> : <Navigate to="/login" replace />} />

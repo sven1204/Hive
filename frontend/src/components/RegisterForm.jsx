@@ -6,6 +6,7 @@ import classes from "./RegisterForm.module.css";
 import { useTranslation } from "react-i18next";
 import PasswordStrengthMeter, { computeEntropy } from "./PasswordValidator";
 import FloatingField from "./FloatingField";
+import SocialLogin from "./SocialLogin";
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.#$!%*?&])[A-Za-z\d@.#$!%*?&]{8,15}$/;
@@ -127,6 +128,8 @@ export default function RegisterForm() {
         <h1 className={classes.title}>
           {step === "register" ? t("register.titleRegister") : t("register.titleVerify")}
         </h1>
+
+        {step === "register" && <SocialLogin />}
 
         {step === "register" ? (
           <form className={classes.form} onSubmit={handleRegister} noValidate>
