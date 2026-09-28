@@ -1,7 +1,7 @@
 // Fond de carte vectoriel : OpenFreeMap (gratuit, sans clé, données OpenStreetMap),
 // affiché par MapLibre. Le texte reste net à tous les zooms et sur écran haute densité.
 // Les styles publics « positron » (clair) et « dark » (sombre) sont retouchés aux
-// couleurs de Hive (vert sauge) avant affichage.
+// couleurs de Hive (miel, neutres chauds) avant affichage.
 const STYLE_URLS = {
   light: 'https://tiles.openfreemap.org/styles/positron',
   dark: 'https://tiles.openfreemap.org/styles/dark',
@@ -16,32 +16,32 @@ export const MAP_ATTRIBUTION = [
 // [identifiant de couche, propriété, valeur]. Une couche absente du style est ignorée.
 const HIVE_PAINT = {
   light: [
-    ['background', 'background-color', '#eff2ed'],
-    ['water', 'fill-color', '#c3d9d3'],
-    ['park', 'fill-color', '#dfe9dd'],
-    ['landcover_wood', 'fill-color', '#d7e4d4'],
-    ['landuse_residential', 'fill-color', '#e8ebe5'],
-    ['building', 'fill-color', '#e4e8e1'],
-    ['boundary_2', 'line-color', '#a9b6ae'],
-    ['boundary_3', 'line-color', '#bcc6c0'],
-    ['label_city', 'text-color', '#24302a'],
-    ['label_city_capital', 'text-color', '#24302a'],
-    ['label_town', 'text-color', '#3a463f'],
-    ['label_village', 'text-color', '#4f5b54'],
-    ['water_name_point_label', 'text-color', '#5d7f76'],
-    ['water_name_line_label', 'text-color', '#5d7f76'],
+    ['background', 'background-color', '#f6efe3'],
+    ['water', 'fill-color', '#cfdce0'],
+    ['park', 'fill-color', '#e6e7d2'],
+    ['landcover_wood', 'fill-color', '#dfe2cb'],
+    ['landuse_residential', 'fill-color', '#f1e9dc'],
+    ['building', 'fill-color', '#ebe1d1'],
+    ['boundary_2', 'line-color', '#bfae98'],
+    ['boundary_3', 'line-color', '#cfc1ad'],
+    ['label_city', 'text-color', '#3a2c1f'],
+    ['label_city_capital', 'text-color', '#3a2c1f'],
+    ['label_town', 'text-color', '#4a3a2b'],
+    ['label_village', 'text-color', '#5e4d3c'],
+    ['water_name_point_label', 'text-color', '#56707a'],
+    ['water_name_line_label', 'text-color', '#56707a'],
   ],
   dark: [
-    ['background', 'background-color', '#151a17'],
-    ['water', 'fill-color', '#1d2c28'],
-    ['landuse_residential', 'fill-color', '#1a201c'],
-    ['landcover_wood', 'fill-color', '#18221c'],
-    ['building', 'fill-color', '#1b211e'],
+    ['background', 'background-color', '#1a1511'],
+    ['water', 'fill-color', '#1b2327'],
+    ['landuse_residential', 'fill-color', '#1f1914'],
+    ['landcover_wood', 'fill-color', '#1c1b14'],
+    ['building', 'fill-color', '#221c16'],
   ],
 };
 
 // Couleur affichée pendant le chargement des tuiles (évite un flash blanc).
-export const MAP_BACKGROUND = { light: '#eff2ed', dark: '#151a17' };
+export const MAP_BACKGROUND = { light: '#f6efe3', dark: '#1a1511' };
 
 const cache = {};
 

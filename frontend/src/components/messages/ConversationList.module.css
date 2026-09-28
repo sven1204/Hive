@@ -239,7 +239,7 @@
   height: 20px;
   padding: 0 6px;
   border-radius: var(--radius-full);
-  background: var(--accent);
+  background: var(--highlight);
   color: var(--cta-text);
   font-size: 12px;
   font-weight: 700;
@@ -253,7 +253,7 @@
   height: 10px;
   margin-right: 5px;
   border-radius: var(--radius-full);
-  background: var(--accent);
+  background: var(--highlight);
 }
 
 /* « Archivées (N) » */

@@ -28,8 +28,8 @@
 :global(body.light) .layout {
   --msg-elevated: var(--bg-surface);
   --bubble-out-border: rgba(var(--accent-rgb), 0.22);
-  --shadow-pop: 0 12px 32px rgba(22, 32, 27, 0.14);
-  /* Sur fonds clairs (#eef1ec / #f6f7f4), les mêmes effets demandent plus de contraste */
+  --shadow-pop: 0 12px 32px rgba(60, 40, 20, 0.14);
+  /* Sur fonds clairs (#f5ecdf / #fbf6ee), les mêmes effets demandent plus de contraste */
   --hover-neutral: color-mix(in srgb, var(--text-main) 10%, transparent);
   --row-active-bg: rgba(var(--accent-rgb), 0.16);
   --row-pressed-bg: rgba(var(--accent-rgb), 0.24);

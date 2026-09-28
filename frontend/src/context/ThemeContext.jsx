@@ -3,14 +3,22 @@ import { createContext, useContext, useEffect, useState } from "react";
 const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => localStorage.getItem("hive-theme") || "dark");
+  // Clair par défaut : l'ambiance crème/miel porte mieux la convivialité de Hive.
+  // Le choix explicite de l'utilisateur (bouton du Header) reste mémorisé.
+  const [theme, setTheme] = useState(() => localStorage.getItem("hive-theme") || "light");
 
   useEffect(() => {
     document.body.classList.toggle("light", theme === "light");
-    localStorage.setItem("hive-theme", theme);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", theme === "light" ? "#fbf6ee" : "#16120e");
   }, [theme]);
 
-  const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    localStorage.setItem("hive-theme", next);
+    setTheme(next);
+  };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

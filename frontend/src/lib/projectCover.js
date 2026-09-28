@@ -23,8 +23,8 @@ export function coverUrl(project, size = "thumb") {
 /* Palette d'accents par projet (déterministe, basée sur le premier tag) : bordure et
    tags des cartes, et couverture générée quand le projet n'a pas d'image. */
 export const PROJECT_ACCENTS = [
-  { text: "#2FA372", bg: "rgba(47, 163, 114, 0.12)", border: "rgba(47, 163, 114, 0.35)" },   // émeraude
-  { text: "#C79A4A", bg: "rgba(199, 154, 74, 0.12)", border: "rgba(199, 154, 74, 0.35)" },   // sable
+  { text: "#6FA06A", bg: "rgba(111, 160, 106, 0.12)", border: "rgba(111, 160, 106, 0.35)" }, // trèfle
+  { text: "#C0668E", bg: "rgba(192, 102, 142, 0.12)", border: "rgba(192, 102, 142, 0.35)" }, // framboise
   { text: "#5B8DB8", bg: "rgba(91, 141, 184, 0.12)", border: "rgba(91, 141, 184, 0.35)" },   // ardoise
   { text: "#C9705A", bg: "rgba(201, 112, 90, 0.12)", border: "rgba(201, 112, 90, 0.35)" },   // argile
   { text: "#9B7BB8", bg: "rgba(155, 123, 184, 0.12)", border: "rgba(155, 123, 184, 0.35)" }, // prune

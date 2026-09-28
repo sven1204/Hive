@@ -5,7 +5,7 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" sizes="48x48" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#111413" />
+    <meta name="theme-color" content="#16120e" />
     <meta
       name="description"
       content="Hive : trouve les personnes qu'il te faut pour faire avancer ton projet."
@@ -30,6 +30,14 @@
     <title>Hive</title>
   </head>
   <body>
+    <script>
+      /* Applique le thème avant le premier rendu (sinon flash de l'autre thème). */
+      try {
+        if ((localStorage.getItem("hive-theme") || "light") === "light") document.body.classList.add("light");
+      } catch (e) {
+        document.body.classList.add("light");
+      }
+    </script>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <!--

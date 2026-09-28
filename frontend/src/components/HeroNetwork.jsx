@@ -9,10 +9,14 @@ const LINK_DISTANCE = 150;
 const POINTER_DISTANCE = 190;
 const MAX_NODES = 72;
 
-function readAccent() {
-  const value = getComputedStyle(document.body).getPropertyValue('--accent-rgb').trim();
-  return value || '52, 178, 123';
+function readRgb(name, fallback) {
+  const value = getComputedStyle(document.body).getPropertyValue(name).trim();
+  return value || fallback;
 }
+
+const readAccent = () => readRgb('--accent-rgb', '240, 169, 59');
+// Un membre sur quatre prend la teinte lavande : des profils variés dans la ruche.
+const readHighlight = () => readRgb('--highlight-rgb', '195, 166, 238');
 
 function HeroNetwork({ pointerTarget }) {
   const canvasRef = useRef(null);
@@ -26,6 +30,7 @@ function HeroNetwork({ pointerTarget }) {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const pointer = { x: 0, y: 0, active: false };
     let accent = readAccent();
+    let highlight = readHighlight();
     let width = 0;
     let height = 0;
     let nodes = [];
@@ -52,6 +57,7 @@ function HeroNetwork({ pointerTarget }) {
         vy: (Math.random() - 0.5) * 0.28,
         r: 1.2 + Math.random() * 1.6,
         phase: Math.random() * Math.PI * 2,
+        lavender: Math.random() < 0.25,
       }));
       signals = [];
     };
@@ -89,7 +95,7 @@ function HeroNetwork({ pointerTarget }) {
       }
 
       nodes.forEach((node) => {
-        ctx.fillStyle = `rgba(${accent}, ${0.55 + Math.sin(time / 900 + node.phase) * 0.25})`;
+        ctx.fillStyle = `rgba(${node.lavender ? highlight : accent}, ${0.55 + Math.sin(time / 900 + node.phase) * 0.25})`;
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
         ctx.fill();
@@ -170,6 +176,7 @@ function HeroNetwork({ pointerTarget }) {
     // Le thème clair/sombre change la couleur d'accent : on la relit.
     const themeObserver = new MutationObserver(() => {
       accent = readAccent();
+      highlight = readHighlight();
       if (!running) draw(performance.now());
     });
     themeObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });

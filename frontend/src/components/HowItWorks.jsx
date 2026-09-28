@@ -44,7 +44,6 @@ function HowItWorks() {
   return (
     <section className={classes.section} id="how-it-works" ref={containerRef}>
       <div className={classes.header}>
-        <span className={classes.eyebrow}>{t("howItWorks.eyebrow")}</span>
         <h2 className={classes.title}>{t("howItWorks.title")}</h2>
         <p className={classes.subtitle}>
           {t("howItWorks.subtitle")}
@@ -57,7 +56,6 @@ function HowItWorks() {
             <div className={`${classes.visual} ${classes[step.shape]}`}>
               <step.Icon size={22} className={classes.visualIcon} />
             </div>
-            <span className={classes.stepNumber}>{String(index + 1).padStart(2, '0')}</span>
             <h3 className={classes.stepTitle}>{t(step.titleKey)}</h3>
             <p className={classes.stepDescription}>{t(step.descriptionKey)}</p>
           </div>

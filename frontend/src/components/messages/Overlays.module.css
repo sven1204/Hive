@@ -128,7 +128,7 @@
 }
 
 :global(body.light) .scrim {
-  background: rgba(22, 32, 27, 0.4);
+  background: rgba(60, 40, 20, 0.4);
 }
 
 @keyframes fadeIn {
@@ -365,7 +365,7 @@
 }
 
 :global(body.light) .modalOverlay {
-  background: rgba(22, 32, 27, 0.45);
+  background: rgba(60, 40, 20, 0.45);
 }
 
 .modal {

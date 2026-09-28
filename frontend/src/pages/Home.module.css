@@ -28,7 +28,7 @@
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  background: rgba(var(--cta-rgb), 0.12);
+  background: rgba(var(--highlight-rgb), 0.16);
   filter: blur(10px);
   pointer-events: none;
   animation: drift 18s ease-in-out infinite alternate-reverse;

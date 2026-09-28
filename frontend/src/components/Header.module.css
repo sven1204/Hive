@@ -313,7 +313,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--highlight);
   margin-right: 8px;
   vertical-align: middle;
   flex-shrink: 0;
@@ -413,7 +413,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--highlight);
   display: block;
 }
 
