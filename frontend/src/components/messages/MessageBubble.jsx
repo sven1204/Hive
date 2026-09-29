@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pin } from "lucide-react";
 import { PersonAvatar } from "./Avatars";
 import ActionMenu from "./ActionMenu";
 import { useLongPress } from "./hooks";
 import { formatClock, formatFullDate, getUserName, idOf } from "./messageUtils";
+import { buildMessageActions, groupReactions } from "./messageActions";
 import { personStyle } from "../../lib/personColor";
 import classes from "./Chat.module.css";
 
@@ -34,9 +35,36 @@ function EditArea({ value, onChange, onSave, onCancel }) {
   );
 }
 
+/* Amène un message cité à l'écran et le met brièvement en évidence */
+export function jumpToMessage(msgId) {
+  const el = typeof document !== "undefined" ? document.getElementById(`msg-${msgId}`) : null;
+  if (!el) return;
+  el.scrollIntoView?.({ block: "center", behavior: "smooth" });
+  el.dataset.flash = "true";
+  setTimeout(() => { delete el.dataset.flash; }, 1400);
+}
+
+/* Citation d'un message dans une réponse (cliquable : ramène au message d'origine) */
+function Quote({ reply, t }) {
+  const name = getUserName(reply.senderId, t("messages.userFallback"));
+  const text = reply.deleted ? t("messages.quoteDeleted") : reply.content;
+  return (
+    <button
+      type="button"
+      className={classes.quote}
+      onClick={() => jumpToMessage(idOf(reply))}
+      aria-label={t("messages.jumpToMessage", { name })}
+    >
+      <span className={classes.quoteName} style={personStyle(reply.senderId)}>{name}</span>
+      <span className={classes.quoteText}>{text}</span>
+    </button>
+  );
+}
+
 /* Une bulle de message. pos = single | first | middle | last (coins côté auteur). */
 export default function MessageBubble({
   msg,
+  myId,
   isMine,
   isGroup,
   pos,
@@ -53,6 +81,9 @@ export default function MessageBubble({
   onDelete,
   onProfile,
   onLongPress,
+  onReact,
+  onReply,
+  onTogglePin,
 }) {
   const { t, i18n } = useTranslation();
   const sender = msg.senderId;
@@ -60,16 +91,15 @@ export default function MessageBubble({
   const clock = formatClock(msg.createdAt, i18n.language);
   const fullDate = formatFullDate(msg.createdAt, i18n.language);
   const muted = msg.deleted || blocked;
-  const canAct = isMine && !msg.deleted && !isEditing;
+  const canAct = !msg.deleted && !blocked && !isEditing;
   const content = blocked
     ? t("messages.blockedMessage")
     : msg.deleted ? t("messages.deletedMessage") : msg.content;
   const metaText = msg.edited && !muted ? `${t("messages.edited")} · ${clock}` : clock;
 
-  const menuItems = [
-    { key: "edit", label: t("messages.edit"), icon: Pencil, onSelect: onStartEdit, keepFocus: true },
-    { key: "delete", label: t("messages.delete"), icon: Trash2, onSelect: onDelete, danger: true },
-  ];
+  const menuItems = buildMessageActions({ msg, isMine, isGroup, myId, t, onReact, onReply, onTogglePin, onStartEdit, onDelete });
+  const reactions = muted ? [] : groupReactions(msg.reactions, myId);
+  const reply = !muted && msg.replyTo && typeof msg.replyTo === "object" ? msg.replyTo : null;
 
   const handleLongPress = useCallback(() => onLongPress(msg), [onLongPress, msg]);
   const pressHandlers = useLongPress(handleLongPress, { disabled: !canAct });
@@ -82,6 +112,7 @@ export default function MessageBubble({
 
   return (
     <div
+      id={`msg-${idOf(msg)}`}
       className={`${classes.msgRow} ${isMine ? classes.msgRowMine : ""} ${classes[`group_${pos}`] || ""} ${isLive ? classes.msgEnter : ""}`}
     >
       {avatar === "show" && (
@@ -97,30 +128,53 @@ export default function MessageBubble({
       {avatar === "reserve" && <span className={classes.avatarReserve} aria-hidden="true" />}
 
       <div className={classes.bubbleWrap}>
-        <div className={bubbleClass} data-pos={pos} {...pressHandlers}>
-          <span className="sr-only">
-            {t("messages.previewSender", { name: isMine ? t("messages.you") : senderName, text: "" })}
-          </span>
-          {showName && (
-            <span className={classes.bubbleSender} style={personStyle(sender)} aria-hidden="true">{senderName}</span>
-          )}
-          {isEditing ? (
-            <EditArea value={editDraft} onChange={onEditDraft} onSave={onEditSave} onCancel={onEditCancel} />
-          ) : (
-            <p className={classes.bubbleText}>
-              {content}
-              <span className={classes.metaSpacer} aria-hidden="true">{metaText}</span>
-            </p>
-          )}
-          {!isEditing && (
-            <span className={classes.bubbleMeta}>
-              {msg.edited && !muted && <>{t("messages.edited")} · </>}
-              <time dateTime={msg.createdAt} title={fullDate}>{clock}</time>
+        <div className={classes.bubbleCol}>
+          <div className={bubbleClass} data-pos={pos} {...pressHandlers}>
+            <span className="sr-only">
+              {t("messages.previewSender", { name: isMine ? t("messages.you") : senderName, text: "" })}
             </span>
+            {showName && (
+              <span className={classes.bubbleSender} style={personStyle(sender)} aria-hidden="true">{senderName}</span>
+            )}
+            {reply && <Quote reply={reply} t={t} />}
+            {isEditing ? (
+              <EditArea value={editDraft} onChange={onEditDraft} onSave={onEditSave} onCancel={onEditCancel} />
+            ) : (
+              <p className={classes.bubbleText}>
+                {content}
+                <span className={classes.metaSpacer} aria-hidden="true">{msg.pinned && !muted ? "\u2003" : ""}{metaText}</span>
+              </p>
+            )}
+            {!isEditing && (
+              <span className={classes.bubbleMeta}>
+                {msg.pinned && !muted && (
+                  <Pin size={11} className={classes.pinMark} aria-label={t("messages.pinnedTag")} role="img" />
+                )}
+                {msg.edited && !muted && <>{t("messages.edited")} · </>}
+                <time dateTime={msg.createdAt} title={fullDate}>{clock}</time>
+              </span>
+            )}
+          </div>
+          {reactions.length > 0 && (
+            <div className={classes.reactions}>
+              {reactions.map((r) => (
+                <button
+                  key={r.emoji}
+                  type="button"
+                  className={`${classes.reactionChip} ${r.mine ? classes.reactionChipMine : ""}`}
+                  aria-pressed={r.mine}
+                  aria-label={t("messages.reactionChip", { emoji: r.emoji, count: r.count })}
+                  onClick={() => onReact(msg, r.emoji)}
+                >
+                  <span aria-hidden="true">{r.emoji}</span>
+                  <span className={classes.reactionCount}>{r.count}</span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
-        {canAct && (
+        {canAct && menuItems.length > 0 && (
           <ActionMenu
             items={menuItems}
             buttonLabel={t("messages.actions")}

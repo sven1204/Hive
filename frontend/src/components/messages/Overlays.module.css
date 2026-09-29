@@ -594,3 +594,55 @@
     transition: none;
   }
 }
+
+/* Espace projet : panneau intégré plus large que celui des membres */
+.panelWide {
+  width: 360px;
+}
+
+/* Rangée de réactions (menu ⋯ et feuille d'actions) */
+.reactionRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 4px 4px 6px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 4px;
+}
+
+.reactionRowLarge {
+  padding: 4px var(--space-2) var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.reactionPick {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.reactionRowLarge .reactionPick {
+  width: 44px;
+  height: 44px;
+  font-size: 24px;
+}
+
+.reactionPick:hover,
+.reactionPick:focus-visible {
+  background: var(--hover-neutral);
+  transform: scale(1.12);
+  outline: none;
+}
+
+.reactionPickOn {
+  background: rgba(var(--accent-rgb), 0.16);
+}

@@ -1,6 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Send, AlertCircle, X } from "lucide-react";
+import { Send, AlertCircle, Reply, X } from "lucide-react";
 import { COUNTER_FROM, MAX_LENGTH, matches } from "./messageUtils";
 import classes from "./Chat.module.css";
 
@@ -18,6 +18,8 @@ export default function Composer({
   error,
   onDismissError,
   autoFocus,
+  replyTarget, // { name, text } : message auquel on répond
+  onCancelReply,
 }) {
   const { t, i18n } = useTranslation();
   const ref = useRef(null);
@@ -34,6 +36,11 @@ export default function Composer({
   useEffect(() => {
     if (autoFocus) ref.current?.focus();
   }, [convKey, autoFocus]);
+
+  // Répondre à un message : le curseur revient dans le champ
+  useEffect(() => {
+    if (replyTarget) ref.current?.focus();
+  }, [replyTarget]);
 
   // Hauteur automatique jusqu'à 120 px
   useLayoutEffect(() => {
@@ -56,6 +63,7 @@ export default function Composer({
   }, [over, showCounter, length, t]);
 
   const handleKeyDown = (e) => {
+    if (e.key === "Escape" && replyTarget) { e.preventDefault(); onCancelReply(); return; }
     if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
     if (matches("(pointer: coarse)")) return; // tactile : retour à la ligne
     e.preventDefault();
@@ -85,6 +93,18 @@ export default function Composer({
         </div>
       )}
       <span className="sr-only" aria-live="polite">{announce}</span>
+      {replyTarget && (
+        <div className={classes.replyBar}>
+          <Reply size={16} aria-hidden="true" className={classes.replyBarIcon} />
+          <div className={classes.replyBarText}>
+            <span className={classes.replyBarName}>{t("messages.replyingTo", { name: replyTarget.name })}</span>
+            <span className={classes.replyBarPreview}>{replyTarget.text}</span>
+          </div>
+          <button type="button" className={classes.iconBtn} onClick={onCancelReply} aria-label={t("messages.cancelReply")}>
+            <X size={16} aria-hidden="true" />
+          </button>
+        </div>
+      )}
       <div className={classes.composerRow}>
         <textarea
           ref={ref}

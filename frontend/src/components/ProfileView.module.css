@@ -672,3 +672,133 @@
     font-size: 14px;
   }
 }
+
+/* Préférences de notification : ligne libellé + interrupteur */
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  cursor: pointer;
+}
+
+.switchText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.switchLabel {
+  color: var(--text-main);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.switchHint {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.switch {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--border-soft);
+  cursor: pointer;
+  transition: background var(--dur-fast, 120ms) ease;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(var(--shadow-rgb), 0.3);
+  transition: transform var(--dur-fast, 120ms) ease;
+}
+
+.switch:checked {
+  background: var(--accent);
+}
+
+.switch:checked::after {
+  transform: translateX(18px);
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.switch:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.switchError {
+  margin: var(--space-2) 0 0;
+  color: var(--danger);
+  font-size: 13px;
+}
+
+/* Abonnement Hive+ */
+.planCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+}
+
+.planInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.planName {
+  color: var(--text-main);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.planMeta {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.planBtn {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.planBtn:hover { background: var(--bg-card-soft); }
+.planBtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

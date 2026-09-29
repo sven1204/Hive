@@ -19,6 +19,7 @@ router.get('/regions', controller.getAllRegions);
 
 // route recommendation de projets
 router.get('/recommended', requireAuth, controller.getRecommended)
+router.get('/boosted', controller.getBoosted);
 
 
 // Protected CRUD
@@ -30,6 +31,7 @@ router.delete('/:id/participants/:userId', requireAuth, controller.kickParticipa
 router.post('/:id/close', requireAuth, controller.closeProject);
 router.post('/:id/rate', requireAuth, controller.rateParticipant);
 router.post('/:id/view', requireAuth, controller.recordView);
+router.get('/:id/stats', requireAuth, controller.getStats);
 
 // Image de couverture (lecture publique, écriture réservée au propriétaire)
 router.get('/:id/cover', coverController.getCover);

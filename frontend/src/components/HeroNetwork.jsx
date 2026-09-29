@@ -15,7 +15,7 @@ function readRgb(name, fallback) {
 }
 
 const readAccent = () => readRgb('--accent-rgb', '240, 169, 59');
-// Un membre sur quatre prend la teinte lavande : des profils variés dans la ruche.
+// Un membre sur quatre prend la teinte terracotta (--highlight) : des profils variés dans la ruche.
 const readHighlight = () => readRgb('--highlight-rgb', '195, 166, 238');
 
 function HeroNetwork({ pointerTarget }) {
@@ -57,7 +57,7 @@ function HeroNetwork({ pointerTarget }) {
         vy: (Math.random() - 0.5) * 0.28,
         r: 1.2 + Math.random() * 1.6,
         phase: Math.random() * Math.PI * 2,
-        lavender: Math.random() < 0.25,
+        highlighted: Math.random() < 0.25,
       }));
       signals = [];
     };
@@ -95,7 +95,7 @@ function HeroNetwork({ pointerTarget }) {
       }
 
       nodes.forEach((node) => {
-        ctx.fillStyle = `rgba(${node.lavender ? highlight : accent}, ${0.55 + Math.sin(time / 900 + node.phase) * 0.25})`;
+        ctx.fillStyle = `rgba(${node.highlighted ? highlight : accent}, ${0.55 + Math.sin(time / 900 + node.phase) * 0.25})`;
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.r, 0, Math.PI * 2);
         ctx.fill();

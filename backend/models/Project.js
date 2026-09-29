@@ -74,6 +74,8 @@ const projectSchema = new Schema(
     // --- Image de couverture : horodatage de la dernière image envoyée (null = aucune).
     //     L'image elle-même est dans ProjectCover ; la version sert d'invalidation de cache.
     coverVersion: { type: Number, default: null },
+    // --- Mise en avant (boost) : le projet apparaît dans « Mis en avant » jusqu'à cette date
+    boostedUntil: { type: Date, default: null, index: true },
   },
   { timestamps: true }
 );

@@ -9,7 +9,7 @@
   padding: 0 46px 0 14px;
   font-size: 15px;
   font-family: inherit;
-  background: var(--bg-surface);
+  background: var(--bg-input);
   border: 1px solid var(--border-soft);
   border-radius: 12px;
   color: var(--text-main);

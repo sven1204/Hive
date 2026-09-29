@@ -1,0 +1,38 @@
+{
+  "name": "hive-video",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render:mobile": "remotion render src/index.ts HiveMobile out/hive_mobile.mp4",
+    "render:desktop": "remotion render src/index.ts HiveDesktop out/hive_desktop.mp4",
+    "render:mobile:mute": "remotion render src/index.ts HiveMobile out/hive_mobile_sans_son.mp4 --muted",
+    "render:desktop:mute": "remotion render src/index.ts HiveDesktop out/hive_desktop_sans_son.mp4 --muted",
+    "render:all": "npm run render:mobile && npm run render:desktop && npm run render:mobile:mute && npm run render:desktop:mute",
+    "captures": "node scripts/capture.mjs",
+    "audio": "node scripts/prepare-audio.mjs"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.1",
+    "@remotion/cli": "^4.0.530",
+    "@remotion/fonts": "^4.0.530",
+    "@remotion/media-utils": "^4.0.530",
+    "@remotion/motion-blur": "^4.0.530",
+    "@remotion/paths": "^4.0.530",
+    "@remotion/three": "^4.0.530",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.530",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@remotion/bundler": "^4.0.530",
+    "@remotion/renderer": "^4.0.530",
+    "@types/react": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "playwright": "^1.63.0",
+    "typescript": "^7.0.2"
+  }
+}

@@ -60,7 +60,7 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  /* Couleur franche par étape (miel, lavande, miel) plutôt qu'un dégradé des deux. */
+  /* Couleur franche par étape (miel, terracotta, miel) plutôt qu'un dégradé des deux. */
   --step-rgb: var(--accent-rgb);
   background: rgb(var(--step-rgb));
   box-shadow:

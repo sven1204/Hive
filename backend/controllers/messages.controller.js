@@ -3,7 +3,29 @@ const Conversation = require('../models/Conversation');
 const Notification = require('../models/Notification');
 const User         = require('../models/User');
 
-const POPULATE_FIELDS = 'displayName firstName lastName avatarUrl _id';
+const { POPULATE_FIELDS, populateMessage, REACTIONS } = require('../utils/messagePopulate');
+
+const HISTORY_LIMIT = 200;
+
+/* Les HISTORY_LIMIT derniers messages, dans l'ordre chronologique. */
+const latestMessages = async (filter, opts) => {
+  const docs = await populateMessage(Message.find(filter), opts).sort({ createdAt: -1 }).limit(HISTORY_LIMIT);
+  return docs.reverse();
+};
+
+/* Qui peut voir un message : les deux personnes d'un DM, ou les participants du groupe (null si aucun). */
+const audienceOf = async (msg) => {
+  if (msg.conversationId) {
+    const conv = await Conversation.findById(msg.conversationId).select('participants');
+    return conv ? conv.participants.map(String) : null;
+  }
+  return [String(msg.senderId), String(msg.receiverId)];
+};
+
+const emitTo = (req, userIds, event, payload) => {
+  const io = req.app.get('io');
+  if (io) userIds.forEach((uid) => io.to(`user:${uid}`).emit(event, payload));
+};
 
 // ==============================
 // CONVERSATIONS DIRECTES
@@ -52,16 +74,12 @@ exports.getMessages = async (req, res) => {
   const me = req.user.id;
   const { userId } = req.params;
   try {
-    const messages = await Message.find({
+    const messages = await latestMessages({
       $or: [
         { senderId: me, receiverId: userId },
         { senderId: userId, receiverId: me },
       ],
-    })
-      .populate('senderId', POPULATE_FIELDS)
-      .populate('receiverId', POPULATE_FIELDS)
-      .sort({ createdAt: 1 })
-      .limit(200);
+    }, { receiver: true });
 
     return res.json(messages);
   } catch (err) {
@@ -251,10 +269,8 @@ exports.getConversationMessages = async (req, res) => {
     if (!conv) return res.status(404).json({ message: 'Conversation introuvable' });
     if (!conv.participants.map(String).includes(me)) return res.status(403).json({ message: 'Non autorisé' });
 
-    const messages = await Message.find({ conversationId: convId })
-      .populate('senderId', POPULATE_FIELDS)
-      .sort({ createdAt: 1 })
-      .limit(200);
+    // Les 200 DERNIERS messages (et non les 200 premiers) dans l'ordre chronologique
+    const messages = await latestMessages({ conversationId: convId });
     return res.json(messages);
   } catch (err) {
     console.error('getConversationMessages error:', err);
@@ -326,6 +342,77 @@ exports.deleteMessage = async (req, res) => {
     }
     return res.json({ ok: true });
   } catch (err) {
+    return res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
+// ==============================
+// RÉACTIONS ET ÉPINGLES
+// ==============================
+
+// POST /messages/:msgId/react { emoji } — ajoute ou retire la réaction de l'utilisateur, propage via Socket.io
+exports.reactToMessage = async (req, res) => {
+  const me = req.user.id;
+  const { emoji } = req.body || {};
+  if (!REACTIONS.includes(emoji)) return res.status(400).json({ message: 'Réaction non autorisée' });
+  try {
+    const msg = await Message.findById(req.params.msgId);
+    if (!msg || msg.deleted || msg.isSystem) return res.status(404).json({ message: 'Message introuvable' });
+    const audience = await audienceOf(msg);
+    if (!audience?.includes(me)) return res.status(403).json({ message: 'Non autorisé' });
+
+    const index = msg.reactions.findIndex((r) => r.emoji === emoji && String(r.userId) === me);
+    if (index >= 0) msg.reactions.splice(index, 1);
+    else msg.reactions.push({ emoji, userId: me });
+    await msg.save();
+
+    const payload = { msgId: String(msg._id), reactions: msg.reactions };
+    emitTo(req, audience, 'message_reactions', payload);
+    return res.json(payload);
+  } catch (err) {
+    console.error('reactToMessage error:', err);
+    return res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
+// PUT /messages/:msgId/pin { pinned } — épingle ou désépingle un message de groupe (tout participant)
+exports.pinMessage = async (req, res) => {
+  const me = req.user.id;
+  const pinned = !!req.body?.pinned;
+  try {
+    const msg = await Message.findById(req.params.msgId);
+    if (!msg || msg.deleted || msg.isSystem) return res.status(404).json({ message: 'Message introuvable' });
+    if (!msg.conversationId) return res.status(400).json({ message: 'Seuls les messages de groupe peuvent être épinglés' });
+    const audience = await audienceOf(msg);
+    if (!audience?.includes(me)) return res.status(403).json({ message: 'Non autorisé' });
+
+    msg.pinned = pinned;
+    msg.pinnedBy = pinned ? me : null;
+    msg.pinnedAt = pinned ? new Date() : null;
+    await msg.save();
+
+    const payload = { msgId: String(msg._id), conversationId: String(msg.conversationId), pinned, pinnedBy: msg.pinnedBy, pinnedAt: msg.pinnedAt };
+    emitTo(req, audience, 'message_pinned', payload);
+    return res.json(payload);
+  } catch (err) {
+    console.error('pinMessage error:', err);
+    return res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
+// GET /messages/group/:convId/pinned — messages épinglés d'un groupe (plus récents d'abord)
+exports.getPinnedMessages = async (req, res) => {
+  const me = req.user.id;
+  try {
+    const conv = await Conversation.findById(req.params.convId).select('participants');
+    if (!conv) return res.status(404).json({ message: 'Conversation introuvable' });
+    if (!conv.participants.map(String).includes(me)) return res.status(403).json({ message: 'Non autorisé' });
+    const pinned = await populateMessage(Message.find({ conversationId: conv._id, pinned: true, deleted: false }))
+      .sort({ pinnedAt: -1 })
+      .limit(50);
+    return res.json(pinned);
+  } catch (err) {
+    console.error('getPinnedMessages error:', err);
     return res.status(500).json({ message: 'Erreur serveur' });
   }
 };

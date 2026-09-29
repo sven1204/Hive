@@ -135,6 +135,15 @@
   margin-left: auto;
 }
 
+/* Bouton visible avant le menu ⋯ (espace projet) : c'est lui qui pousse le groupe à droite */
+.headerExtra {
+  margin-left: auto;
+}
+
+.headerExtra + .headerMenu {
+  margin-left: 0;
+}
+
 /* ---------- Fil de messages ---------- */
 .thread {
   position: relative;
@@ -151,7 +160,7 @@
   min-width: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  background-color: var(--bg-main);
+  background-color: var(--chat-bg, var(--bg-main));
   /* Trame de points discrète (opacité ajustée par thème via --chat-dots) */
   background-image: radial-gradient(var(--chat-dots) 1px, transparent 1.2px);
   background-size: 22px 22px;
@@ -857,4 +866,175 @@
   .sendBtn:active:not(:disabled) {
     transform: none;
   }
+}
+
+/* ── Réponses, réactions, épingles ─────────────────────────────────────── */
+.bubbleCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.msgRowMine .bubbleCol {
+  align-items: flex-end;
+}
+
+/* Le ⋯ des messages des autres se place à droite de la bulle */
+.msgRow:not(.msgRowMine) .bubbleWrap .dotsWrap {
+  right: auto;
+  left: 100%;
+  margin-right: 0;
+  margin-left: var(--space-1);
+}
+
+.quote {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  max-width: 100%;
+  margin: 2px 0 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, currentColor 7%, transparent);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.quote:hover {
+  background: color-mix(in srgb, currentColor 11%, transparent);
+}
+
+.quote:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.quoteName {
+  color: var(--person, currentColor);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.bubbleMine .quoteName {
+  color: inherit;
+}
+
+.quoteText {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 1.35;
+  opacity: 0.85;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.pinMark {
+  margin-right: 4px;
+  vertical-align: -1px;
+}
+
+.reactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: -6px;
+  padding: 0 var(--space-2);
+  position: relative;
+  z-index: 1;
+}
+
+.reactionChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 26px;
+  padding: 0 8px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-full);
+  background: var(--msg-elevated);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(var(--shadow-rgb), calc(0.3 * var(--shadow-k)));
+  transition: border-color var(--dur-fast) ease, background var(--dur-fast) ease;
+}
+
+.reactionChip:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-soft));
+}
+
+.reactionChip:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.reactionChipMine {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: rgba(var(--accent-rgb), 0.12);
+}
+
+.reactionCount {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Message cité retrouvé : mise en évidence brève */
+.msgRow[data-flash] .bubble {
+  animation: flash 1.4s ease-out;
+}
+
+@keyframes flash {
+  0%, 30% { box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.45); }
+  100% { box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0); }
+}
+
+/* Bandeau « Réponse à … » au-dessus du champ de saisie */
+.replyBar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  padding: 6px 4px 6px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-soft);
+  background: var(--msg-elevated);
+}
+
+.replyBarIcon {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.replyBarText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.replyBarName {
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.replyBarPreview {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msgRow[data-flash] .bubble { animation: none; box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.45); }
 }

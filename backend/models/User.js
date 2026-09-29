@@ -52,6 +52,21 @@ const userSchema = new mongoose.Schema({
   // --- Messagerie ---
   blockedUsers:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   archivedDMs:   [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  // --- Abonnement Hive+ (Stripe) ---
+  plan: { type: String, enum: ['free', 'plus'], default: 'free' },
+  planStatus: { type: String, default: null },          // statut Stripe : active, trialing, past_due, canceled…
+  planRenewsAt: { type: Date, default: null },          // fin de la période en cours
+  planCancelAtPeriodEnd: { type: Boolean, default: false },
+  stripeCustomerId: { type: String, default: null, index: true },
+  stripeSubscriptionId: { type: String, default: null },
+  boostCredits: { type: Number, default: 0, min: 0 },   // boosts inclus dans Hive+ (crédités à chaque facture payée)
+  // --- Notifications ---
+  notificationPrefs: {
+    // Email quand un message arrive et que l'utilisateur n'est pas connecté
+    emailMessages: { type: Boolean, default: true },
+  },
+  // Dernier email « nouveau message » par conversation (anti-spam : 1 email / conversation / 15 min)
+  messageEmailSentAt: { type: Map, of: Date, default: {} },
 
   // --- Sécurité — verrouillage du compte ---
   loginAttempts: { type: Number, default: 0 },

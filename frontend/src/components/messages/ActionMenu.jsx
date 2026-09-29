@@ -1,7 +1,31 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import classes from "./Overlays.module.css";
 
-const itemsOf = (node) => Array.from(node?.querySelectorAll('[role="menuitem"]') || []);
+const itemsOf = (node) => Array.from(node?.querySelectorAll('[role="menuitem"], [role="menuitemcheckbox"]') || []);
+
+/* Rangée de réactions (item { reactions, selected, onReact }) partagée par le menu et la feuille */
+export function ReactionRow({ item, onPicked, large = false }) {
+  const { t } = useTranslation();
+  return (
+    <div role="group" aria-label={t("messages.react")} className={`${classes.reactionRow} ${large ? classes.reactionRowLarge : ""}`}>
+      {item.reactions.map((emoji) => (
+        <button
+          key={emoji}
+          type="button"
+          role="menuitemcheckbox"
+          aria-checked={item.selected.has(emoji)}
+          tabIndex={large ? undefined : -1} /* menu : navigation aux flèches ; feuille : tabulation */
+          className={`${classes.reactionPick} ${item.selected.has(emoji) ? classes.reactionPickOn : ""}`}
+          aria-label={t("messages.reactWith", { emoji })}
+          onClick={() => { onPicked(); item.onReact(emoji); }}
+        >
+          <span aria-hidden="true">{emoji}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
 
 /* Menu ⋯ partagé (en-tête de discussion et bulles).
    items : [{ key, label, icon: Icone, onSelect, danger }] ou { key, separator: true }.
@@ -101,7 +125,9 @@ export default function ActionMenu({
           onKeyDown={onMenuKeyDown}
         >
           {items.map((item) =>
-            item.separator ? (
+            item.reactions ? (
+              <ReactionRow key={item.key} item={item} onPicked={() => close(true)} />
+            ) : item.separator ? (
               <div key={item.key} role="separator" className={classes.menuSeparator} />
             ) : (
               <button

@@ -3,6 +3,7 @@ import { Users, MapPin } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { getProjectAccent } from "../lib/projectCover";
 import ProjectCover from "./ProjectCover";
+import { isBoosted } from "../lib/billing";
 import classes from "./ProjectCard.module.css";
 import { useTranslation } from "react-i18next";
 
@@ -54,6 +55,7 @@ function ProjectCard({ project }) {
       }}
     >
       <ProjectCover project={project} size="thumb" className={classes.cover} />
+      {isBoosted(project) && <span className={classes.boostedBadge}>{t("billing.boosted")}</span>}
 
       <div className={classes.body}>
       {/* HEADER */}

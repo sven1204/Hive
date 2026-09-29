@@ -14,6 +14,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import UserProfile from "./pages/UserProfile";
 import ManageUsers from "./pages/ManageUsers";
 import MessagesPage from "./pages/MessagesPage";
+import Abonnement from "./pages/Abonnement";
 import OAuthCallback from "./pages/OAuthCallback";
 import BottomNav from "./components/BottomNav";
 
@@ -32,6 +33,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/projects" element ={<Projects />} />
+          <Route path="/abonnement" element={<Abonnement />} />
           <Route path="/profile" element={user ? <Profile /> : <Navigate to="/login" replace />} />
           <Route path="/manage-users" element={user && user.role === 'admin' ? <ManageUsers /> : <Navigate to="/" replace />} />
           <Route path="/messages" element={user ? <MessagesPage /> : <Navigate to="/login" replace />} />

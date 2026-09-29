@@ -11,7 +11,7 @@ export function ThemeProvider({ children }) {
     document.body.classList.toggle("light", theme === "light");
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "light" ? "#fbf6ee" : "#16120e");
+      ?.setAttribute("content", theme === "light" ? "#faf6f0" : "#16120e");
   }, [theme]);
 
   const toggleTheme = () => {

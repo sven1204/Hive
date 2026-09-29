@@ -14,6 +14,7 @@
   --row-active-bg: rgba(var(--accent-rgb), 0.12);
   --row-pressed-bg: rgba(var(--accent-rgb), 0.18);
   --chat-dots: rgba(var(--accent-rgb), 0.07);
+  --chat-bg: var(--bg-main);
 
   position: relative;
   display: grid;
@@ -29,11 +30,13 @@
   --msg-elevated: var(--bg-surface);
   --bubble-out-border: rgba(var(--accent-rgb), 0.22);
   --shadow-pop: 0 12px 32px rgba(60, 40, 20, 0.14);
-  /* Sur fonds clairs (#f5ecdf / #fbf6ee), les mêmes effets demandent plus de contraste */
+  /* Sur fonds clairs, les mêmes effets demandent plus de contraste */
   --hover-neutral: color-mix(in srgb, var(--text-main) 10%, transparent);
   --row-active-bg: rgba(var(--accent-rgb), 0.16);
   --row-pressed-bg: rgba(var(--accent-rgb), 0.24);
-  --chat-dots: rgba(var(--accent-rgb), 0.16);
+  /* Fil de discussion sur blanc, trame neutre (pas orangée) */
+  --chat-bg: var(--bg-surface);
+  --chat-dots: rgba(var(--shadow-rgb), 0.08);
 }
 
 /* LISTE */

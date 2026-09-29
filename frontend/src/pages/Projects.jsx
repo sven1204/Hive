@@ -51,6 +51,7 @@ export default function Projects() {
   const myId = user?._id || user?.id || "";
 
   const [recommended, setRecommended] = useState([]);
+  const [boosted, setBoosted] = useState([]); // projets mis en avant (emplacement dédié, visible par tous)
 
   useEffect(() => {
     if(!user){
@@ -70,7 +71,14 @@ export default function Projects() {
   useEffect(() => {
     fetchTags();
     fetchRegions();
+    api("/projects/boosted")
+      .then((data) => setBoosted(Array.isArray(data) ? data : []))
+      .catch(() => setBoosted([]));
   }, []);
+
+  // Un projet déjà affiché dans « Mis en avant » n'est pas répété dans les recommandations
+  const boostedIds = new Set(boosted.map((p) => p._id));
+  const recommendedShown = recommended.filter((p) => p && !boostedIds.has(p._id));
 
   const fetchPage = useCallback(async (pageToLoad) => {
     const params = new URLSearchParams({ limit: String(PAGE_SIZE), page: String(pageToLoad) });
@@ -284,12 +292,25 @@ export default function Projects() {
           )}
         </div>
 
+        {/* MIS EN AVANT (boosts) */}
+        {boosted.length > 0 && !hasActiveFilters && (
+          <div className={classes.recommendedSection}>
+            <h2 className={classes.recommendedTitle}>{t("billing.boostedSection")}</h2>
+            <p className={classes.sectionHint}>{t("billing.boostedHint")}</p>
+            <div className={classes.grid}>
+              {boosted.map((project) => (
+                <ProjectCard key={project._id} project={project} />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* RECOMMANDÉS */}
-        {user && recommended.length > 0 && !hasActiveFilters && (
+        {user && recommendedShown.length > 0 && !hasActiveFilters && (
           <div className={classes.recommendedSection}>
             <h2 className={classes.recommendedTitle}>{t("projects.recommended")}</h2>
             <div className={classes.grid}>
-              {recommended.map((project) => (
+              {recommendedShown.map((project) => (
                 <ProjectCard key={project._id} project={project} />
               ))}
             </div>

@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import HiveRating from "./HiveRating";
+import SubscriptionCard from "./SubscriptionCard";
 import UserAvatar from "./UserAvatar";
 import classes from "./ProfileView.module.css";
 import ProjectCard from "./ProjectCard";
@@ -72,6 +73,25 @@ export default function Profile() {
       setMyProject((prev) => prev.filter((p) => p._id !== projectId));
     } catch (err) {
       setMessage({ type: "error", text: err.message });
+    }
+  };
+
+  // Préférence : email quand un message arrive hors connexion (enregistrée immédiatement)
+  const [notifSaving, setNotifSaving] = useState(false);
+  const [notifError, setNotifError] = useState(false);
+  const emailMessages = profile?.notificationPrefs?.emailMessages !== false;
+  const toggleEmailMessages = async () => {
+    const next = !emailMessages;
+    setNotifError(false);
+    setNotifSaving(true);
+    setProfile((prev) => ({ ...prev, notificationPrefs: { ...prev?.notificationPrefs, emailMessages: next } }));
+    try {
+      await api("/user/notification-prefs", { method: "PUT", body: JSON.stringify({ emailMessages: next }) });
+    } catch {
+      setProfile((prev) => ({ ...prev, notificationPrefs: { ...prev?.notificationPrefs, emailMessages: !next } }));
+      setNotifError(true);
+    } finally {
+      setNotifSaving(false);
     }
   };
 
@@ -484,6 +504,31 @@ export default function Profile() {
           </form>
         </section>
       </div>
+      <div className={classes.profileContainer}>
+        <section className={classes.section}>
+          <h2 className={classes.sectionTitle}>{t("billing.profileTitle")}</h2>
+          <SubscriptionCard />
+        </section>
+        <section className={classes.section}>
+          <h2 className={classes.sectionTitle}>{t("profile.notifTitle")}</h2>
+          <label className={classes.switchRow}>
+            <span className={classes.switchText}>
+              <span className={classes.switchLabel}>{t("profile.emailMessages")}</span>
+              <span className={classes.switchHint}>{t("profile.emailMessagesHint")}</span>
+            </span>
+            <input
+              type="checkbox"
+              role="switch"
+              className={classes.switch}
+              checked={emailMessages}
+              disabled={notifSaving || !profile}
+              onChange={toggleEmailMessages}
+            />
+          </label>
+          {notifError && <p className={classes.switchError} role="alert">{t("profile.notifSaveError")}</p>}
+        </section>
+      </div>
+
       {blockedUsers.length > 0 && (
         <div className={classes.profileContainer}>
           <section className={classes.section}>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MapContainer, Marker } from "react-leaflet";
 import L from "leaflet";
@@ -12,6 +12,8 @@ import BaseMapLayers from "../components/BaseMapLayers";
 import HiveRating from "../components/HiveRating";
 import UserAvatar from "../components/UserAvatar";
 import ProjectCover from "../components/ProjectCover";
+import BoostPanel from "../components/BoostPanel";
+import { isBoosted } from "../lib/billing";
 import classes from "./ProjectDetails.module.css";
 
 // ── Icône carte ──────────────────────────────────────────────────────────────
@@ -70,6 +72,11 @@ export default function ProjectDetails() {
   const [showLeaveModal, setShowLeaveModal]     = useState(false);
   const [leaveMessage, setLeaveMessage]         = useState("");
   const [leaveLoading, setLeaveLoading]         = useState(false);
+
+  // Boost appliqué (crédit Hive+ ou paiement confirmé) : mise à jour locale du projet
+  const onBoosted = useCallback((boostedUntil) => {
+    setProject((prev) => (prev ? { ...prev, boostedUntil } : prev));
+  }, []);
 
   // ── useEffects ──────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -286,6 +293,7 @@ export default function ProjectDetails() {
             <span className={classes.statusBadge} style={{ "--badge-color": status.color }}>
               {status.label}
             </span>
+            {isBoosted(project) && <span className={classes.boostedBadge}>{t("billing.boosted")}</span>}
             {project.cached?.avgRating > 0 && (
               <span className={classes.rating}>
                 <HiveRating reputation={{ rating: project.cached.avgRating }} compact />
@@ -463,6 +471,9 @@ export default function ProjectDetails() {
         {/* RIGHT */}
         <aside className={classes.aside}>
 
+          {/* VISIBILITÉ (propriétaire) : boost + statistiques */}
+          {isOwner && <BoostPanel project={project} onBoosted={onBoosted} />}
+
           {/* OWNER */}
           {owner && (
             <div className={classes.ownerCard}>
@@ -484,7 +495,10 @@ export default function ProjectDetails() {
                 <div className={classes.ownerMeta}>
                   <div className={classes.ownerTopRow}>
                     <div className={classes.ownerIdentity}>
-                      <strong className={classes.ownerName}>{ownerName}</strong>
+                      <strong className={classes.ownerName}>
+                        {ownerName}
+                        {owner?.plan === "plus" && <span className={classes.plusBadge}>{t("billing.plusBadge")}</span>}
+                      </strong>
                       {ownerLocation && <span className={classes.ownerLocation}>{ownerLocation}</span>}
                     </div>
                     <span className={classes.ownerAction}>

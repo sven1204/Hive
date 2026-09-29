@@ -7,13 +7,13 @@ colors:
   caramel: "#a0560d"
   caramel-hover: "#8a4a0b"
   honey-ink: "#2a1805"
-  lavender: "#c3a6ee"
-  lavender-deep: "#6e4e9e"
-  wax-bg: "#fbf6ee"
-  wax-surface: "#fffdf9"
-  wax-card: "#f5ecdd"
-  wax-card-soft: "#efe3cf"
-  wax-border: "#e3d3ba"
+  terracotta: "#e8876b"
+  terracotta-deep: "#b4472f"
+  wax-bg: "#faf6f0"
+  wax-surface: "#ffffff"
+  wax-card: "#ffffff"
+  wax-card-soft: "#f4eee5"
+  wax-border: "#e8dccb"
   wax-text: "#2b2016"
   wax-text-muted: "#6f5f4c"
   propolis-bg: "#16120e"
@@ -71,11 +71,11 @@ components:
   button-primary-dark-hover:
     backgroundColor: "{colors.honey-hover}"
   badge-unread-light:
-    backgroundColor: "{colors.lavender-deep}"
+    backgroundColor: "{colors.terracotta-deep}"
     textColor: "#ffffff"
     rounded: "{rounded.full}"
   badge-unread-dark:
-    backgroundColor: "{colors.lavender}"
+    backgroundColor: "{colors.terracotta}"
     textColor: "{colors.honey-ink}"
     rounded: "{rounded.full}"
 ---
@@ -88,29 +88,29 @@ components:
 
 Hive réunit des gens pour n'importe quel projet, du club de foot du dimanche au site web. L'interface doit donner l'impression d'une grande table partagée un après-midi d'été, pas celle d'un outil de développeur. La chaleur vient des neutres (cire d'abeille en clair, propolis en sombre), jamais d'un gris froid ni d'un noir pur.
 
-Deux couleurs seulement portent l'identité. Le **miel** dit « agis ici », la **lavande** (la fleur des abeilles) dit « quelque chose t'attend ». Tout le reste est neutre et chaud. Le thème **clair est le thème par défaut** ; le sombre est une option mémorisée.
+Deux couleurs seulement portent l'identité. Le **miel** dit « agis ici », la **terracotta** (la brique chaude de la ruche) dit « quelque chose t'attend ». Tout le reste est neutre et chaud. Le thème **clair est le thème par défaut** ; le sombre est une option mémorisée.
 
 Anti-référence confirmée : l'ancienne palette vert émeraude sur graphite, jugée « trop technologique / informatique ».
 
 **Key Characteristics:**
 - Neutres chauds teintés miel, dans les deux thèmes.
-- Une couleur d'action (miel/caramel), une couleur d'attention (lavande).
+- Une couleur d'action (miel/caramel), une couleur d'attention (terracotta).
 - Formes arrondies et généreuses, boutons en pilule.
 - Clair par défaut, sombre composé à part (pas une inversion).
 
 ## Colors
 
-Une palette chaude et restreinte : miel pour agir, lavande pour signaler, cire et propolis pour tout le reste. Les valeurs vivent dans `frontend/src/App.css` (`:root` = sombre, `body.light` = clair) ; aucun composant ne code une couleur de thème en dur.
+Une palette chaude et restreinte : miel pour agir, terracotta pour signaler, cire et propolis pour tout le reste. Les valeurs vivent dans `frontend/src/App.css` (`:root` = sombre, `body.light` = clair) ; aucun composant ne code une couleur de thème en dur.
 
 ### Primary
 - **Miel** (honey) : couleur d'action du thème sombre (boutons, liens, focus, logo, pins de la carte), avec un texte **encre de miel** (honey-ink) sur les boutons.
 - **Caramel** (caramel) : le même rôle en clair. Le miel vif manque de contraste sur crème ; le caramel passe AA en texte sur crème et sous un texte blanc.
 
 ### Secondary
-- **Lavande** (lavender en sombre, lavender-deep en clair) : badges non lus, notifications, pastilles « nouveau », tags de compétences, étoiles de réputation, une étape sur deux des illustrations, un nœud sur quatre du réseau animé du hero.
+- **Terracotta** (terracotta en sombre, terracotta-deep en clair) : badges non lus, notifications, pastilles « nouveau », tags de compétences, étoiles de réputation, une étape sur deux des illustrations, un nœud sur quatre du réseau animé du hero.
 
 ### Neutral
-- **Cire** (wax-*) : fonds, surfaces, cartes et bordures du thème clair.
+- **Cire** (wax-*) : fonds et bordures du thème clair. La page est crème ; tout ce qui porte du contenu (cartes, en-tête, fil de discussion, formulaires, modales) est **blanc**. Le beige (`wax-card-soft`) est réservé aux petits éléments : tags, puces, fonds d'avatar, compteurs. Jamais de beige sur beige.
 - **Propolis** (propolis-*) : les mêmes rôles en sombre. Brun très profond, jamais `#000`.
 
 ### Couleurs secondaires fonctionnelles
@@ -121,7 +121,7 @@ Une palette chaude et restreinte : miel pour agir, lavande pour signaler, cire e
 ### Named Rules
 **The Honey Means Act Rule.** Le miel/caramel est réservé à ce qui se clique : bouton principal, lien, focus, élément actif. On ne l'utilise jamais pour de la décoration pure ou un tag informatif.
 
-**The Lavender Means News Rule.** La lavande signale ce qui attend l'utilisateur (non lu, nouveau, mis en avant). Elle ne sert jamais de bouton.
+**The Terracotta Means News Rule.** La terracotta signale ce qui attend l'utilisateur (non lu, nouveau, mis en avant). Elle ne sert jamais de bouton.
 
 **The Two-Voice Rule.** Chaque écran doit laisser apparaître les deux couleurs quand le contenu s'y prête. Un écran uniquement miel sur brun retombe dans « orange et noir ».
 
@@ -158,10 +158,10 @@ Arrondis généreux : cartes à `{rounded.xl}`, champs à `{rounded.md}`, bouton
 
 ### Chips / Tags
 - **Tags de projet :** fond de l'accent du projet à 12 %, bordure à 35 %, texte dans l'accent.
-- **Tags de compétence :** même recette, en lavande.
+- **Tags de compétence :** même recette, en terracotta.
 
 ### Badges
-- **Non lu / nouveau :** pastille lavande (`--highlight`), texte `--cta-text`.
+- **Non lu / nouveau :** pastille terracotta (`--highlight`), texte `--cta-text`.
 
 ### Cards
 - **Background :** `--bg-card` sur `--bg-main`, bordure `--border-soft`, arrondi `{rounded.xl}`.
@@ -176,5 +176,5 @@ Arrondis généreux : cartes à `{rounded.xl}`, champs à `{rounded.md}`, bouton
 ### Don't:
 - **Don't** réintroduire de vert émeraude ou de graphite froid comme couleur d'identité (anti-référence confirmée).
 - **Don't** utiliser `#000` ou un gris neutre comme fond ; les neutres restent chauds.
-- **Don't** mélanger miel et lavande dans un dégradé : deux couleurs franches valent mieux que leur mélange.
+- **Don't** mélanger miel et terracotta dans un dégradé : deux couleurs franches valent mieux que leur mélange.
 - **Don't** ajouter d'étiquette « eyebrow » au-dessus des titres ni de numéros de section décoratifs (01 / 02 / 03).

@@ -157,6 +157,24 @@ exports.changePassword = async (req, res) => {
 };
 
 // GET /user/ratings — historique des notes reçues par l'utilisateur connecté
+// PUT /user/notification-prefs { emailMessages } — préférences de notification par email
+exports.updateNotificationPrefs = async (req, res) => {
+  const { emailMessages } = req.body || {};
+  if (typeof emailMessages !== 'boolean') return res.status(400).json({ message: 'Valeur invalide' });
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: { 'notificationPrefs.emailMessages': emailMessages } },
+      { new: true }
+    ).select('notificationPrefs');
+    if (!user) return res.status(404).json({ message: 'Utilisateur introuvable' });
+    return res.json({ notificationPrefs: user.notificationPrefs });
+  } catch (err) {
+    console.error('updateNotificationPrefs error:', err);
+    return res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
 exports.getUserRatings = async (req, res) => {
   try {
     const ratings = await Rating.find({ targetType: 'user', targetId: req.user.id })

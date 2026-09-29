@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import {
-  MessageSquare, Archive, Ban, ShieldOff, User, FolderOpen, Users, X, ArrowLeft,
+  MessageSquare, Archive, Ban, ShieldOff, User, FolderOpen, Users, X, ArrowLeft, ClipboardList,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { api } from "../lib/api";
@@ -12,6 +12,8 @@ import ChatHeader from "../components/messages/ChatHeader";
 import MessageList from "../components/messages/MessageList";
 import Composer from "../components/messages/Composer";
 import MembersPanel from "../components/messages/MembersPanel";
+import WorkspacePanel from "../components/messages/WorkspacePanel";
+import { jumpToMessage } from "../components/messages/MessageBubble";
 import { BlockedBanner, ClosedBanner } from "../components/messages/ChatFooter";
 import { PersonAvatar, ProjectAvatar } from "../components/messages/Avatars";
 import { RatingModal, KickModal, BlockModal, DeleteConvModal } from "../components/messages/MessageModals";
@@ -53,6 +55,7 @@ export default function MessagesPage() {
   const isWide = useMediaQuery(WIDE_QUERY);
   const chatTitleId = useId();
   const membersPanelId = useId();
+  const workspacePanelId = useId();
 
   // Conversation ouverte : l'URL fait foi (?group=<convId> prioritaire sur ?with=<userId>)
   const activeKey = withGroupId ? groupKey(withGroupId) : withUserId ? dmKey(withUserId) : null;
@@ -74,6 +77,8 @@ export default function MessagesPage() {
   const [editingId, setEditingId] = useState(null);
   const [editDraft, setEditDraft] = useState("");
   const [showMembers, setShowMembers] = useState(false);
+  const [showWorkspace, setShowWorkspace] = useState(false);
+  const [replyTargets, setReplyTargets] = useState({}); // message auquel on répond, par conversation
 
   // Modales
   const [blockTarget, setBlockTarget] = useState(null);
@@ -123,6 +128,7 @@ export default function MessagesPage() {
   useEffect(() => {
     setEditingId(null);
     setShowMembers(false);
+    setShowWorkspace(false);
     if (!activeKey) {
       setMessages([]);
       setMsgsStatus("idle");
@@ -270,14 +276,29 @@ export default function MessagesPage() {
     else socket.emit("typing", { to: id });
   };
 
+  const replyTarget = (activeKey && replyTargets[activeKey]) || null;
+  const startReply = (msg) => {
+    if (activeKey) setReplyTargets((prev) => ({ ...prev, [activeKey]: msg }));
+  };
+  const cancelReply = () => {
+    if (!activeKey) return;
+    setReplyTargets((prev) => {
+      const next = { ...prev };
+      delete next[activeKey];
+      return next;
+    });
+  };
+
   const sendMessage = () => {
     const content = draft.trim();
     if (!content || content.length > MAX_LENGTH || !socket || !activeKey) return;
     const { type, id } = parseKey(activeKey);
-    if (type === "grp") socket.emit("send_group_message", { conversationId: id, content });
-    else socket.emit("send_message", { to: id, content });
+    const replyTo = replyTarget ? idOf(replyTarget) : undefined;
+    if (type === "grp") socket.emit("send_group_message", { conversationId: id, content, replyTo });
+    else socket.emit("send_message", { to: id, content, replyTo });
     lastTypingEmitRef.current = 0;
     setDraftFor(activeKey, "");
+    if (replyTarget) cancelReply();
     setSendError(null);
     trackSend(activeKey, content);
   };
@@ -305,6 +326,21 @@ export default function MessagesPage() {
       setEditingId(null);
       setEditDraft("");
     }
+  };
+
+  // ---------- Réactions et épingles ----------
+  const handleReact = async (msg, emoji) => {
+    try {
+      const data = await api(`/messages/${idOf(msg)}/react`, { method: "POST", body: JSON.stringify({ emoji }) });
+      if (data?.reactions) patchMessage(idOf(msg), { reactions: data.reactions });
+    } catch (err) { fail(err); }
+  };
+
+  const handleTogglePin = async (msg) => {
+    try {
+      const data = await api(`/messages/${idOf(msg)}/pin`, { method: "PUT", body: JSON.stringify({ pinned: !msg.pinned }) });
+      if (data) patchMessage(idOf(msg), { pinned: data.pinned, pinnedBy: data.pinnedBy, pinnedAt: data.pinnedAt });
+    } catch (err) { fail(err); }
   };
 
   const handleBlockConfirm = () => {
@@ -341,7 +377,8 @@ export default function MessagesPage() {
       ...(groupProjectId
         ? [{ key: "project", label: t("messages.viewProject"), icon: FolderOpen, onSelect: () => navigate(`/projects/${groupProjectId}`) }]
         : []),
-      { key: "members", label: t("messages.members"), icon: Users, onSelect: () => setShowMembers(true) },
+      { key: "workspace", label: t("messages.workspace"), icon: ClipboardList, onSelect: () => { setShowMembers(false); setShowWorkspace(true); } },
+      { key: "members", label: t("messages.members"), icon: Users, onSelect: () => { setShowWorkspace(false); setShowMembers(true); } },
       { key: "archive", label: t("messages.archiveConv"), icon: Archive, onSelect: () => archive({ type: "group", id: idOf(activeGroup), key: activeKey }) },
     ]
     : activePartner
@@ -413,6 +450,11 @@ export default function MessagesPage() {
         error={sendError && sendError.key === activeKey ? t(sendError.messageKey) : ""}
         onDismissError={() => setSendError(null)}
         autoFocus={!isMobile}
+        replyTarget={replyTarget ? {
+          name: idOf(replyTarget.senderId) === myId ? t("messages.you") : getUserName(replyTarget.senderId, t("messages.userFallback")),
+          text: replyTarget.content,
+        } : null}
+        onCancelReply={cancelReply}
       />
     );
   }
@@ -455,11 +497,18 @@ export default function MessagesPage() {
             subtitleIsTyping={typingNow}
             showBack={isMobile}
             onBack={closeConversation}
-            onIdentity={isGroup ? () => setShowMembers((v) => !v) : () => navigate(`/users/${idOf(activePartner)}`)}
+            onIdentity={isGroup ? () => { setShowWorkspace(false); setShowMembers((v) => !v); } : () => navigate(`/users/${idOf(activePartner)}`)}
             identityLabel={t("messages.viewProfileOf", { name: activeName })}
             membersOpen={showMembers}
             membersPanelId={membersPanelId}
             menuItems={headerMenuItems}
+            extraAction={isGroup ? {
+              label: showWorkspace ? t("workspace.close") : t("workspace.open"),
+              icon: ClipboardList,
+              pressed: showWorkspace,
+              controls: workspacePanelId,
+              onClick: () => { setShowMembers(false); setShowWorkspace((v) => !v); },
+            } : null}
           />
           <div className={classes.chatBody}>
             <MessageList
@@ -482,6 +531,9 @@ export default function MessagesPage() {
               onStartEdit={(msg) => { setEditingId(idOf(msg)); setEditDraft(msg.content); }}
               onDelete={handleDeleteMsg}
               onProfile={(userId) => navigate(`/users/${userId}`)}
+              onReact={handleReact}
+              onReply={startReply}
+              onTogglePin={handleTogglePin}
             />
             {showMembers && isGroup && (
               <MembersPanel
@@ -493,6 +545,22 @@ export default function MessagesPage() {
                 onClose={() => setShowMembers(false)}
                 onProfile={(userId) => navigate(`/users/${userId}`)}
                 onKick={moderation.openKick}
+              />
+            )}
+            {showWorkspace && isGroup && (
+              <WorkspacePanel
+                id={workspacePanelId}
+                variant={membersVariant}
+                convId={idOf(activeGroup)}
+                participants={participants}
+                myId={myId}
+                isOwner={moderation.isOwner}
+                onClose={() => setShowWorkspace(false)}
+                onJump={(msgId) => {
+                  // Feuille / tiroir : on les ferme d'abord pour voir le message
+                  if (membersVariant !== "inline") setShowWorkspace(false);
+                  setTimeout(() => jumpToMessage(msgId), membersVariant !== "inline" ? 250 : 0);
+                }}
               />
             )}
           </div>

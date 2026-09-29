@@ -102,7 +102,7 @@
 .formGroup input,
 .formGroup textarea,
 .formGroup select {
-  background: var(--bg-surface);
+  background: var(--bg-input);
   border: 1px solid var(--border-soft);
   padding: 12px 14px;
   border-radius: 10px;

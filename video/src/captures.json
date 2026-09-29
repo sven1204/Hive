@@ -1,0 +1,466 @@
+{
+  "mobile": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "scale": 3,
+    "pages": {
+      "create": {
+        "file": "captures/mobile/create.png",
+        "boxes": {
+          "title": {
+            "x": 31,
+            "y": 666,
+            "w": 328,
+            "h": 48
+          },
+          "titleLabel": {
+            "x": 31,
+            "y": 640,
+            "w": 328,
+            "h": 18
+          }
+        }
+      },
+      "detail": {
+        "file": "captures/mobile/detail.png",
+        "boxes": {
+          "request": {
+            "x": 16,
+            "y": 477,
+            "w": 358,
+            "h": 139
+          },
+          "accept": {
+            "x": 35,
+            "y": 568,
+            "w": 155,
+            "h": 33
+          },
+          "decline": {
+            "x": 198,
+            "y": 568,
+            "w": 157,
+            "h": 33
+          },
+          "requestsPanel": {
+            "x": 0,
+            "y": 397,
+            "w": 390,
+            "h": 243
+          },
+          "title": {
+            "x": 16,
+            "y": 243,
+            "w": 358,
+            "h": 28
+          }
+        }
+      },
+      "chat": {
+        "file": "captures/mobile/chat.png",
+        "boxes": {
+          "messages": [
+            {
+              "x": 12,
+              "y": 373,
+              "w": 366,
+              "h": 81
+            },
+            {
+              "x": 12,
+              "y": 466,
+              "w": 366,
+              "h": 81
+            },
+            {
+              "x": 12,
+              "y": 559,
+              "w": 366,
+              "h": 40
+            },
+            {
+              "x": 12,
+              "y": 610,
+              "w": 366,
+              "h": 59
+            },
+            {
+              "x": 12,
+              "y": 682,
+              "w": 366,
+              "h": 59
+            }
+          ],
+          "input": {
+            "x": 12,
+            "y": 766,
+            "w": 314,
+            "h": 70
+          },
+          "send": {
+            "x": 334,
+            "y": 792,
+            "w": 44,
+            "h": 44
+          },
+          "composer": {
+            "x": 12,
+            "y": 766,
+            "w": 366,
+            "h": 70
+          }
+        }
+      },
+      "projects": {
+        "file": "captures/mobile/projects.png",
+        "boxes": {
+          "cards": [
+            {
+              "x": 16,
+              "y": 567,
+              "w": 358,
+              "h": 373
+            },
+            {
+              "x": 16,
+              "y": 961,
+              "w": 358,
+              "h": 373
+            },
+            {
+              "x": 16,
+              "y": 1354,
+              "w": 358,
+              "h": 373
+            },
+            {
+              "x": 16,
+              "y": 1802,
+              "w": 358,
+              "h": 373
+            },
+            {
+              "x": 16,
+              "y": 2195,
+              "w": 358,
+              "h": 373
+            },
+            {
+              "x": 16,
+              "y": 2589,
+              "w": 358,
+              "h": 373
+            },
+            {
+              "x": 16,
+              "y": 2982,
+              "w": 358,
+              "h": 373
+            },
+            {
+              "x": 16,
+              "y": 3375,
+              "w": 358,
+              "h": 373
+            },
+            {
+              "x": 16,
+              "y": 3768,
+              "w": 358,
+              "h": 373
+            }
+          ]
+        }
+      },
+      "project-2": {
+        "file": "captures/mobile/project-2.png",
+        "boxes": {
+          "title": {
+            "x": 16,
+            "y": 243,
+            "w": 358,
+            "h": 55
+          }
+        }
+      },
+      "project-3": {
+        "file": "captures/mobile/project-3.png",
+        "boxes": {
+          "title": {
+            "x": 16,
+            "y": 243,
+            "w": 358,
+            "h": 28
+          }
+        }
+      },
+      "project-4": {
+        "file": "captures/mobile/project-4.png",
+        "boxes": {
+          "title": {
+            "x": 16,
+            "y": 243,
+            "w": 358,
+            "h": 28
+          }
+        }
+      },
+      "project-5": {
+        "file": "captures/mobile/project-5.png",
+        "boxes": {
+          "title": {
+            "x": 16,
+            "y": 243,
+            "w": 358,
+            "h": 55
+          }
+        }
+      },
+      "project-6": {
+        "file": "captures/mobile/project-6.png",
+        "boxes": {
+          "title": {
+            "x": 16,
+            "y": 243,
+            "w": 358,
+            "h": 55
+          }
+        }
+      }
+    }
+  },
+  "desktop": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "scale": 2,
+    "pages": {
+      "create": {
+        "file": "captures/desktop/create.png",
+        "boxes": {
+          "title": {
+            "x": 323,
+            "y": 761,
+            "w": 794,
+            "h": 47
+          },
+          "titleLabel": {
+            "x": 323,
+            "y": 735,
+            "w": 794,
+            "h": 18
+          }
+        }
+      },
+      "detail": {
+        "file": "captures/desktop/detail.png",
+        "boxes": {
+          "request": {
+            "x": 32,
+            "y": 541,
+            "w": 1376,
+            "h": 90
+          },
+          "accept": {
+            "x": 1184,
+            "y": 570,
+            "w": 102,
+            "h": 33
+          },
+          "decline": {
+            "x": 1294,
+            "y": 570,
+            "w": 95,
+            "h": 33
+          },
+          "requestsPanel": {
+            "x": 0,
+            "y": 445,
+            "w": 1440,
+            "h": 226
+          },
+          "title": {
+            "x": 202,
+            "y": 329,
+            "w": 679,
+            "h": 46
+          }
+        }
+      },
+      "chat": {
+        "file": "captures/desktop/chat.png",
+        "boxes": {
+          "messages": [
+            {
+              "x": 372,
+              "y": 464,
+              "w": 1036,
+              "h": 59
+            },
+            {
+              "x": 372,
+              "y": 539,
+              "w": 1036,
+              "h": 59
+            },
+            {
+              "x": 372,
+              "y": 615,
+              "w": 1036,
+              "h": 40
+            },
+            {
+              "x": 372,
+              "y": 670,
+              "w": 1036,
+              "h": 59
+            },
+            {
+              "x": 372,
+              "y": 746,
+              "w": 1036,
+              "h": 59
+            }
+          ],
+          "input": {
+            "x": 360,
+            "y": 842,
+            "w": 1008,
+            "h": 46
+          },
+          "send": {
+            "x": 1376,
+            "y": 844,
+            "w": 44,
+            "h": 44
+          },
+          "composer": {
+            "x": 360,
+            "y": 842,
+            "w": 1060,
+            "h": 46
+          }
+        }
+      },
+      "projects": {
+        "file": "captures/desktop/projects.png",
+        "boxes": {
+          "cards": [
+            {
+              "x": 173,
+              "y": 476,
+              "w": 351,
+              "h": 370
+            },
+            {
+              "x": 544,
+              "y": 476,
+              "w": 351,
+              "h": 370
+            },
+            {
+              "x": 916,
+              "y": 476,
+              "w": 351,
+              "h": 370
+            },
+            {
+              "x": 173,
+              "y": 921,
+              "w": 351,
+              "h": 370
+            },
+            {
+              "x": 544,
+              "y": 921,
+              "w": 351,
+              "h": 370
+            },
+            {
+              "x": 916,
+              "y": 921,
+              "w": 351,
+              "h": 370
+            },
+            {
+              "x": 173,
+              "y": 1311,
+              "w": 351,
+              "h": 370
+            },
+            {
+              "x": 544,
+              "y": 1311,
+              "w": 351,
+              "h": 370
+            },
+            {
+              "x": 916,
+              "y": 1311,
+              "w": 351,
+              "h": 370
+            }
+          ]
+        }
+      },
+      "project-2": {
+        "file": "captures/desktop/project-2.png",
+        "boxes": {
+          "title": {
+            "x": 202,
+            "y": 329,
+            "w": 799,
+            "h": 46
+          }
+        }
+      },
+      "project-3": {
+        "file": "captures/desktop/project-3.png",
+        "boxes": {
+          "title": {
+            "x": 202,
+            "y": 329,
+            "w": 799,
+            "h": 46
+          }
+        }
+      },
+      "project-4": {
+        "file": "captures/desktop/project-4.png",
+        "boxes": {
+          "title": {
+            "x": 202,
+            "y": 329,
+            "w": 799,
+            "h": 46
+          }
+        }
+      },
+      "project-5": {
+        "file": "captures/desktop/project-5.png",
+        "boxes": {
+          "title": {
+            "x": 202,
+            "y": 329,
+            "w": 799,
+            "h": 46
+          }
+        }
+      },
+      "project-6": {
+        "file": "captures/desktop/project-6.png",
+        "boxes": {
+          "title": {
+            "x": 202,
+            "y": 329,
+            "w": 799,
+            "h": 46
+          }
+        }
+      }
+    }
+  }
+}

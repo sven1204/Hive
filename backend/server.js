@@ -15,6 +15,8 @@ const Project = require('./models/Project');
 const User = require('./models/User');
 const ProjectRequest = require('./models/ProjectRequest');
 const { containsProfanity } = require('./utils/profanityFilter');
+const { notifyNewMessage } = require('./utils/messageEmails');
+const { populateMessage } = require('./utils/messagePopulate');
 const { registrationsTotal, projectsCreatedTotal, projectsClosedTotal, joinRequestsTotal, messagesSentTotal, socketConnectionsActive } = require('./metric');
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
@@ -41,6 +43,8 @@ app.use(cors({
   origin: process.env.FRONT_URL || 'http://localhost:3000',
   credentials: true,
 }));
+// Webhook Stripe : corps brut (vérification de signature), donc AVANT express.json
+app.post('/api/billing/webhook', express.raw({ type: 'application/json' }), require('./controllers/billing.controller').webhook);
 app.use(express.json({ limit: '5mb' }));
 app.use(morgan('dev'));
 
@@ -53,6 +57,8 @@ const userRoutes = require('./routes/user');
 const adminRoutes = require('./routes/admin');
 const messagesRoutes = require('./routes/messages');
 const requestsRoutes = require('./routes/request')
+const workspaceRoutes = require('./routes/workspace');
+const billingRoutes = require('./routes/billing');
 // ==============================
 // Montage des routes
 // ==============================
@@ -62,6 +68,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/requests', requestsRoutes);
+app.use('/api/workspace', workspaceRoutes);
+app.use('/api/billing', billingRoutes);
 app.get('/health', (_req, res) => res.send('OK'));
 app.get('/', (_req, res) => res.send('API Hive en ligne'));
 
@@ -86,7 +94,6 @@ io.use((socket, next) => {
   }
 });
 
-const POPULATE_FIELDS = 'displayName firstName lastName avatarUrl _id';
 
 io.on('connection', (socket) => {
   socketConnectionsActive.inc();
@@ -99,7 +106,14 @@ io.on('connection', (socket) => {
     .then(convs => convs.forEach(c => socket.join(`conv:${c._id}`)))
     .catch(console.error);
 
-  socket.on('send_message', async ({ to, content }) => {
+  // Message cité : doit appartenir à la même conversation (DM entre les deux mêmes personnes ou même groupe)
+  const validReplyTo = async (replyTo, filter) => {
+    if (!replyTo || !/^[a-f0-9]{24}$/i.test(String(replyTo))) return null;
+    const original = await Message.findOne({ _id: replyTo, ...filter }).select('_id');
+    return original ? original._id : null;
+  };
+
+  socket.on('send_message', async ({ to, content, replyTo }) => {
     if (!to || !content?.trim()) return;
     if (to === socket.userId) return;
 
@@ -115,19 +129,34 @@ io.on('connection', (socket) => {
       ]);
       if (receiver?.blockedUsers?.map(String).includes(socket.userId)) return;
       if (sender?.blockedUsers?.map(String).includes(to.toString())) return;
+      const replyId = await validReplyTo(replyTo, {
+        conversationId: null,
+        $or: [
+          { senderId: socket.userId, receiverId: to },
+          { senderId: to, receiverId: socket.userId },
+        ],
+      });
       const msg = await Message.create({
         senderId: socket.userId,
         receiverId: to,
         content: content.trim(),
+        replyTo: replyId,
       });
 
-      const populated = await Message.findById(msg._id)
-        .populate('senderId', POPULATE_FIELDS)
-        .populate('receiverId', POPULATE_FIELDS);
+      const populated = await populateMessage(Message.findById(msg._id), { receiver: true });
 
       io.to(`user:${to}`).emit('new_message', populated);
       socket.emit('new_message', populated);
       messagesSentTotal.inc({ type: 'direct' });
+
+      notifyNewMessage({
+        io,
+        recipientIds: [String(to)],
+        sender: populated.senderId,
+        key: `dm:${socket.userId}`,
+        content: msg.content,
+        path: `/messages?with=${socket.userId}`,
+      });
     } catch (err) {
       console.error('Socket send_message error:', err);
       socket.emit('message_error', { message: 'Erreur lors de l\'envoi.' });
@@ -148,7 +177,7 @@ io.on('connection', (socket) => {
     socket.join(`conv:${convId}`);
   });
 
-  socket.on('send_group_message', async ({ conversationId, content }) => {
+  socket.on('send_group_message', async ({ conversationId, content, replyTo }) => {
     if (!conversationId || !content?.trim()) return;
     if (containsProfanity(content)) {
       socket.emit('message_error', { message: 'Message contient des mots inappropriés.' });
@@ -166,17 +195,29 @@ io.on('connection', (socket) => {
         }
       }
 
+      const replyId = await validReplyTo(replyTo, { conversationId });
       const msg = await Message.create({
         conversationId,
         senderId: socket.userId,
         content: content.trim(),
         readBy: [socket.userId],
+        replyTo: replyId,
       });
-      const populated = await Message.findById(msg._id).populate('senderId', POPULATE_FIELDS);
+      const populated = await populateMessage(Message.findById(msg._id));
       conv.participants.forEach(uid => {
         io.to(`user:${uid}`).emit('new_group_message', { conversationId, message: populated });
       });
       messagesSentTotal.inc({ type: 'group' });
+
+      notifyNewMessage({
+        io,
+        recipientIds: conv.participants.map(String).filter((uid) => uid !== socket.userId),
+        sender: populated.senderId,
+        key: `grp:${conversationId}`,
+        title: conv.projectTitle,
+        content: msg.content,
+        path: `/messages?group=${conversationId}`,
+      });
     } catch (err) {
       console.error('send_group_message error:', err);
     }

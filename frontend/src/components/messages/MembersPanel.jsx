@@ -1,9 +1,7 @@
-import { useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { X, User, UserMinus } from "lucide-react";
+import { User, UserMinus } from "lucide-react";
 import { PersonAvatar } from "./Avatars";
-import { Sheet } from "./Dialogs";
-import { useDialog } from "./hooks";
+import SidePanel from "./SidePanel";
 import { getUserName, idOf } from "./messageUtils";
 import classes from "./Overlays.module.css";
 
@@ -51,64 +49,18 @@ function MemberRows({ participants, myId, isOwner, onProfile, onKick }) {
   );
 }
 
-/* Tiroir latéral (900-1099 px) : dialogue modal avec voile */
-function Drawer({ id, title, onClose, children }) {
-  const ref = useRef(null);
-  const titleId = useId();
-  useDialog(ref, onClose);
-  return (
-    <div className={classes.drawerLayer}>
-      <div className={classes.scrim} onClick={onClose} aria-hidden="true" />
-      <aside ref={ref} id={id} className={classes.drawer} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}>
-        {children(titleId)}
-      </aside>
-    </div>
-  );
-}
-
 /* Membres d'un groupe : panneau intégré (≥ 1100 px), tiroir (900-1099 px) ou feuille basse (mobile) */
 export default function MembersPanel({ id, variant, participants, myId, isOwner, onClose, onProfile, onKick }) {
   const { t } = useTranslation();
-  const inlineTitleId = useId();
-  const title = t("messages.membersTitle", { count: participants.length });
-  const rows = (
-    <MemberRows participants={participants} myId={myId} isOwner={isOwner} onProfile={onProfile} onKick={onKick} />
-  );
-
-  if (variant === "sheet") {
-    return (
-      <Sheet id={id} title={title} onClose={onClose} closeLabel={t("messages.membersClose")}>
-        <div className={classes.sheetScroll}>{rows}</div>
-      </Sheet>
-    );
-  }
-
-  const head = (titleId) => (
-    <div className={classes.panelHead}>
-      <h2 id={titleId} className={classes.panelTitle}>{title}</h2>
-      <button type="button" className={classes.iconBtn} onClick={onClose} aria-label={t("messages.membersClose")}>
-        <X size={20} aria-hidden="true" />
-      </button>
-    </div>
-  );
-
-  if (variant === "drawer") {
-    return (
-      <Drawer id={id} title={title} onClose={onClose}>
-        {(titleId) => (
-          <>
-            {head(titleId)}
-            <div className={classes.panelScroll}>{rows}</div>
-          </>
-        )}
-      </Drawer>
-    );
-  }
-
   return (
-    <aside id={id} className={classes.panel} aria-labelledby={inlineTitleId}>
-      {head(inlineTitleId)}
-      <div className={classes.panelScroll}>{rows}</div>
-    </aside>
+    <SidePanel
+      id={id}
+      variant={variant}
+      title={t("messages.membersTitle", { count: participants.length })}
+      closeLabel={t("messages.membersClose")}
+      onClose={onClose}
+    >
+      <MemberRows participants={participants} myId={myId} isOwner={isOwner} onProfile={onProfile} onKick={onKick} />
+    </SidePanel>
   );
 }

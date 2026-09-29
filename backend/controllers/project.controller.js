@@ -156,7 +156,7 @@ exports.getAllProjects = async (req, res) => {
 
   const query = conditions.length === 1 ? conditions[0] : { $and: conditions };
   const find = () => Project.find(query)
-    .populate('ownerId', 'displayName firstName lastName email avatarUrl')
+    .populate('ownerId', 'displayName firstName lastName avatarUrl plan')
     .populate('participants', '_id')
     .sort({ createdAt: -1, _id: -1 });
 
@@ -178,7 +178,7 @@ exports.getAllProjects = async (req, res) => {
 // GET /projects/:id — détail d'un projet avec owner et participants populés
 exports.getProjectById = async (req, res) => {
   const project = await Project.findById(req.params.id)
-    .populate('ownerId', 'displayName firstName lastName email avatarUrl bio skills languages address reputation createdAt')
+    .populate('ownerId', 'displayName firstName lastName avatarUrl bio skills languages address reputation createdAt plan')
     .populate('participants', 'displayName firstName lastName avatarUrl');
 
   if (!project) return res.status(404).json({ error: 'Project not found' });
@@ -579,6 +579,51 @@ exports.recordView = async(req, res) => {
     }
 }
 
+// GET /projects/boosted — projets mis en avant en ce moment (emplacement dédié de la page Projets)
+exports.getBoosted = async (_req, res) => {
+    try {
+        const projects = await Project.find({ boostedUntil: { $gt: new Date() }, status: 'open', visibility: { $ne: 'private' } })
+            .sort({ boostedUntil: -1 })
+            .limit(6)
+            .populate('ownerId', 'displayName firstName lastName avatarUrl plan')
+            .populate('participants', '_id');
+        return res.json(projects);
+    } catch (err) {
+        return res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
+
+// GET /projects/:id/stats — vues et demandes (propriétaire ; détail réservé à Hive+)
+exports.getStats = async (req, res) => {
+    try {
+        const project = await Project.findById(req.params.id).select('ownerId boostedUntil');
+        if (!project) return res.status(404).json({ error: 'Projet introuvable' });
+        if (String(project.ownerId) !== req.user.id) return res.status(403).json({ error: 'Non autorisé' });
+        const owner = await User.findById(req.user.id).select('plan');
+        if (owner?.plan !== 'plus') return res.json({ locked: true });
+
+        const since = (days) => new Date(Date.now() - days * 86400000);
+        const [views7, views30, viewers30, requests30, accepted30] = await Promise.all([
+            ProjectHistory.countDocuments({ projectId: project._id, viewedAt: { $gte: since(7) } }),
+            ProjectHistory.countDocuments({ projectId: project._id, viewedAt: { $gte: since(30) } }),
+            ProjectHistory.distinct('userId', { projectId: project._id, viewedAt: { $gte: since(30) } }),
+            ProjectRequest.countDocuments({ projectId: project._id, createdAt: { $gte: since(30) } }),
+            ProjectRequest.countDocuments({ projectId: project._id, status: 'accepted', updatedAt: { $gte: since(30) } }),
+        ]);
+        return res.json({
+            locked: false,
+            views7,
+            views30,
+            uniqueViewers30: viewers30.length,
+            requests30,
+            accepted30,
+            boostedUntil: project.boostedUntil,
+        });
+    } catch (err) {
+        return res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
+
 // GET /projects/recommended — retourne jusqu'à 10 projets recommandés par similarité cosinus
 exports.getRecommended = async(req, res) => {
     try {
@@ -592,7 +637,7 @@ exports.getRecommended = async(req, res) => {
 
         // Cold start partiel : moins de 3 vues → projets récents sans score
         if (history.length < 3) {
-            const recent = await Project.find().sort({ createdAt: -1 }).limit(6).populate('ownerId', 'displayName firstName lastName avatarUrl');
+            const recent = await Project.find().sort({ createdAt: -1 }).limit(6).populate('ownerId', 'displayName firstName lastName avatarUrl plan');
             return res.json(recent.map(p => ({ project: p, score: null })));
         }
 
@@ -612,7 +657,7 @@ exports.getRecommended = async(req, res) => {
         const profileVector = vocabulary.map(word => tagFrequency[word]);
 
         // Candidats : projets non vus et non créés par l'utilisateur
-        const candidates = await Project.find({_id: {$nin: projectIds} , ownerId: {$ne: req.user.id}}).populate('ownerId', 'displayName firstName lastName avatarUrl');
+        const candidates = await Project.find({_id: {$nin: projectIds} , ownerId: {$ne: req.user.id}}).populate('ownerId', 'displayName firstName lastName avatarUrl plan');
 
         // Calcule le score cosinus de chaque candidat par rapport au profil
         const scored = candidates.map(entry => {

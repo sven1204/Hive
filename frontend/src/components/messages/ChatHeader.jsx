@@ -21,6 +21,7 @@ export default function ChatHeader({
   membersOpen,
   membersPanelId,
   menuItems,
+  extraAction, // bouton visible avant le menu ⋯ (ex. espace projet d'un groupe)
 }) {
   const { t } = useTranslation();
   return (
@@ -52,6 +53,19 @@ export default function ChatHeader({
           )}
         </span>
       </button>
+      {extraAction && (
+        <button
+          type="button"
+          className={`${classes.iconBtn} ${classes.headerExtra} ${extraAction.pressed ? classes.iconBtnOpen : ""}`}
+          onClick={extraAction.onClick}
+          aria-label={extraAction.label}
+          aria-expanded={extraAction.pressed}
+          aria-controls={extraAction.pressed ? extraAction.controls : undefined}
+          title={extraAction.label}
+        >
+          <extraAction.icon size={20} aria-hidden="true" />
+        </button>
+      )}
       <ActionMenu
         items={menuItems}
         buttonLabel={t("messages.convOptions")}

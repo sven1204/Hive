@@ -15,8 +15,9 @@
   width: 220px;
   height: 220px;
   border-radius: 50%;
-  background: rgba(var(--accent-rgb), 0.14);
-  filter: blur(10px);
+  /* Lumière d'ambiance, pas un disque : flou large et opacité basse */
+  background: rgba(var(--accent-rgb), 0.1);
+  filter: blur(48px);
   pointer-events: none;
   animation: drift 14s ease-in-out infinite alternate;
 }
@@ -28,8 +29,8 @@
   width: 160px;
   height: 160px;
   border-radius: 50%;
-  background: rgba(var(--highlight-rgb), 0.16);
-  filter: blur(10px);
+  background: rgba(var(--highlight-rgb), 0.08);
+  filter: blur(48px);
   pointer-events: none;
   animation: drift 18s ease-in-out infinite alternate-reverse;
 }

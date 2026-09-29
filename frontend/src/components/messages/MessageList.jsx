@@ -1,7 +1,8 @@
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowDown, AlertCircle, RotateCw, Pencil, Trash2 } from "lucide-react";
+import { ArrowDown, AlertCircle, RotateCw } from "lucide-react";
 import MessageBubble from "./MessageBubble";
+import { buildMessageActions } from "./messageActions";
 import { ActionSheet } from "./Dialogs";
 import { REDUCED_MOTION_QUERY } from "./hooks";
 import { GROUP_WINDOW_MS, formatDayLabel, idOf, isSameDay, matches } from "./messageUtils";
@@ -85,6 +86,9 @@ export default function MessageList({
   onStartEdit,
   onDelete,
   onProfile,
+  onReact,
+  onReply,
+  onTogglePin,
 }) {
   const { t, i18n } = useTranslation();
   const scrollRef = useRef(null);
@@ -190,6 +194,7 @@ export default function MessageList({
         <MessageBubble
           key={msgId}
           msg={item.msg}
+          myId={myId}
           isMine={item.isMine}
           isGroup={isGroup}
           pos={item.pos}
@@ -206,6 +211,9 @@ export default function MessageList({
           onDelete={() => onDelete(msgId)}
           onProfile={onProfile}
           onLongPress={onLongPress}
+          onReact={onReact}
+          onReply={onReply}
+          onTogglePin={onTogglePin}
         />
       );
     });
@@ -257,10 +265,18 @@ export default function MessageList({
         <ActionSheet
           title={t("messages.actions")}
           onClose={() => setSheetMsg(null)}
-          items={[
-            { key: "edit", label: t("messages.edit"), icon: Pencil, onSelect: () => onStartEdit(sheetMsg) },
-            { key: "delete", label: t("messages.delete"), icon: Trash2, danger: true, onSelect: () => onDelete(idOf(sheetMsg)) },
-          ]}
+          items={buildMessageActions({
+            msg: sheetMsg,
+            isMine: idOf(sheetMsg.senderId) === myId,
+            isGroup,
+            myId,
+            t,
+            onReact,
+            onReply,
+            onTogglePin,
+            onStartEdit: () => onStartEdit(sheetMsg),
+            onDelete: () => onDelete(idOf(sheetMsg)),
+          })}
         />
       )}
     </div>

@@ -135,6 +135,7 @@ export default function Header() {
               <li><Link to="/" className={classes.navLink}>{t("nav.home")}</Link></li>
               <li><Link to="/projects" className={classes.navLink}>{t("nav.projects")}</Link></li>
               <li><Link to="/profile" className={classes.navLink}>{t("nav.profile")}</Link></li>
+              <li><Link to="/abonnement" className={classes.navLink}>{t("nav.plus")}</Link></li>
             </>
           )}
           {user?.role === "admin" && (
@@ -311,6 +312,9 @@ export default function Header() {
               <Link to="/create-project" className={classes.drawerActionLink} onClick={closeMenu}>
                 <Plus size={16} />
                 {t("projects.create")}
+              </Link>
+              <Link to="/abonnement" className={classes.drawerLink} onClick={closeMenu}>
+                {t("nav.plus")}
               </Link>
             </nav>
           </>

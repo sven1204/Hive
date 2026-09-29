@@ -140,6 +140,8 @@ export default function useChatSocket({
 
     const onDeleted = ({ msgId }) => patchMessage(String(msgId), { deleted: true });
     const onEdited = ({ msgId, content }) => patchMessage(String(msgId), { content, edited: true });
+    const onReactions = ({ msgId, reactions }) => patchMessage(String(msgId), { reactions });
+    const onPinned = ({ msgId, pinned, pinnedBy, pinnedAt }) => patchMessage(String(msgId), { pinned, pinnedBy, pinnedAt });
     const onConversationUpdated = () => { loadGroupConvs().catch(console.error); };
 
     const onKickedFromProject = ({ projectId } = {}) => {
@@ -174,6 +176,8 @@ export default function useChatSocket({
       new_group_message: onNewGroupMessage,
       message_deleted: onDeleted,
       message_edited: onEdited,
+      message_reactions: onReactions,
+      message_pinned: onPinned,
       conversation_updated: onConversationUpdated,
       kicked_from_project: onKickedFromProject,
       typing: onTyping,

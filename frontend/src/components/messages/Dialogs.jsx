@@ -2,6 +2,7 @@ import { useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { useDialog } from "./hooks";
+import { ReactionRow } from "./ActionMenu";
 import classes from "./Overlays.module.css";
 
 /* Feuille basse (mobile) : actions d'une ligne / bulle, ou liste des membres.
@@ -43,7 +44,9 @@ export function ActionSheet({ title, items, onClose }) {
     <Sheet title={title} onClose={onClose}>
       <div role="menu" aria-label={title} className={classes.sheetMenu}>
         {items.map((item) =>
-          item.separator ? (
+          item.reactions ? (
+            <ReactionRow key={item.key} item={item} onPicked={onClose} large />
+          ) : item.separator ? (
             <div key={item.key} role="separator" className={classes.menuSeparator} />
           ) : (
             <button
